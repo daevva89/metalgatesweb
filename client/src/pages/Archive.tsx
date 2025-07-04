@@ -1,0 +1,148 @@
+import { useEffect, useState } from "react"
+import { Calendar, Users } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { getArchive } from "@/api/festival"
+import { useToast } from "@/hooks/useToast"
+
+interface ArchiveItem {
+  _id: string
+  year: string
+  poster: string
+  lineup: string
+  description: string
+}
+
+export function Archive() {
+  const [archives, setArchives] = useState<ArchiveItem[]>([])
+  const [selectedArchive, setSelectedArchive] = useState<ArchiveItem | null>(null)
+  const [loading, setLoading] = useState(true)
+  const { toast } = useToast()
+
+  useEffect(() => {
+    const fetchArchive = async () => {
+      try {
+        console.log("Fetching archive...")
+        const response = await getArchive()
+        setArchives((response as any).archives)
+        console.log("Archive fetched successfully")
+      } catch (error) {
+        console.error("Error fetching archive:", error)
+        toast({
+          title: "Error",
+          description: "Failed to load archive",
+          variant: "destructive"
+        })
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchArchive()
+  }, [toast])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="container mx-auto px-4 space-y-12">
+      {/* Header */}
+      <div className="text-center space-y-4">
+        <h1 className="text-5xl font-bold text-gradient">Festival Archive</h1>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          Relive the memories from previous editions of Metal Gates Festival
+        </p>
+      </div>
+
+      {/* Archive Grid */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {archives.map((archive) => (
+          <Card
+            key={archive._id}
+            className="glass-card group cursor-pointer hover:scale-105 transition-all duration-300"
+            onClick={() => setSelectedArchive(archive)}
+          >
+            <div className="aspect-[3/4] overflow-hidden rounded-t-lg">
+              <img
+                src={archive.poster}
+                alt={`Metal Gates ${archive.year}`}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+              />
+            </div>
+            <CardContent className="p-6 text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Calendar className="h-4 w-4 text-primary" />
+                <span className="text-2xl font-bold text-primary">{archive.year}</span>
+              </div>
+              <p className="text-sm text-muted-foreground line-clamp-2">
+                {archive.description}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Archive Detail Modal */}
+      <Dialog open={!!selectedArchive} onOpenChange={() => setSelectedArchive(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-background border-border">
+          {selectedArchive && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-3xl font-bold text-center">
+                  Metal Gates Festival {selectedArchive.year}
+                </DialogTitle>
+              </DialogHeader>
+
+              <div className="grid md:grid-cols-2 gap-8">
+                {/* Poster */}
+                <div className="space-y-4">
+                  <img
+                    src={selectedArchive.poster}
+                    alt={`Metal Gates ${selectedArchive.year}`}
+                    className="w-full aspect-[3/4] object-cover rounded-lg"
+                  />
+                </div>
+
+                {/* Details */}
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-primary">
+                      <Calendar className="h-5 w-5" />
+                      <span className="text-xl font-semibold">{selectedArchive.year}</span>
+                    </div>
+                    <p className="text-muted-foreground leading-relaxed">
+                      {selectedArchive.description}
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Users className="h-5 w-5 text-primary" />
+                      <span className="font-semibold">Lineup</span>
+                    </div>
+                    <div className="bg-muted/50 rounded-lg p-4">
+                      <p className="text-foreground leading-relaxed">
+                        {selectedArchive.lineup}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-border">
+                    <p className="text-sm text-muted-foreground italic">
+                      "Another incredible year of metal music and unforgettable memories at Metal Gates Festival."
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}

@@ -1,0 +1,304 @@
+import { useEffect, useState } from "react"
+import { Plus, Edit, Trash2, Calendar, Eye } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import { FileUpload } from "@/components/ui/file-upload"
+import { useForm } from "react-hook-form"
+import { getNews, createNewsArticle, updateNewsArticle, deleteNewsArticle } from "@/api/festival"
+import { useToast } from "@/hooks/useToast"
+
+interface NewsArticle {
+  _id: string
+  title: string
+  excerpt: string
+  content: string
+  image: string
+  publishedAt: string
+}
+
+interface ArticleFormData {
+  title: string
+  excerpt: string
+  content: string
+  publishedAt?: string
+}
+
+export function AdminNews() {
+  const [articles, setArticles] = useState<NewsArticle[]>([])
+  const [loading, setLoading] = useState(true)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const { register, handleSubmit, reset, setValue } = useForm<ArticleFormData>()
+  const { toast } = useToast()
+
+  useEffect(() => {
+    fetchArticles()
+  }, [])
+
+  const fetchArticles = async () => {
+    try {
+      console.log("NEWS: Fetching articles...")
+      const response = await getNews()
+      console.log("NEWS: Articles fetched:", response.articles.length)
+      setArticles(response.articles)
+    } catch (error) {
+      console.error("NEWS: Error fetching articles:", error)
+      toast({
+        title: "Error",
+        description: (error as Error).message || "Failed to load articles",
+        variant: "destructive"
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleEdit = (article: NewsArticle) => {
+    console.log("NEWS: Editing article:", {
+      title: article.title,
+      hasImage: !!article.image,
+      imageLength: article.image ? article.image.length : 0
+    })
+    setSelectedArticle(article)
+    setValue("title", article.title)
+    setValue("excerpt", article.excerpt)
+    setValue("content", article.content)
+    setValue("publishedAt", article.publishedAt)
+    setSelectedImage(null)
+    setIsDialogOpen(true)
+  }
+
+  const handleAdd = () => {
+    console.log("NEWS: Adding new article")
+    setSelectedArticle(null)
+    reset()
+    setSelectedImage(null)
+    setIsDialogOpen(true)
+  }
+
+  const onSubmit = async (data: ArticleFormData) => {
+    try {
+      console.log("NEWS: Starting form submission")
+      console.log("NEWS: Form data:", data)
+      console.log("NEWS: Selected image (base64):", selectedImage ? {
+        isBase64: selectedImage.startsWith('data:'),
+        length: selectedImage.length
+      } : "No image selected")
+      console.log("NEWS: Selected article for editing:", selectedArticle ? {
+        title: selectedArticle.title,
+        hasExistingImage: !!selectedArticle.image
+      } : "No article selected (creating new)")
+
+      let imageUrl = ""
+
+      if (selectedImage) {
+        console.log("NEWS: Using uploaded image (already base64), length:", selectedImage.length)
+        imageUrl = selectedImage
+      } else if (selectedArticle && selectedArticle.image) {
+        console.log("NEWS: Keeping existing article image for:", selectedArticle.title)
+        imageUrl = selectedArticle.image
+      }
+
+      const articleData = {
+        ...data,
+        publishedAt: data.publishedAt || new Date().toISOString(),
+        ...(imageUrl && { image: imageUrl })
+      }
+
+      console.log("NEWS: Sending to API:", {
+        ...articleData,
+        image: articleData.image ? `base64 data (${articleData.image.length} chars)` : "no image"
+      })
+
+      if (selectedArticle) {
+        console.log("NEWS: Updating existing article with ID:", selectedArticle._id)
+        await updateNewsArticle(selectedArticle._id, articleData)
+        toast({
+          title: "Success",
+          description: "Article updated successfully"
+        })
+      } else {
+        console.log("NEWS: Creating new article")
+        await createNewsArticle(articleData)
+        toast({
+          title: "Success", 
+          description: "Article created successfully"
+        })
+      }
+
+      setIsDialogOpen(false)
+      fetchArticles()
+      reset()
+      setSelectedImage(null)
+    } catch (error) {
+      console.error("NEWS: Error saving article:", error)
+      toast({
+        title: "Error",
+        description: (error as Error).message || "Failed to save article",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const handleDelete = async (articleId: string) => {
+    try {
+      console.log("NEWS: Deleting article:", articleId)
+      await deleteNewsArticle(articleId)
+      toast({
+        title: "Success",
+        description: "Article deleted successfully"
+      })
+      fetchArticles()
+    } catch (error) {
+      console.error("NEWS: Error deleting article:", error)
+      toast({
+        title: "Error",
+        description: (error as Error).message || "Failed to delete article",
+        variant: "destructive"
+      })
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">News Management</h1>
+          <p className="text-muted-foreground">Create and manage news articles</p>
+        </div>
+        <Button onClick={handleAdd}>
+          <Plus className="mr-2 h-4 w-4" />
+          Create Article
+        </Button>
+      </div>
+
+      {/* Articles List */}
+      <div className="space-y-4">
+        {articles.map((article) => (
+          <Card key={article._id} className="glass-card">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
+                <div className="flex gap-4">
+                  {article.image && (
+                    <div className="w-24 h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                      <img
+                        src={article.image}
+                        alt={article.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="flex-1 space-y-2">
+                    <h3 className="text-lg font-semibold">{article.title}</h3>
+                    <p className="text-muted-foreground line-clamp-2">{article.excerpt}</p>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="h-4 w-4" />
+                      {new Date(article.publishedAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-2 ml-4">
+                  <Button size="sm" variant="outline">
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => handleEdit(article)}>
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDelete(article._id)}
+                    className="text-red-400 hover:text-red-300"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Add/Edit Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-background">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedArticle ? "Edit Article" : "Create New Article"}
+            </DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="image">Featured Image</Label>
+              <FileUpload
+                onFileSelect={setSelectedImage}
+                description="Upload featured image for article"
+                accept="image/*"
+                maxSize={5}
+                currentImage={selectedArticle?.image}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="title">Title</Label>
+              <Input id="title" {...register("title", { required: true })} />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="excerpt">Excerpt</Label>
+              <Textarea
+                id="excerpt"
+                rows={3}
+                {...register("excerpt", { required: true })}
+                placeholder="Brief summary of the article..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="content">Content</Label>
+              <Textarea
+                id="content"
+                rows={12}
+                {...register("content", { required: true })}
+                placeholder="Full article content..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="publishedAt">Published Date</Label>
+              <Input
+                type="date"
+                id="publishedAt"
+                {...register("publishedAt", { required: true })}
+              />
+            </div>
+
+            <div className="flex gap-2 pt-4">
+              <Button type="submit">
+                {selectedArticle ? "Update Article" : "Create Article"}
+              </Button>
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}

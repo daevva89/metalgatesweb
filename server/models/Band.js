@@ -1,0 +1,60 @@
+const mongoose = require('mongoose');
+
+const bandSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  country: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  image: {
+    type: String, // file path to uploaded image
+    default: null
+  },
+  biography: {
+    type: String,
+    required: true
+  },
+  spotifyEmbed: {
+    type: String,
+    default: ''
+  },
+  socialLinks: {
+    facebook: {
+      type: String,
+      default: ''
+    },
+    instagram: {
+      type: String,
+      default: ''
+    },
+    youtube: {
+      type: String,
+      default: ''
+    },
+    bandcamp: {
+      type: String,
+      default: ''
+    }
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+// Pre-save hook to update the updatedAt field
+bandSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
+  next();
+});
+
+module.exports = mongoose.model('Band', bandSchema);
