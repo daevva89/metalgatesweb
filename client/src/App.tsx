@@ -3,10 +3,9 @@ import { ThemeProvider } from "./components/ui/theme-provider"
 import { Toaster } from "./components/ui/toaster"
 import { AuthProvider } from "./contexts/AuthContext"
 import { Login } from "./pages/Login"
-import { Register } from "./pages/Register"
+// import { Register } from "./pages/Register"
 import { ProtectedRoute } from "./components/ProtectedRoute"
 import { Layout } from "./components/Layout"
-import { BlankPage } from "./pages/BlankPage"
 import { Home } from "./pages/Home"
 import { Lineup } from "./pages/Lineup"
 import { News } from "./pages/News"
@@ -117,7 +116,7 @@ function App() {
           <Router>
             <Routes>
               <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+              {/* <Route path="/register" element={<Register />} /> */}
               <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
                 <Route index element={<AdminDashboard />} />
                 <Route path="lineup" element={<AdminLineup />} />
@@ -141,7 +140,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          {/* <Route path="/register" element={<Register />} /> */}
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="lineup" element={<Lineup />} />
