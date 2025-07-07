@@ -1,7 +1,30 @@
+import { useState, useEffect } from "react"
 import { Facebook, Instagram, Youtube, Mail, MapPin } from "lucide-react"
 import { Link } from "react-router-dom"
+import { getSiteAssets } from "@/api/festival"
 
 export function Footer() {
+  const [contactInfo, setContactInfo] = useState({
+    contactEmail: "",
+    phoneNumber: ""
+  })
+
+  useEffect(() => {
+    loadContactInfo()
+  }, [])
+
+  const loadContactInfo = async () => {
+    try {
+      const data = await getSiteAssets()
+      setContactInfo({
+        contactEmail: data.assets?.contactEmail || "",
+        phoneNumber: data.assets?.phoneNumber || ""
+      })
+    } catch (error) {
+      console.error("Footer: Error loading contact info:", error)
+    }
+  }
+
   return (
     <footer className="fixed bottom-0 left-0 right-0 glass border-t">
       <div className="container mx-auto px-4 py-4">
@@ -35,16 +58,18 @@ export function Footer() {
           </div>
 
           {/* Contact Info */}
-          <div className="flex items-center space-x-6 text-sm text-muted-foreground">
-            <div className="flex items-center space-x-1">
-              <Mail className="h-4 w-4" />
-              <span>info@metalgates.ro</span>
+          {contactInfo.contactEmail && (
+            <div className="flex items-center space-x-6 text-sm text-muted-foreground">
+              <div className="flex items-center space-x-1">
+                <Mail className="h-4 w-4" />
+                <span>{contactInfo.contactEmail}</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <MapPin className="h-4 w-4" />
+                <span>Quantic Club, Bucharest</span>
+              </div>
             </div>
-            <div className="flex items-center space-x-1">
-              <MapPin className="h-4 w-4" />
-              <span>Quantic Club, Bucharest</span>
-            </div>
-          </div>
+          )}
 
           {/* Copyright */}
           <div className="text-sm text-muted-foreground">

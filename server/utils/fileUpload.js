@@ -83,6 +83,7 @@ class FileUploadUtil {
     const categoryMap = {
       logo: "logos",
       hero: "heroes",
+      "mobile-hero": "heroes",
       band: "bands",
       news: "news",
       archive: "archives",
@@ -95,6 +96,7 @@ class FileUploadUtil {
     const categoryMap = {
       logo: "logos",
       hero: "heroes",
+      "mobile-hero": "heroes",
       band: "bands",
       news: "news",
       archive: "archives",

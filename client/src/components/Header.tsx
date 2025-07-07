@@ -4,23 +4,50 @@ import { Menu, X, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { LanguageToggle } from "./LanguageToggle"
-import { getSiteAssets } from "@/api/festival"
+import { getSiteAssets, getFestivalInfo } from "@/api/festival"
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false)
-  const [siteAssets, setSiteAssets] = useState({ logo: null, heroImage: null })
+  const [siteAssets, setSiteAssets] = useState({ 
+    logo: null, 
+    heroImage: null, 
+    bannerText: ""
+  })
+  const [festivalInfo, setFestivalInfo] = useState({
+    ticketUrl: ""
+  })
   const location = useLocation()
 
   useEffect(() => {
     loadSiteAssets()
+    loadFestivalInfo()
   }, [])
 
   const loadSiteAssets = async () => {
     try {
+      console.log("Header: Loading site assets...")
       const data = await getSiteAssets()
-      setSiteAssets(data.assets || { logo: null, heroImage: null })
+      console.log("Header: Received site assets:", data.assets)
+      setSiteAssets({
+        logo: data.assets?.logo || null,
+        heroImage: data.assets?.heroImage || null,
+        bannerText: data.assets?.bannerText || ""
+      })
     } catch (error) {
-      console.error("Error loading site assets:", error)
+      console.error("Header: Error loading site assets:", error)
+    }
+  }
+
+  const loadFestivalInfo = async () => {
+    try {
+      console.log("Header: Loading festival info...")
+      const data = await getFestivalInfo()
+      console.log("Header: Received festival info:", data)
+      setFestivalInfo({
+        ticketUrl: data?.ticketUrl || ""
+      })
+    } catch (error) {
+      console.error("Header: Error loading festival info:", error)
     }
   }
 
@@ -44,7 +71,7 @@ export function Header() {
       {/* Promotional Banner */}
       <div className="bg-primary/20 text-center py-2 px-4">
         <p className="text-sm text-primary-foreground">
-          🎸 Early Bird Tickets Available Now! Limited Time Offer 🎸
+          {siteAssets.bannerText}
         </p>
       </div>
 
@@ -85,7 +112,7 @@ export function Header() {
             <LanguageToggle />
             <Button asChild className="bg-primary hover:bg-primary/90">
               <a
-                href="https://tickets.example.com"
+                href={festivalInfo.ticketUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2"
@@ -127,7 +154,7 @@ export function Header() {
                   
                   <Button asChild className="bg-primary hover:bg-primary/90 w-full">
                     <a
-                      href="https://tickets.example.com"
+                      href={festivalInfo.ticketUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2"

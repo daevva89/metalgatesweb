@@ -6,7 +6,7 @@ export function Layout() {
   return (
     <div className="min-h-screen gradient-bg">
       <Header />
-      <main className="pt-20 pb-20">
+      <main>
         <Outlet />
       </main>
       <Footer />

@@ -1,21 +1,30 @@
-import { useState } from "react"
-import { Save, FileText } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Save, FileText, Calendar } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { FileUpload } from "@/components/ui/file-upload"
 import { useToast } from "@/hooks/useToast"
+import { getSiteAssets, updateHeroImage, updateSiteAssets } from "@/api/festival"
 
 export function AdminPages() {
   const [saving, setSaving] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [selectedHeroImage, setSelectedHeroImage] = useState<string | null>(null)
+  const [selectedMobileHeroImage, setSelectedMobileHeroImage] = useState<string | null>(null)
+  const [countdownDate, setCountdownDate] = useState<string>("")
   const { toast } = useToast()
 
   const [pageContent, setPageContent] = useState({
     home: {
       heroTitle: "Metal Gates Festival",
       heroSubtitle: "June 15-17, 2024",
-      heroDescription: "The ultimate metal experience in Bucharest"
+      heroDescription: "The ultimate metal experience in Bucharest",
+      heroImage: "",
+      mobileHeroImage: ""
     },
     info: {
       travelInfo: "Henri Coandă International Airport (OTP) is 45 minutes from the venue...",
@@ -24,21 +33,122 @@ export function AdminPages() {
     }
   })
 
+  useEffect(() => {
+    loadHeroImage()
+  }, [])
+
+  const loadHeroImage = async () => {
+    try {
+      setLoading(true)
+      const data = await getSiteAssets()
+      console.log("PAGES: Loaded site assets from API:", {
+        heroImage: data.assets?.heroImage ? "found" : "not found",
+        mobileHeroImage: data.assets?.mobileHeroImage ? "found" : "not found",
+        countdownDate: data.assets?.countdownDate ? "found" : "not found"
+      })
+      
+      if (data.assets?.heroImage || data.assets?.mobileHeroImage) {
+        setPageContent(prev => ({
+          ...prev,
+          home: { 
+            ...prev.home, 
+            heroImage: data.assets.heroImage || "",
+            mobileHeroImage: data.assets.mobileHeroImage || ""
+          }
+        }))
+      }
+      
+      if (data.assets?.countdownDate) {
+        // Convert the UTC date to Romanian time for display in the admin
+        const date = new Date(data.assets.countdownDate)
+        // Romanian time is GMT+3 (or GMT+2 in winter, but we'll use GMT+3 for consistency)
+        const romanianTime = new Date(date.getTime() + (3 * 60 * 60 * 1000))
+        const localDateTime = romanianTime.toISOString().slice(0, 16)
+        setCountdownDate(localDateTime)
+        console.log("PAGES: Loaded countdown date:", {
+          original: data.assets.countdownDate,
+          romanianTime: romanianTime.toISOString(),
+          displayValue: localDateTime
+        })
+      }
+    } catch (error) {
+      console.error("PAGES: Error loading site assets:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleSave = async (section: string) => {
     setSaving(true)
     try {
       console.log("Saving page content:", section)
-      // Mock save operation
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      toast({
-        title: "Success",
-        description: "Page content updated successfully"
-      })
+      
+      if (section === 'home') {
+        const updateData: any = {}
+        
+        if (selectedHeroImage) {
+          console.log("PAGES: Uploading new desktop hero image, length:", selectedHeroImage.length)
+          updateData.heroImage = selectedHeroImage
+        }
+        
+        if (selectedMobileHeroImage) {
+          console.log("PAGES: Uploading new mobile hero image, length:", selectedMobileHeroImage.length)
+          updateData.mobileHeroImage = selectedMobileHeroImage
+        }
+        
+        if (countdownDate) {
+          // Convert the input date (assumed to be Romanian time) to UTC for storage
+          const inputDate = new Date(countdownDate)
+          // Subtract 3 hours to convert from Romanian time to UTC
+          const utcDate = new Date(inputDate.getTime() - (3 * 60 * 60 * 1000))
+          console.log("PAGES: Updating countdown date:", {
+            input: countdownDate,
+            inputDate: inputDate.toISOString(),
+            utcDate: utcDate.toISOString()
+          })
+          updateData.countdownDate = utcDate.toISOString()
+        }
+        
+        if (Object.keys(updateData).length > 0) {
+          const response = await updateSiteAssets(updateData)
+          console.log("PAGES: Site assets update response:", response)
+          
+          setPageContent(prev => ({
+            ...prev,
+            home: { 
+              ...prev.home, 
+              heroImage: response.data.assets.heroImage || prev.home.heroImage,
+              mobileHeroImage: response.data.assets.mobileHeroImage || prev.home.mobileHeroImage
+            }
+          }))
+          
+          toast({
+            title: "Success",
+            description: "Site assets updated successfully"
+          })
+        } else {
+          toast({
+            title: "Success", 
+            description: "Page content updated successfully"
+          })
+        }
+      } else {
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        toast({
+          title: "Success",
+          description: "Page content updated successfully"
+        })
+      }
+      
+      if (section === 'home') {
+        setSelectedHeroImage(null)
+        setSelectedMobileHeroImage(null)
+      }
     } catch (error) {
       console.error("Error saving page content:", error)
       toast({
         title: "Error",
-        description: "Failed to save page content",
+        description: (error as Error).message || "Failed to save page content",
         variant: "destructive"
       })
     } finally {
@@ -55,11 +165,10 @@ export function AdminPages() {
       </div>
 
       <Tabs defaultValue="home" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="home">Home Page</TabsTrigger>
           <TabsTrigger value="info">Info Page</TabsTrigger>
           <TabsTrigger value="footer">Footer</TabsTrigger>
-          <TabsTrigger value="banner">Banner</TabsTrigger>
         </TabsList>
 
         <TabsContent value="home" className="space-y-6">
@@ -71,6 +180,56 @@ export function AdminPages() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="heroImage">Hero Background Image (Desktop)</Label>
+                <FileUpload
+                  onFileSelect={setSelectedHeroImage}
+                  description="Upload hero background image for desktop (1000x524 recommended)"
+                  accept="image/*"
+                  maxSize={10}
+                  currentImage={pageContent.home.heroImage}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="mobileHeroImage">Hero Background Image (Mobile)</Label>
+                <FileUpload
+                  onFileSelect={setSelectedMobileHeroImage}
+                  description="Upload hero background image for mobile devices (portrait orientation recommended)"
+                  accept="image/*"
+                  maxSize={10}
+                  currentImage={pageContent.home.mobileHeroImage}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="countdownDate" className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Countdown Target Date & Time (Romanian Time)
+                </Label>
+                <Input
+                  id="countdownDate"
+                  type="datetime-local"
+                  value={countdownDate}
+                  onChange={(e) => setCountdownDate(e.target.value)}
+                  className="w-full"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Set the target date and time for the countdown timer. Time will be interpreted as Romanian time (GMT+3).
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Current Romanian time: {new Date(new Date().getTime() + (3 * 60 * 60 * 1000)).toLocaleString('en-US', { 
+                    timeZone: 'UTC',
+                    year: 'numeric',
+                    month: '2-digit', 
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                  })}
+                </p>
+              </div>
+              
               <div className="space-y-2">
                 <Label htmlFor="heroTitle">Hero Title</Label>
                 <Textarea
@@ -178,26 +337,7 @@ export function AdminPages() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="banner" className="space-y-6">
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle>Promotional Banner</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Banner Text</Label>
-                <Textarea
-                  rows={3}
-                  placeholder="🎸 Early Bird Tickets Available Now..."
-                />
-              </div>
-              <Button onClick={() => handleSave('banner')} disabled={saving}>
-                <Save className="mr-2 h-4 w-4" />
-                {saving ? "Saving..." : "Save Changes"}
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
+
       </Tabs>
     </div>
   )

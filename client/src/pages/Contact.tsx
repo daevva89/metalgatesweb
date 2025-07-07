@@ -6,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { submitContactForm } from "@/api/festival"
+import { submitContactForm, getSiteAssets } from "@/api/festival"
 import { useToast } from "@/hooks/useToast"
+import { useEffect } from "react"
 
 interface ContactFormData {
   name: string
@@ -18,8 +19,28 @@ interface ContactFormData {
 
 export function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [contactInfo, setContactInfo] = useState({
+    contactEmail: "",
+    phoneNumber: ""
+  })
   const { toast } = useToast()
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ContactFormData>()
+
+  useEffect(() => {
+    loadContactInfo()
+  }, [])
+
+  const loadContactInfo = async () => {
+    try {
+      const data = await getSiteAssets()
+      setContactInfo({
+        contactEmail: data.assets?.contactEmail || "",
+        phoneNumber: data.assets?.phoneNumber || ""
+      })
+    } catch (error) {
+      console.error("Contact: Error loading contact info:", error)
+    }
+  }
 
   const onSubmit = async (data: ContactFormData) => {
     setIsSubmitting(true)
@@ -66,7 +87,7 @@ export function Contact() {
                   <Mail className="h-6 w-6 text-primary mt-1" />
                   <div>
                     <h3 className="font-semibold mb-1">Email</h3>
-                    <p className="text-muted-foreground">info@metalgates.ro</p>
+                    <p className="text-muted-foreground">{contactInfo.contactEmail || "Not available"}</p>
                     <p className="text-sm text-muted-foreground mt-1">
                       General inquiries and information
                     </p>
@@ -81,7 +102,7 @@ export function Contact() {
                   <Phone className="h-6 w-6 text-primary mt-1" />
                   <div>
                     <h3 className="font-semibold mb-1">Phone</h3>
-                    <p className="text-muted-foreground">+40 21 123 4567</p>
+                    <p className="text-muted-foreground">{contactInfo.phoneNumber || "Not available"}</p>
                     <p className="text-sm text-muted-foreground mt-1">
                       Available Monday - Friday, 9 AM - 6 PM
                     </p>

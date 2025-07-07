@@ -15,6 +15,7 @@ interface Band {
   _id: string
   name: string
   country: string
+  genre: string
   image: string
   biography: string
   spotifyEmbed: string
@@ -28,6 +29,7 @@ interface Band {
 interface BandFormData {
   name: string
   country: string
+  genre: string
   biography: string
   spotifyEmbed: string
   facebook: string
@@ -90,6 +92,7 @@ export function AdminLineup() {
     setSelectedBand(band)
     setValue("name", band.name)
     setValue("country", band.country)
+    setValue("genre", band.genre || "")
     setValue("biography", band.biography)
     setValue("spotifyEmbed", band.spotifyEmbed)
     setValue("facebook", band.socialLinks.facebook || "")
@@ -240,6 +243,11 @@ export function AdminLineup() {
                     <MapPin className="h-3 w-3" />
                     {band.country}
                   </div>
+                  {band.genre && (
+                    <div className="text-sm text-muted-foreground">
+                      {band.genre}
+                    </div>
+                  )}
                   <div className="flex gap-2">
                     <Button size="sm" variant="outline" onClick={() => handleEdit(band)}>
                       <Edit className="h-3 w-3" />
@@ -290,6 +298,11 @@ export function AdminLineup() {
                 <Label htmlFor="country">Country</Label>
                 <Input id="country" {...register("country", { required: true })} />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="genre">Genre</Label>
+              <Input id="genre" {...register("genre")} placeholder="e.g. Black Metal, Death Metal, Thrash Metal" />
             </div>
 
             <div className="space-y-2">

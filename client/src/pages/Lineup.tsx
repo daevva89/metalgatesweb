@@ -10,6 +10,7 @@ interface Band {
   _id: string
   name: string
   country: string
+  genre: string
   image: string
   biography: string
   spotifyEmbed: string
@@ -83,10 +84,15 @@ export function Lineup() {
             </div>
             <CardContent className="p-4 text-center">
               <h3 className="text-lg font-semibold mb-1">{band.name}</h3>
-              <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
+              <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground mb-1">
                 <MapPin className="h-3 w-3" />
                 {band.country}
               </div>
+              {band.genre && (
+                <div className="text-sm text-muted-foreground italic">
+                  {band.genre}
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
@@ -142,6 +148,12 @@ export function Lineup() {
                     <MapPin className="h-4 w-4" />
                     {selectedBand.country}
                   </div>
+                  
+                  {selectedBand.genre && (
+                    <div className="text-muted-foreground">
+                      <span className="font-medium">Genre:</span> {selectedBand.genre}
+                    </div>
+                  )}
                   
                   <div className="prose prose-invert max-w-none">
                     <p className="text-foreground leading-relaxed">{selectedBand.biography}</p>

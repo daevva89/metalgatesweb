@@ -96,10 +96,10 @@ export const deleteFestival = async (festivalId: string) => {
   }
 };
 
-// Description: Get site assets (logo and hero image)
+// Description: Get site assets (logo, hero image, and mobile hero image)
 // Endpoint: GET /api/site-assets
 // Request: {}
-// Response: { success: boolean, data: { assets: { logo: string | null, heroImage: string | null } }, message: string }
+// Response: { success: boolean, data: { assets: { logo: string | null, heroImage: string | null, mobileHeroImage: string | null } }, message: string }
 export const getSiteAssets = async () => {
   try {
     console.log("API: Making request to GET /api/site-assets")
@@ -112,21 +112,25 @@ export const getSiteAssets = async () => {
   }
 };
 
-// Description: Update site assets (logo and hero image)
+// Description: Update site assets (logo, hero image, mobile hero image, countdown date, and general settings)
 // Endpoint: PUT /api/site-assets
-// Request: { logo?: string, heroImage?: string }
-// Response: { success: boolean, data: { assets: { logo: string | null, heroImage: string | null } }, message: string }
-export const updateSiteAssets = async (assetsData: { logo?: string; heroImage?: string }) => {
+// Request: { logo?: string, heroImage?: string, mobileHeroImage?: string, countdownDate?: string, bannerText?: string, contactEmail?: string, phoneNumber?: string }
+// Response: { success: boolean, data: { assets: { logo: string | null, heroImage: string | null, mobileHeroImage: string | null, countdownDate: string, bannerText: string, contactEmail: string, phoneNumber: string } }, message: string }
+export const updateSiteAssets = async (assetsData: { logo?: string; heroImage?: string; mobileHeroImage?: string; countdownDate?: string; bannerText?: string; contactEmail?: string; phoneNumber?: string }) => {
   try {
     console.log("API: Making request to PUT /api/site-assets with data:", {
       hasLogo: !!assetsData.logo,
       hasHeroImage: !!assetsData.heroImage,
-      logoLength: assetsData.logo ? assetsData.logo.length : 0,
-      heroImageLength: assetsData.heroImage ? assetsData.heroImage.length : 0
-    })
-    console.log("API: Full request payload:", assetsData)
+      hasMobileHeroImage: !!assetsData.mobileHeroImage,
+      hasCountdownDate: !!assetsData.countdownDate,
+      hasBannerText: !!assetsData.bannerText,
+      hasContactEmail: !!assetsData.contactEmail,
+      hasPhoneNumber: !!assetsData.phoneNumber,
+    });
+
     const response = await api.put('/api/site-assets', assetsData);
     console.log("API: Received response from PUT /api/site-assets:", response.data)
+    console.log("API: Response assets data:", response.data.data?.assets)
     return response.data;
   } catch (error) {
     console.error("API: Error in updateSiteAssets:", error)
@@ -219,9 +223,9 @@ export const getLineup = async () => {
 
 // Description: Create new band
 // Endpoint: POST /api/lineup
-// Request: { name: string, country: string, biography: string, spotifyEmbed: string, facebook: string, instagram: string, youtube: string }
+// Request: { name: string, country: string, genre: string, biography: string, spotifyEmbed: string, facebook: string, instagram: string, youtube: string }
 // Response: { success: boolean, data: { band: object }, message: string }
-export const createBand = async (bandData: { name: string; country: string; biography: string; spotifyEmbed: string; facebook: string; instagram: string; youtube: string; image?: string }) => {
+export const createBand = async (bandData: { name: string; country: string; genre: string; biography: string; spotifyEmbed: string; facebook: string; instagram: string; youtube: string; image?: string }) => {
   try {
     console.log("API: Making request to POST /api/lineup with data:", {
       ...bandData,
@@ -238,9 +242,9 @@ export const createBand = async (bandData: { name: string; country: string; biog
 
 // Description: Update existing band
 // Endpoint: PUT /api/lineup/:id
-// Request: { name: string, country: string, biography: string, spotifyEmbed: string, facebook: string, instagram: string, youtube: string }
+// Request: { name: string, country: string, genre: string, biography: string, spotifyEmbed: string, facebook: string, instagram: string, youtube: string }
 // Response: { success: boolean, data: { band: object }, message: string }
-export const updateBand = async (bandId: string, bandData: { name: string; country: string; biography: string; spotifyEmbed: string; facebook: string; instagram: string; youtube: string; image?: string }) => {
+export const updateBand = async (bandId: string, bandData: { name: string; country: string; genre: string; biography: string; spotifyEmbed: string; facebook: string; instagram: string; youtube: string; image?: string }) => {
   try {
     console.log("API: Making request to PUT /api/lineup/" + bandId + " with data:", {
       ...bandData,

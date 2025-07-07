@@ -15,7 +15,7 @@ export function AdminSettings() {
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(false)
   const [currentFestival, setCurrentFestival] = useState(null)
-  const [siteAssets, setSiteAssets] = useState({ logo: null, heroImage: null })
+  const [siteAssets, setSiteAssets] = useState({ logo: null })
   const { toast } = useToast()
 
   const [settings, setSettings] = useState({
@@ -28,17 +28,18 @@ export function AdminSettings() {
       isActive: true
     },
     general: {
-      contactEmail: "info@metalgates.ro",
-      phoneNumber: "+40 21 123 4567"
+      contactEmail: "",
+      phoneNumber: "",
+      bannerText: ""
     },
     tracking: {
       googleAnalytics: "",
       metaPixel: ""
     },
     social: {
-      facebook: "https://facebook.com/metalgatesfestival",
-      instagram: "https://instagram.com/metalgatesfestival",
-      youtube: "https://youtube.com/metalgatesfestival"
+      facebook: "",
+      instagram: "",
+      youtube: ""
     }
   })
 
@@ -53,7 +54,6 @@ export function AdminSettings() {
       const data = await getFestivals()
       const festivals = data.festivals || []
 
-      // Get the active festival or the first one
       const activeFestival = festivals.find(f => f.isActive) || festivals[0]
 
       if (activeFestival) {
@@ -72,7 +72,6 @@ export function AdminSettings() {
       }
     } catch (error) {
       console.error("Error loading festival settings:", error)
-      // Don't show error toast if no festivals exist yet
     } finally {
       setLoading(false)
     }
@@ -80,11 +79,34 @@ export function AdminSettings() {
 
   const loadSiteAssets = async () => {
     try {
+      console.log("AdminSettings: Loading site assets...")
       const data = await getSiteAssets()
-      setSiteAssets(data.assets || { logo: null, heroImage: null })
+      console.log("AdminSettings: Raw data from getSiteAssets:", data)
+      console.log("AdminSettings: Assets object:", data.assets)
+      console.log("AdminSettings: General settings from API:", {
+        bannerText: data.assets?.bannerText,
+        contactEmail: data.assets?.contactEmail,
+        phoneNumber: data.assets?.phoneNumber
+      })
+      
+      setSiteAssets(data.assets || { logo: null })
+      
+      if (data.assets) {
+        const newGeneralSettings = {
+          contactEmail: data.assets.contactEmail || "",
+          phoneNumber: data.assets.phoneNumber || "",
+          bannerText: data.assets.bannerText || ""
+        }
+        
+        console.log("AdminSettings: Setting general settings to:", newGeneralSettings)
+        
+        setSettings(prev => ({
+          ...prev,
+          general: newGeneralSettings
+        }))
+      }
     } catch (error) {
-      console.error("Error loading site assets:", error)
-      // Don't show error toast if no assets exist yet
+      console.error("AdminSettings: Error loading site assets:", error)
     }
   }
 
@@ -92,16 +114,13 @@ export function AdminSettings() {
     setSaving(true)
     try {
       if (section === 'festival') {
-        // Save festival configuration
         if (currentFestival) {
-          // Update existing festival
           await updateFestival(currentFestival._id, settings.festival)
           toast({
             title: "Success",
             description: "Festival updated successfully"
           })
         } else {
-          // Create new festival
           const newFestival = await createFestival(settings.festival)
           setCurrentFestival(newFestival.data.festival)
           toast({
@@ -109,8 +128,32 @@ export function AdminSettings() {
             description: "Festival created successfully"
           })
         }
+      } else if (section === 'general') {
+        console.log("AdminSettings: Saving general settings...")
+        console.log("AdminSettings: Current general settings state:", settings.general)
+        
+        const dataToSave = {
+          bannerText: settings.general.bannerText,
+          contactEmail: settings.general.contactEmail,
+          phoneNumber: settings.general.phoneNumber
+        }
+        
+        console.log("AdminSettings: Data being sent to API:", dataToSave)
+        
+        const response = await updateSiteAssets(dataToSave)
+        
+        console.log("AdminSettings: Response from updateSiteAssets:", response)
+        console.log("AdminSettings: Response assets:", response.data.assets)
+        
+        setSiteAssets(response.data.assets)
+        
+        console.log("AdminSettings: General settings saved successfully")
+        
+        toast({
+          title: "Success",
+          description: "General settings updated successfully"
+        })
       } else {
-        // Mock save operation for other sections
         console.log("Saving settings:", section)
         await new Promise(resolve => setTimeout(resolve, 1000))
         toast({
@@ -155,30 +198,7 @@ export function AdminSettings() {
     }
   }
 
-  const handleHeroImageUpload = async (file: string) => {
-    try {
-      console.log("AdminSettings: Starting hero image upload, file length:", file ? file.length : 'undefined')
-      console.log("AdminSettings: File starts with:", file ? file.substring(0, 50) : 'file is undefined')
-      setSaving(true)
-      const response = await updateSiteAssets({ heroImage: file })
-      console.log("AdminSettings: Hero image upload response:", response)
-      setSiteAssets(response.data.assets)
-      toast({
-        title: "Success",
-        description: "Hero image updated successfully"
-      })
-    } catch (error) {
-      console.error("AdminSettings: Error uploading hero image:", error)
-      console.error("AdminSettings: Error message:", error.message)
-      toast({
-        title: "Error",
-        description: error.message || "Failed to upload hero image",
-        variant: "destructive"
-      })
-    } finally {
-      setSaving(false)
-    }
-  }
+
 
   const handleRemoveLogo = async () => {
     try {
@@ -201,26 +221,7 @@ export function AdminSettings() {
     }
   }
 
-  const handleRemoveHeroImage = async () => {
-    try {
-      setSaving(true)
-      const response = await updateSiteAssets({ heroImage: null })
-      setSiteAssets(response.data.assets)
-      toast({
-        title: "Success",
-        description: "Hero image removed successfully"
-      })
-    } catch (error) {
-      console.error("Error removing hero image:", error)
-      toast({
-        title: "Error",
-        description: error.message || "Failed to remove hero image",
-        variant: "destructive"
-      })
-    } finally {
-      setSaving(false)
-    }
-  }
+
 
   return (
     <div className="space-y-6">
@@ -401,50 +402,7 @@ export function AdminSettings() {
                 )}
               </div>
 
-              {/* Hero Image Section */}
-              <div className="space-y-4">
-                <div>
-                  <Label>Hero Background Image</Label>
-                  <p className="text-sm text-muted-foreground">Upload the main background image for your homepage (recommended: 1920x1080px, JPG format)</p>
-                </div>
-                
-                {siteAssets.heroImage ? (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <div className="relative">
-                        <img 
-                          src={siteAssets.heroImage} 
-                          alt="Current Hero Image" 
-                          className="w-full h-48 object-cover rounded-lg"
-                        />
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="absolute top-2 right-2"
-                          onClick={handleRemoveHeroImage}
-                          disabled={saving}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <p className="text-sm text-muted-foreground">Current hero background image</p>
-                    </div>
-                    <FileUpload
-                      onFileSelect={handleHeroImageUpload}
-                      accept="image/*"
-                      maxSize={10}
-                      description="Replace hero image"
-                    />
-                  </div>
-                ) : (
-                  <FileUpload
-                    onFileSelect={handleHeroImageUpload}
-                    accept="image/*"
-                    maxSize={10}
-                    description="Upload your hero background image"
-                  />
-                )}
-              </div>
+
             </CardContent>
           </Card>
         </TabsContent>
@@ -481,6 +439,21 @@ export function AdminSettings() {
                     general: { ...prev.general, phoneNumber: e.target.value }
                   }))}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="bannerText">Promotional Banner Text</Label>
+                <Textarea
+                  id="bannerText"
+                  rows={3}
+                  value={settings.general.bannerText}
+                  onChange={(e) => setSettings(prev => ({
+                    ...prev,
+                    general: { ...prev.general, bannerText: e.target.value }
+                  }))}
+                  placeholder="🎸 Early Bird Tickets Available Now! Limited Time Offer 🎸"
+                />
+                <p className="text-sm text-muted-foreground">This banner appears at the top of all pages</p>
               </div>
 
               <Button onClick={() => handleSave('general')} disabled={saving}>

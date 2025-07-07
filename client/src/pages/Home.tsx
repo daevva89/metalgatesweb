@@ -8,9 +8,9 @@ import { getFestivalInfo, getNews, getSiteAssets } from "@/api/festival"
 import { useToast } from "@/hooks/useToast"
 
 export function Home() {
-  const [festivalInfo, setFestivalInfo] = useState(null)
-  const [news, setNews] = useState([])
-  const [siteAssets, setSiteAssets] = useState({ logo: null, heroImage: null })
+  const [festivalInfo, setFestivalInfo] = useState<any>(null)
+  const [news, setNews] = useState<any[]>([])
+  const [siteAssets, setSiteAssets] = useState<{ logo: string | null; heroImage: string | null; mobileHeroImage: string | null; countdownDate: string | null }>({ logo: null, heroImage: null, mobileHeroImage: null, countdownDate: null })
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
@@ -21,18 +21,12 @@ export function Home() {
   }, [])
 
   useEffect(() => {
-    if (festivalInfo?.dates) {
-      const timer = setInterval(() => {
-        updateCountdown()
-      }, 1000)
-
-      return () => clearInterval(timer)
-    }
-  }, [festivalInfo])
+    const interval = setInterval(updateCountdown, 1000)
+    return () => clearInterval(interval)
+  }, [siteAssets.countdownDate])
 
   const loadData = async () => {
     try {
-      setLoading(true)
       const [festivalData, newsData] = await Promise.all([
         getFestivalInfo(),
         getNews()
@@ -55,19 +49,21 @@ export function Home() {
   const loadSiteAssets = async () => {
     try {
       const data = await getSiteAssets()
-      setSiteAssets(data.assets || { logo: null, heroImage: null })
+      setSiteAssets(data.assets || { logo: null, heroImage: null, mobileHeroImage: null, countdownDate: null })
     } catch (error) {
       console.error("Error loading site assets:", error)
     }
   }
 
   const updateCountdown = () => {
-    if (!festivalInfo?.dates) return
-
-    // Parse the festival date (assuming format like "March 15-17, 2024")
-    const festivalDate = new Date("2024-03-15") // This should be parsed from festivalInfo.dates
+    // Use countdown date from API if available, otherwise use default
+    // The API returns UTC time, so we can use it directly
+    const targetDate = siteAssets.countdownDate 
+      ? new Date(siteAssets.countdownDate)
+      : new Date("2025-09-26T14:00:00.000Z") // This is 17:00 Romanian time in UTC
+    
     const now = new Date()
-    const difference = festivalDate.getTime() - now.getTime()
+    const difference = targetDate.getTime() - now.getTime()
 
     if (difference > 0) {
       const days = Math.floor(difference / (1000 * 60 * 60 * 24))
@@ -76,6 +72,9 @@ export function Home() {
       const seconds = Math.floor((difference % (1000 * 60)) / 1000)
 
       setCountdown({ days, hours, minutes, seconds })
+    } else {
+      // Festival has started or passed
+      setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 })
     }
   }
 
@@ -87,44 +86,51 @@ export function Home() {
     )
   }
 
-  const heroStyle = siteAssets.heroImage ? {
-    backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${siteAssets.heroImage})`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat'
-  } : {}
-
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen w-full overflow-hidden">
       {/* Hero Section */}
-      <section
-        className="relative h-screen flex items-center justify-center text-center text-white gradient-bg"
-        style={heroStyle}
-      >
-        <div className="container mx-auto px-4 z-10">
-          <div className="max-w-4xl mx-auto space-y-8">
-            {/* Festival Logo/Title */}
-            <div className="space-y-4">
-              {siteAssets.logo ? (
-                <img
-                  src={siteAssets.logo}
-                  alt="Metal Gates Festival"
-                  className="h-24 max-w-96 mx-auto object-contain"
-                />
-              ) : (
-                <h1 className="text-6xl md:text-8xl font-bold text-gradient">
-                  Metal Gates
-                </h1>
-              )}
-              <p className="text-2xl md:text-3xl text-muted-foreground">
-                {festivalInfo?.dates}
-              </p>
-              <div className="flex items-center justify-center gap-2 text-lg text-muted-foreground">
-                <MapPin className="h-5 w-5" />
-                {festivalInfo?.location}
-              </div>
-            </div>
+      <section className="relative w-full aspect-[6580/9212] md:aspect-[1000/524] flex items-center justify-center text-center text-white overflow-hidden">
+        {/* Hero Background Image */}
+        {siteAssets.heroImage && (
+          <>
+            <img
+              src={siteAssets.heroImage}
+              alt="Festival Background"
+              className="absolute inset-0 w-full h-full object-contain z-0 hidden md:block"
+            />
+            <div className="absolute inset-0 bg-black/60 z-10 hidden md:block"></div>
+          </>
+        )}
+        
+        {/* Mobile Hero Background Image */}
+        {siteAssets.mobileHeroImage && (
+          <>
+            <img
+              src={siteAssets.mobileHeroImage}
+              alt="Festival Background Mobile"
+              className="absolute inset-0 w-full h-full object-contain z-0 block md:hidden"
+            />
+            <div className="absolute inset-0 bg-black/60 z-10 block md:hidden"></div>
+          </>
+        )}
+        
+        {/* Gradient Background (fallback when no hero image) */}
+        {!siteAssets.heroImage && !siteAssets.mobileHeroImage && (
+          <div className="absolute inset-0 gradient-bg z-0"></div>
+        )}
+        
+        {/* Gradient Background for mobile when no mobile image but desktop image exists */}
+        {!siteAssets.mobileHeroImage && siteAssets.heroImage && (
+          <div className="absolute inset-0 gradient-bg z-0 block md:hidden"></div>
+        )}
+        
+        {/* Gradient Background for desktop when no desktop image but mobile image exists */}
+        {!siteAssets.heroImage && siteAssets.mobileHeroImage && (
+          <div className="absolute inset-0 gradient-bg z-0 hidden md:block"></div>
+        )}
 
+        <div className="container mx-auto px-4 z-20">
+          <div className="max-w-4xl mx-auto space-y-8">
             {/* Countdown */}
             <div className="grid grid-cols-4 gap-4 max-w-md mx-auto">
               {[
