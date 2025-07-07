@@ -50,6 +50,22 @@ const siteAssetsSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    facebook: {
+      type: String,
+      default: "",
+    },
+    instagram: {
+      type: String,
+      default: "",
+    },
+    youtube: {
+      type: String,
+      default: "",
+    },
+    copyright: {
+      type: String,
+      default: "© 2024 Metal Gates Festival. All rights reserved.",
+    },
     createdAt: {
       type: Date,
       default: Date.now,

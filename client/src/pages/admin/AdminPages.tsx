@@ -262,10 +262,9 @@ export function AdminPages() {
       </div>
 
       <Tabs defaultValue="home" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="home">Home Page</TabsTrigger>
           <TabsTrigger value="info">Info Page</TabsTrigger>
-          <TabsTrigger value="footer">Footer</TabsTrigger>
         </TabsList>
 
         <TabsContent value="home" className="space-y-6">
@@ -462,36 +461,6 @@ export function AdminPages() {
             <div>Loading...</div>
           )}
         </TabsContent>
-
-        <TabsContent value="footer" className="space-y-6">
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle>Footer Content</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Contact Information</Label>
-                <Textarea
-                  rows={4}
-                  placeholder="Email, phone, address..."
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Copyright Text</Label>
-                <Textarea
-                  rows={2}
-                  placeholder="© 2024 Metal Gates Festival..."
-                />
-              </div>
-              <Button onClick={() => handleSave('footer')} disabled={saving}>
-                <FaSave className="mr-2 h-4 w-4" />
-                {saving ? "Saving..." : "Save Changes"}
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-
       </Tabs>
     </div>
   )

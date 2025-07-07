@@ -1,25 +1,56 @@
 import { useState, useEffect } from "react"
 import { FaFacebook, FaInstagram, FaYoutube, FaEnvelope, FaMapPin } from "react-icons/fa"
-import { getSiteAssets } from "@/api/festival"
+import { getSiteAssets, getInfoPage } from "@/api/festival"
 
 interface ContactEmail {
   purpose: string;
   email: string;
 }
 
+interface SocialLinks {
+  facebook: string;
+  instagram: string;
+  youtube: string;
+}
+
 export function Footer() {
   const [contactEmails, setContactEmails] = useState<ContactEmail[]>([]);
+  const [socialLinks, setSocialLinks] = useState<SocialLinks>({
+    facebook: "https://facebook.com/metalgatesfestival",
+    instagram: "https://instagram.com/metalgatesfestival",
+    youtube: "https://youtube.com/metalgatesfestival",
+  });
+  const [copyright, setCopyright] = useState("© 2024 Metal Gates Festival. All rights reserved.");
+  const [location, setLocation] = useState("Quantic Club, Bucharest");
 
   useEffect(() => {
-    loadContactInfo();
+    loadFooterData();
   }, []);
 
-  const loadContactInfo = async () => {
+  const loadFooterData = async () => {
     try {
-      const data = await getSiteAssets();
-      setContactEmails(data.assets?.contactEmails || []);
+      const [siteAssetsData, infoPageData] = await Promise.all([
+        getSiteAssets(),
+        getInfoPage(),
+      ]);
+      
+      const assets = siteAssetsData.assets;
+      setContactEmails(assets?.contactEmails || []);
+      if (assets?.facebook || assets?.instagram || assets?.youtube) {
+        setSocialLinks({
+          facebook: assets.facebook || "",
+          instagram: assets.instagram || "",
+          youtube: assets.youtube || "",
+        });
+      }
+      if (assets?.copyright) {
+        setCopyright(assets.copyright);
+      }
+      if (infoPageData?.location?.title) {
+        setLocation(infoPageData.location.title);
+      }
     } catch (error) {
-      console.error("Footer: Error loading contact info:", error);
+      console.error("Footer: Error loading site assets:", error);
     }
   };
 
@@ -30,7 +61,7 @@ export function Footer() {
           {/* Social Media */}
           <div className="flex items-center space-x-4">
             <a
-              href="https://facebook.com/metalgatesfestival"
+              href={socialLinks.facebook}
               target="_blank"
               rel="noopener noreferrer"
               className="text-muted-foreground hover:text-primary transition-colors"
@@ -38,7 +69,7 @@ export function Footer() {
               <FaFacebook className="h-5 w-5" />
             </a>
             <a
-              href="https://instagram.com/metalgatesfestival"
+              href={socialLinks.instagram}
               target="_blank"
               rel="noopener noreferrer"
               className="text-muted-foreground hover:text-primary transition-colors"
@@ -46,7 +77,7 @@ export function Footer() {
               <FaInstagram className="h-5 w-5" />
             </a>
             <a
-              href="https://youtube.com/metalgatesfestival"
+              href={socialLinks.youtube}
               target="_blank"
               rel="noopener noreferrer"
               className="text-muted-foreground hover:text-primary transition-colors"
@@ -64,14 +95,14 @@ export function Footer() {
               </div>
               <div className="flex items-center space-x-1">
                 <FaMapPin className="h-4 w-4" />
-                <span>Quantic Club, Bucharest</span>
+                <span>{location}</span>
               </div>
             </div>
           )}
 
           {/* Copyright */}
           <div className="text-sm text-muted-foreground">
-            © 2024 Metal Gates Festival. All rights reserved.
+            {copyright}
           </div>
         </div>
       </div>

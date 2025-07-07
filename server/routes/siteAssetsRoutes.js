@@ -23,6 +23,10 @@ router.get("/", async (req, res) => {
           lineupDescription: assets.lineupDescription,
           googleAnalytics: assets.googleAnalytics,
           metaPixel: assets.metaPixel,
+          facebook: assets.facebook,
+          instagram: assets.instagram,
+          youtube: assets.youtube,
+          copyright: assets.copyright,
         },
       },
       message: "Site assets retrieved successfully",
@@ -70,6 +74,10 @@ router.put("/", auth, async (req, res) => {
       lineupDescription,
       googleAnalytics,
       metaPixel,
+      facebook,
+      instagram,
+      youtube,
+      copyright,
     } = req.body;
     console.log("SiteAssetsRoutes: Full request body:", req.body);
     console.log("SiteAssetsRoutes: Update data received:", {
@@ -83,6 +91,10 @@ router.put("/", auth, async (req, res) => {
       hasLineupDescription: lineupDescription !== undefined,
       hasGoogleAnalytics: googleAnalytics !== undefined,
       hasMetaPixel: metaPixel !== undefined,
+      hasFacebook: facebook !== undefined,
+      hasInstagram: instagram !== undefined,
+      hasYoutube: youtube !== undefined,
+      hasCopyright: copyright !== undefined,
       logoLength: logo ? logo.length : 0,
       heroImageLength: heroImage ? heroImage.length : 0,
       mobileHeroImageLength: mobileHeroImage ? mobileHeroImage.length : 0,
@@ -107,6 +119,10 @@ router.put("/", auth, async (req, res) => {
     if (googleAnalytics !== undefined)
       updateData.googleAnalytics = googleAnalytics;
     if (metaPixel !== undefined) updateData.metaPixel = metaPixel;
+    if (facebook !== undefined) updateData.facebook = facebook;
+    if (instagram !== undefined) updateData.instagram = instagram;
+    if (youtube !== undefined) updateData.youtube = youtube;
+    if (copyright !== undefined) updateData.copyright = copyright;
 
     console.log(
       "SiteAssetsRoutes: Calling siteAssetsService.updateSiteAssets with:",
@@ -121,6 +137,10 @@ router.put("/", auth, async (req, res) => {
         hasLineupDescription: "lineupDescription" in updateData,
         hasGoogleAnalytics: "googleAnalytics" in updateData,
         hasMetaPixel: "metaPixel" in updateData,
+        hasFacebook: "facebook" in updateData,
+        hasInstagram: "instagram" in updateData,
+        hasYoutube: "youtube" in updateData,
+        hasCopyright: "copyright" in updateData,
       }
     );
 
@@ -145,6 +165,10 @@ router.put("/", auth, async (req, res) => {
           lineupDescription: updatedAssets.lineupDescription,
           googleAnalytics: updatedAssets.googleAnalytics,
           metaPixel: updatedAssets.metaPixel,
+          facebook: updatedAssets.facebook,
+          instagram: updatedAssets.instagram,
+          youtube: updatedAssets.youtube,
+          copyright: updatedAssets.copyright,
         },
       },
       message: "Site assets updated successfully",
@@ -198,6 +222,10 @@ router.put("/logo", auth, async (req, res) => {
           lineupDescription: updatedAssets.lineupDescription,
           googleAnalytics: updatedAssets.googleAnalytics,
           metaPixel: updatedAssets.metaPixel,
+          facebook: updatedAssets.facebook,
+          instagram: updatedAssets.instagram,
+          youtube: updatedAssets.youtube,
+          copyright: updatedAssets.copyright,
         },
       },
       message: "Logo updated successfully",
@@ -244,6 +272,10 @@ router.put("/hero", auth, async (req, res) => {
           lineupDescription: updatedAssets.lineupDescription,
           googleAnalytics: updatedAssets.googleAnalytics,
           metaPixel: updatedAssets.metaPixel,
+          facebook: updatedAssets.facebook,
+          instagram: updatedAssets.instagram,
+          youtube: updatedAssets.youtube,
+          copyright: updatedAssets.copyright,
         },
       },
       message: "Hero image updated successfully",
@@ -287,6 +319,10 @@ router.delete("/logo", auth, async (req, res) => {
           lineupDescription: updatedAssets.lineupDescription,
           googleAnalytics: updatedAssets.googleAnalytics,
           metaPixel: updatedAssets.metaPixel,
+          facebook: updatedAssets.facebook,
+          instagram: updatedAssets.instagram,
+          youtube: updatedAssets.youtube,
+          copyright: updatedAssets.copyright,
         },
       },
       message: "Logo removed successfully",
@@ -330,6 +366,10 @@ router.delete("/hero", auth, async (req, res) => {
           lineupDescription: updatedAssets.lineupDescription,
           googleAnalytics: updatedAssets.googleAnalytics,
           metaPixel: updatedAssets.metaPixel,
+          facebook: updatedAssets.facebook,
+          instagram: updatedAssets.instagram,
+          youtube: updatedAssets.youtube,
+          copyright: updatedAssets.copyright,
         },
       },
       message: "Hero image removed successfully",

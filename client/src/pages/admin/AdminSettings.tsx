@@ -48,6 +48,7 @@ interface Settings {
   general: {
     bannerText: string;
     contactEmails: ContactEmail[];
+    copyright: string;
   };
   tracking: {
     googleAnalytics: string;
@@ -78,7 +79,8 @@ export function AdminSettings() {
     },
     general: {
       bannerText: "",
-      contactEmails: []
+      contactEmails: [],
+      copyright: ""
     },
     tracking: {
       googleAnalytics: "",
@@ -141,7 +143,8 @@ export function AdminSettings() {
       if (data.assets) {
         const newGeneralSettings = {
           contactEmails: data.assets.contactEmails || [],
-          bannerText: data.assets.bannerText || ""
+          bannerText: data.assets.bannerText || "",
+          copyright: data.assets.copyright || "© 2024 Metal Gates Festival. All rights reserved."
         }
         
         const newTrackingSettings = {
@@ -149,6 +152,12 @@ export function AdminSettings() {
           metaPixel: data.assets.metaPixel || ""
         }
 
+        const newSocialSettings = {
+          facebook: data.assets.facebook || "",
+          instagram: data.assets.instagram || "",
+          youtube: data.assets.youtube || "",
+        }
+        
         console.log(
           "AdminSettings: Setting general settings to:",
           newGeneralSettings
@@ -158,6 +167,7 @@ export function AdminSettings() {
           ...prev,
           general: newGeneralSettings,
           tracking: newTrackingSettings,
+          social: newSocialSettings,
         }))
       }
     } catch (error) {
@@ -189,7 +199,8 @@ export function AdminSettings() {
         
         const dataToSave = {
           bannerText: settings.general.bannerText,
-          contactEmails: settings.general.contactEmails
+          contactEmails: settings.general.contactEmails,
+          copyright: settings.general.copyright
         };
         
         console.log("AdminSettings: Data being sent to API:", dataToSave)
@@ -218,12 +229,17 @@ export function AdminSettings() {
           title: "Success",
           description: "Tracking settings updated successfully"
         })
-      } else {
-        console.log("Saving settings:", section)
-        await new Promise(resolve => setTimeout(resolve, 1000))
+      } else if (section === 'social') {
+        console.log("AdminSettings: Saving social settings...")
+        const dataToSave = {
+          facebook: settings.social.facebook,
+          instagram: settings.social.instagram,
+          youtube: settings.social.youtube,
+        };
+        await updateSiteAssets(dataToSave as any) // Using as any to avoid type errors
         toast({
           title: "Success",
-          description: "Settings updated successfully"
+          description: "Social media links updated successfully"
         })
       }
     } catch (error) {
@@ -579,6 +595,23 @@ export function AdminSettings() {
               </Card>
             </div>
           </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Copyright Notice</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Label htmlFor="copyright">Copyright Text</Label>
+              <Input
+                id="copyright"
+                placeholder="© 2024 Your Festival. All rights reserved."
+                value={settings.general.copyright}
+                onChange={e =>
+                  handleInputChange("general", "copyright", e.target.value)
+                }
+              />
+            </CardContent>
+          </Card>
+
           <div className="md:col-span-2">
             <Button onClick={() => handleSave('general')} disabled={saving}>
               <FaSave className="mr-2 h-4 w-4" />
@@ -641,45 +674,42 @@ export function AdminSettings() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="facebook">Facebook URL</Label>
+              <div>
+                <Label htmlFor="facebook">Facebook</Label>
                 <Input
                   id="facebook"
+                  placeholder="https://facebook.com/your-page"
                   value={settings.social.facebook}
-                  onChange={(e) => setSettings(prev => ({
-                    ...prev,
-                    social: { ...prev.social, facebook: e.target.value }
-                  }))}
+                  onChange={e =>
+                    handleInputChange("social", "facebook", e.target.value)
+                  }
                 />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="instagram">Instagram URL</Label>
+              <div>
+                <Label htmlFor="instagram">Instagram</Label>
                 <Input
                   id="instagram"
+                  placeholder="https://instagram.com/your-profile"
                   value={settings.social.instagram}
-                  onChange={(e) => setSettings(prev => ({
-                    ...prev,
-                    social: { ...prev.social, instagram: e.target.value }
-                  }))}
+                  onChange={e =>
+                    handleInputChange("social", "instagram", e.target.value)
+                  }
                 />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="youtube">YouTube URL</Label>
+              <div>
+                <Label htmlFor="youtube">YouTube</Label>
                 <Input
                   id="youtube"
+                  placeholder="https://youtube.com/your-channel"
                   value={settings.social.youtube}
-                  onChange={(e) => setSettings(prev => ({
-                    ...prev,
-                    social: { ...prev.social, youtube: e.target.value }
-                  }))}
+                  onChange={e =>
+                    handleInputChange("social", "youtube", e.target.value)
+                  }
                 />
               </div>
-
-              <Button onClick={() => handleSave('social')} disabled={saving}>
+              <Button onClick={() => handleSave("social")} disabled={saving}>
                 <FaSave className="mr-2 h-4 w-4" />
-                {saving ? "Saving..." : "Save Changes"}
+                {saving ? "Saving..." : "Save Social Links"}
               </Button>
             </CardContent>
           </Card>

@@ -20,6 +20,10 @@ class SiteAssetsService {
         lineupDescription: assets.lineupDescription,
         googleAnalytics: assets.googleAnalytics,
         metaPixel: assets.metaPixel,
+        facebook: assets.facebook,
+        instagram: assets.instagram,
+        youtube: assets.youtube,
+        copyright: assets.copyright,
         createdAt: assets.createdAt,
         updatedAt: assets.updatedAt,
       });
@@ -40,6 +44,10 @@ class SiteAssetsService {
         lineupDescription: assets.lineupDescription,
         googleAnalytics: assets.googleAnalytics,
         metaPixel: assets.metaPixel,
+        facebook: assets.facebook,
+        instagram: assets.instagram,
+        youtube: assets.youtube,
+        copyright: assets.copyright,
       };
 
       console.log(
@@ -102,6 +110,22 @@ class SiteAssetsService {
       if (updateData.metaPixel !== undefined) {
         assets.metaPixel = updateData.metaPixel;
         console.log("SiteAssetsService: Meta Pixel updated");
+      }
+      if (updateData.facebook !== undefined) {
+        assets.facebook = updateData.facebook;
+        console.log("SiteAssetsService: Facebook link updated");
+      }
+      if (updateData.instagram !== undefined) {
+        assets.instagram = updateData.instagram;
+        console.log("SiteAssetsService: Instagram link updated");
+      }
+      if (updateData.youtube !== undefined) {
+        assets.youtube = updateData.youtube;
+        console.log("SiteAssetsService: YouTube link updated");
+      }
+      if (updateData.copyright !== undefined) {
+        assets.copyright = updateData.copyright;
+        console.log("SiteAssetsService: Copyright updated");
       }
 
       if (updateData.logo !== undefined) {
@@ -191,6 +215,10 @@ class SiteAssetsService {
         lineupDescription: assets.lineupDescription,
         googleAnalytics: assets.googleAnalytics,
         metaPixel: assets.metaPixel,
+        facebook: assets.facebook,
+        instagram: assets.instagram,
+        youtube: assets.youtube,
+        copyright: assets.copyright,
       });
 
       // Save the assets
@@ -209,6 +237,10 @@ class SiteAssetsService {
         lineupDescription: updatedAssets.lineupDescription,
         googleAnalytics: updatedAssets.googleAnalytics,
         metaPixel: updatedAssets.metaPixel,
+        facebook: updatedAssets.facebook,
+        instagram: updatedAssets.instagram,
+        youtube: updatedAssets.youtube,
+        copyright: updatedAssets.copyright,
         createdAt: updatedAssets.createdAt,
         updatedAt: updatedAssets.updatedAt,
       });
@@ -231,6 +263,10 @@ class SiteAssetsService {
         lineupDescription: updatedAssets.lineupDescription,
         googleAnalytics: updatedAssets.googleAnalytics,
         metaPixel: updatedAssets.metaPixel,
+        facebook: updatedAssets.facebook,
+        instagram: updatedAssets.instagram,
+        youtube: updatedAssets.youtube,
+        copyright: updatedAssets.copyright,
       };
     } catch (error) {
       console.error("SiteAssetsService: Error updating site assets:", error);
