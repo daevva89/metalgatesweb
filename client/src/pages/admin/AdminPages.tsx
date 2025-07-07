@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { FileUpload } from "@/components/ui/file-upload"
 import { useToast } from "@/hooks/useToast"
-import { getSiteAssets, updateSiteAssets } from "@/api/festival"
+import { getSiteAssets, updateSiteAssets, getInfoPage, updateInfoPage } from "@/api/festival"
+import { FaPlus, FaTrash } from "react-icons/fa"
 
 interface UpdateData {
   heroImage?: string
@@ -16,12 +17,40 @@ interface UpdateData {
   countdownDate?: string
 }
 
+interface FaqItem {
+  question: string;
+  answer: string;
+  _id?: string;
+}
+
+interface InfoPageData {
+  location: {
+    title: string;
+    address: string;
+    mapEmbedUrl: string;
+  };
+  travel: {
+    byAir: string;
+    byCar: string;
+    accommodation: string;
+  };
+  rules: {
+    allowedItems: string[];
+    prohibitedItems: string[];
+    securityNote: string;
+  };
+  faq: FaqItem[];
+}
+
+
 export function AdminPages() {
   const [saving, setSaving] = useState(false)
   const [selectedHeroImage, setSelectedHeroImage] = useState<string | null>(null)
   const [selectedMobileHeroImage, setSelectedMobileHeroImage] = useState<string | null>(null)
   const [countdownDate, setCountdownDate] = useState<string>("")
   const { toast } = useToast()
+
+  const [infoPageData, setInfoPageData] = useState<InfoPageData | null>(null);
 
   const [pageContent, setPageContent] = useState({
     home: {
@@ -40,7 +69,22 @@ export function AdminPages() {
 
   useEffect(() => {
     loadHeroImage()
+    loadInfoPageData()
   }, [])
+
+  const loadInfoPageData = async () => {
+    try {
+      const data = await getInfoPage();
+      setInfoPageData(data);
+    } catch (error) {
+      console.error("PAGES: Error loading info page data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load info page content.",
+        variant: "destructive",
+      });
+    }
+  }
 
   const loadHeroImage = async () => {
     try {
@@ -81,6 +125,41 @@ export function AdminPages() {
       // setLoading(false) // Removed as per edit hint
     }
   }
+
+  const handleInfoPageChange = (section: keyof InfoPageData, field: string, value: any) => {
+    if (!infoPageData) return;
+    
+    setInfoPageData(prev => {
+      if (!prev) return null;
+      
+      const newInfoPageData = { ...prev };
+      (newInfoPageData[section] as any)[field] = value;
+      return newInfoPageData;
+    });
+  };
+
+  const handleFaqChange = (index: number, field: 'question' | 'answer', value: string) => {
+    if (!infoPageData) return;
+    
+    const newFaq = [...infoPageData.faq];
+    newFaq[index][field] = value;
+    setInfoPageData({ ...infoPageData, faq: newFaq });
+  };
+
+  const addFaqItem = () => {
+    if (!infoPageData) return;
+
+    const newFaq = [...infoPageData.faq, { question: '', answer: '' }];
+    setInfoPageData({ ...infoPageData, faq: newFaq });
+  };
+
+  const removeFaqItem = (index: number) => {
+    if (!infoPageData) return;
+
+    const newFaq = infoPageData.faq.filter((_, i) => i !== index);
+    setInfoPageData({ ...infoPageData, faq: newFaq });
+  };
+
 
   const handleSave = async (section: string) => {
     setSaving(true)
@@ -136,6 +215,20 @@ export function AdminPages() {
             description: "Page content updated successfully"
           })
         }
+      } else if (section === 'info') {
+        if (!infoPageData) {
+          toast({
+            title: "Error",
+            description: "Info page data not loaded yet.",
+            variant: "destructive",
+          });
+          return;
+        }
+        await updateInfoPage(infoPageData);
+        toast({
+          title: "Success",
+          description: "Info page content updated successfully"
+        });
       } else {
         await new Promise(resolve => setTimeout(resolve, 1000))
         toast({
@@ -276,41 +369,98 @@ export function AdminPages() {
         </TabsContent>
 
         <TabsContent value="info" className="space-y-6">
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle>Info Page Content</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="travelInfo">Travel Information</Label>
-                <Textarea
-                  id="travelInfo"
-                  rows={6}
-                  value={pageContent.info.travelInfo}
-                  onChange={(e) => setPageContent(prev => ({
-                    ...prev,
-                    info: { ...prev.info, travelInfo: e.target.value }
-                  }))}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="rules">Festival Rules</Label>
-                <Textarea
-                  id="rules"
-                  rows={6}
-                  value={pageContent.info.rules}
-                  onChange={(e) => setPageContent(prev => ({
-                    ...prev,
-                    info: { ...prev.info, rules: e.target.value }
-                  }))}
-                />
-              </div>
-              <Button onClick={() => handleSave('info')} disabled={saving}>
-                <FaSave className="mr-2 h-4 w-4" />
-                {saving ? "Saving..." : "Save Changes"}
-              </Button>
-            </CardContent>
-          </Card>
+          {infoPageData ? (
+            <Card className="glass-card">
+              <CardHeader>
+                <CardTitle>Info Page Content</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Location Section */}
+                <div className="space-y-4 border-b pb-4">
+                  <h3 className="text-xl font-semibold">Location</h3>
+                  <div className="space-y-2">
+                    <Label htmlFor="locationTitle">Title</Label>
+                    <Input id="locationTitle" value={infoPageData.location.title} onChange={(e) => handleInfoPageChange('location', 'title', e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="locationAddress">Address</Label>
+                    <Input id="locationAddress" value={infoPageData.location.address} onChange={(e) => handleInfoPageChange('location', 'address', e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="mapEmbedUrl">Google Maps Embed URL</Label>
+                    <Input id="mapEmbedUrl" value={infoPageData.location.mapEmbedUrl} onChange={(e) => handleInfoPageChange('location', 'mapEmbedUrl', e.target.value)} />
+                  </div>
+                </div>
+
+                {/* Travel Section */}
+                <div className="space-y-4 border-b pb-4">
+                  <h3 className="text-xl font-semibold">Travel Information</h3>
+                  <div className="space-y-2">
+                    <Label htmlFor="travelByAir">By Air</Label>
+                    <Textarea id="travelByAir" value={infoPageData.travel.byAir} onChange={(e) => handleInfoPageChange('travel', 'byAir', e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="travelByCar">By Car</Label>
+                    <Textarea id="travelByCar" value={infoPageData.travel.byCar} onChange={(e) => handleInfoPageChange('travel', 'byCar', e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="travelAccommodation">Accommodation</Label>
+                    <Textarea id="travelAccommodation" value={infoPageData.travel.accommodation} onChange={(e) => handleInfoPageChange('travel', 'accommodation', e.target.value)} />
+                  </div>
+                </div>
+
+                {/* Rules Section */}
+                <div className="space-y-4 border-b pb-4">
+                  <h3 className="text-xl font-semibold">Festival Rules</h3>
+                  <div className="space-y-2">
+                    <Label htmlFor="allowedItems">Allowed Items (one per line)</Label>
+                    <Textarea id="allowedItems" value={infoPageData.rules.allowedItems.join('\n')} onChange={(e) => handleInfoPageChange('rules', 'allowedItems', e.target.value.split('\n'))} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="prohibitedItems">Prohibited Items (one per line)</Label>
+                    <Textarea id="prohibitedItems" value={infoPageData.rules.prohibitedItems.join('\n')} onChange={(e) => handleInfoPageChange('rules', 'prohibitedItems', e.target.value.split('\n'))} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="securityNote">Security Note</Label>
+                    <Input id="securityNote" value={infoPageData.rules.securityNote} onChange={(e) => handleInfoPageChange('rules', 'securityNote', e.target.value)} />
+                  </div>
+                </div>
+
+                {/* FAQ Section */}
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold">FAQ</h3>
+                  {infoPageData.faq.map((item, index) => (
+                    <div key={item._id || index} className="space-y-2 border p-4 rounded-md">
+                      <div className="flex justify-end">
+                        <Button variant="ghost" size="icon" onClick={() => removeFaqItem(index)}>
+                          <FaTrash className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`faqQuestion-${index}`}>Question</Label>
+                        <Input id={`faqQuestion-${index}`} value={item.question} onChange={(e) => handleFaqChange(index, 'question', e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`faqAnswer-${index}`}>Answer</Label>
+                        <Textarea id={`faqAnswer-${index}`} value={item.answer} onChange={(e) => handleFaqChange(index, 'answer', e.target.value)} />
+                      </div>
+                    </div>
+                  ))}
+                  <Button onClick={addFaqItem}>
+                    <FaPlus className="mr-2 h-4 w-4" />
+                    Add FAQ Item
+                  </Button>
+                </div>
+
+                <Button onClick={() => handleSave('info')} disabled={saving}>
+                  <FaSave className="mr-2 h-4 w-4" />
+                  {saving ? "Saving..." : "Save Changes"}
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <div>Loading...</div>
+          )}
         </TabsContent>
 
         <TabsContent value="footer" className="space-y-6">

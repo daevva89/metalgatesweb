@@ -14,6 +14,7 @@ const archiveRoutes = require("./routes/archiveRoutes");
 const festivalRoutes = require("./routes/festivalRoutes");
 const contactRoutes = require("./routes/contactRoutes");
 const siteAssetsRoutes = require("./routes/siteAssetsRoutes");
+const infoPageRoutes = require("./routes/infoPageRoutes");
 const { connectDB, ensureActiveFestivalExists } = require("./config/database");
 const cors = require("cors");
 
@@ -121,6 +122,9 @@ app.use(
   },
   siteAssetsRoutes
 );
+
+// Info Page Routes
+app.use("/api/infopage", infoPageRoutes);
 
 // Default route
 app.get("/", (req, res) => {

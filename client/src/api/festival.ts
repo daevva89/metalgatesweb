@@ -512,3 +512,27 @@ export const deleteContactSubmission = async (id: string) => {
     throw new Error(error?.response?.data?.error || error.message);
   }
 };
+
+// Description: Get info page content
+// Endpoint: GET /api/infopage
+export const getInfoPage = async () => {
+  try {
+    const response = await api.get('/api/infopage');
+    return response.data.data;
+  } catch (error) {
+    console.error("API: Error in getInfoPage:", error)
+    throw new Error(error?.response?.data?.error || error.message);
+  }
+};
+
+// Description: Update info page content
+// Endpoint: PUT /api/infopage
+export const updateInfoPage = async (infoPageData: any) => {
+  try {
+    const response = await api.put('/api/infopage', infoPageData);
+    return response.data;
+  } catch (error) {
+    console.error("API: Error in updateInfoPage:", error)
+    throw new Error(error?.response?.data?.error || error.message);
+  }
+};

@@ -1,114 +1,145 @@
+import { useState, useEffect } from "react";
 import { FaMapPin, FaShieldAlt, FaQuestionCircle, FaCar, FaPlane, FaHotel } from "react-icons/fa"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { getInfoPage } from "@/api/festival";
+
+interface FaqItem {
+  question: string;
+  answer: string;
+  _id?: string;
+}
+
+interface InfoPageData {
+  location: {
+    title: string;
+    address: string;
+    mapEmbedUrl: string;
+  };
+  travel: {
+    byAir: string;
+    byCar: string;
+    accommodation: string;
+  };
+  rules: {
+    allowedItems: string[];
+    prohibitedItems: string[];
+    securityNote: string;
+  };
+  faq: FaqItem[];
+}
 
 export function Info() {
-  const faqItems = [
-    {
-      question: "What time does the festival start each day?",
-      answer: "Gates open at 4:00 PM each day, with the first band starting at 5:00 PM. The festival runs until 2:00 AM."
-    },
-    {
-      question: "Can I bring my own food and drinks?",
-      answer: "Outside food and beverages are not permitted. We have a variety of food vendors and bars available inside the venue."
-    },
-    {
-      question: "Is there parking available?",
-      answer: "Yes, there are several parking options near Quantic Club. We recommend arriving early as spaces fill up quickly."
-    },
-    {
-      question: "What items are prohibited?",
-      answer: "Prohibited items include weapons, illegal substances, professional cameras, outside food/drinks, and glass containers. Full list available on your ticket."
-    },
-    {
-      question: "Is the festival accessible for people with disabilities?",
-      answer: "Yes, Quantic Club is fully accessible. Please contact us in advance if you need special accommodations."
-    },
-    {
-      question: "What happens if it rains?",
-      answer: "The festival is held indoors at Quantic Club, so weather will not affect the event."
-    }
-  ]
+  const [infoPageData, setInfoPageData] = useState<InfoPageData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadInfoPageData = async () => {
+      try {
+        const data = await getInfoPage();
+        setInfoPageData(data);
+      } catch (error) {
+        console.error("Failed to load info page data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadInfoPageData();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!infoPageData) {
+    return <div>Info not available.</div>;
+  }
 
   return (
     <div className="container mx-auto px-4 space-y-12 pt-8">
-      {/* Location Section */}
-      <section className="space-y-6">
-        <h2 className="text-3xl font-bold text-center">Location</h2>
-
-        <Card className="glass-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FaMapPin className="h-5 w-5 text-primary" />
-              Quantic Club, Bucharest
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-muted-foreground">
-              Strada Blanari 14, Bucharest 030167, Romania
-            </p>
-
-            {/* Map Placeholder */}
-            <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-              <div className="text-center space-y-2">
-                <FaMapPin className="h-12 w-12 text-primary mx-auto" />
-                <p className="text-muted-foreground">Interactive Google Maps</p>
-                <p className="text-sm text-muted-foreground">Quantic Club, Bucharest</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
-
-      {/* Travel Information */}
-      <section className="space-y-6">
-        <h2 className="text-3xl font-bold text-center">Travel Information</h2>
-
-        <div className="grid md:grid-cols-3 gap-6">
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        {/* Left Column: Location & Map */}
+        <div className="space-y-6">
+          <h2 className="text-3xl font-bold text-center">Location</h2>
           <Card className="glass-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <FaPlane className="h-5 w-5 text-primary" />
-                By Air
+                <FaMapPin className="h-5 w-5 text-primary" />
+                {infoPageData.location.title}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <p className="text-muted-foreground">
-                Henri Coandă International Airport (OTP) is 45 minutes from the venue.
-                Take the express bus or taxi to reach the city center.
+                {infoPageData.location.address}
               </p>
+              {infoPageData.location.mapEmbedUrl ? (
+                <div className="aspect-video bg-muted rounded-lg overflow-hidden">
+                  <iframe
+                    src={infoPageData.location.mapEmbedUrl}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen={true}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  ></iframe>
+                </div>
+              ) : (
+                <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
+                  <div className="text-center space-y-2">
+                    <FaMapPin className="h-12 w-12 text-primary mx-auto" />
+                    <p className="text-muted-foreground">Map will be available soon</p>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
+        </div>
 
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FaCar className="h-5 w-5 text-primary" />
-                By Car
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Multiple parking options available near the venue.
-                We recommend using public parking lots as street parking is limited.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FaHotel className="h-5 w-5 text-primary" />
-                Accommodation
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Many hotels within walking distance of the venue.
-                Book early as accommodation fills up quickly during the festival.
-              </p>
-            </CardContent>
-          </Card>
+        {/* Right Column: Travel Information */}
+        <div className="space-y-6">
+          <h2 className="text-3xl font-bold text-center">Travel Information</h2>
+          <div className="space-y-6">
+            <Card className="glass-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FaPlane className="h-5 w-5 text-primary" />
+                  By Air
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  {infoPageData.travel.byAir}
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="glass-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FaCar className="h-5 w-5 text-primary" />
+                  By Car
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  {infoPageData.travel.byCar}
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="glass-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FaHotel className="h-5 w-5 text-primary" />
+                  Accommodation
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  {infoPageData.travel.accommodation}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 
@@ -128,29 +159,25 @@ export function Info() {
               <div>
                 <h4 className="font-semibold text-green-400 mb-2">✓ Allowed Items</h4>
                 <ul className="space-y-1 text-muted-foreground">
-                  <li>• Small personal bags</li>
-                  <li>• Mobile phones</li>
-                  <li>• Medication (with prescription)</li>
-                  <li>• Earplugs</li>
-                  <li>• Cash and cards</li>
+                  {infoPageData.rules.allowedItems.map((item, index) => (
+                    <li key={index}>• {item}</li>
+                  ))}
                 </ul>
               </div>
 
               <div>
                 <h4 className="font-semibold text-red-400 mb-2">✗ Prohibited Items</h4>
                 <ul className="space-y-1 text-muted-foreground">
-                  <li>• Outside food and beverages</li>
-                  <li>• Professional cameras</li>
-                  <li>• Glass containers</li>
-                  <li>• Weapons of any kind</li>
-                  <li>• Illegal substances</li>
+                  {infoPageData.rules.prohibitedItems.map((item, index) => (
+                    <li key={index}>• {item}</li>
+                  ))}
                 </ul>
               </div>
             </div>
 
             <div className="pt-4 border-t border-border">
               <p className="text-sm text-muted-foreground">
-                All attendees are subject to security screening. Please arrive early to allow time for entry procedures.
+                {infoPageData.rules.securityNote}
               </p>
             </div>
           </CardContent>
@@ -170,8 +197,8 @@ export function Info() {
           </CardHeader>
           <CardContent>
             <Accordion type="single" collapsible className="w-full">
-              {faqItems.map((item, index) => (
-                <AccordionItem key={index} value={`item-${index}`}>
+              {infoPageData.faq.map((item, index) => (
+                <AccordionItem key={item._id || index} value={`item-${index}`}>
                   <AccordionTrigger className="text-left">{item.question}</AccordionTrigger>
                   <AccordionContent className="text-muted-foreground">
                     {item.answer}
