@@ -15,6 +15,7 @@ import { Info } from "./pages/Info"
 import { Archive } from "./pages/Archive"
 import { Contact } from "./pages/Contact"
 import { ComingSoon } from "./pages/ComingSoon"
+import { NotFoundPage } from "./pages/NotFoundPage"
 import { AdminLayout } from "./components/admin/AdminLayout"
 import { AdminDashboard } from "./pages/admin/AdminDashboard"
 import { AdminLineup } from "./pages/admin/AdminLineup"
@@ -158,7 +159,7 @@ function App() {
             <Route path="archive" element={<AdminArchive />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>
-          <Route path="*" element={<BlankPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Router>
       <Toaster />

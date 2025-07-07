@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom"
 import { FaBars, FaExternalLinkAlt } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { LanguageToggle } from "./LanguageToggle"
+// import { LanguageToggle } from "./LanguageToggle"
 import { getSiteAssets, getFestivalInfo } from "@/api/festival"
 
 export function Header() {
@@ -109,7 +109,7 @@ export function Header() {
 
           {/* Right Side */}
           <div className="hidden md:flex items-center space-x-4">
-            <LanguageToggle />
+            {/* <LanguageToggle /> */}
             <Button asChild className="bg-primary hover:bg-primary/90">
               <a
                 href={festivalInfo.ticketUrl}
@@ -148,9 +148,9 @@ export function Header() {
                     </Link>
                   ))}
                   
-                  <div className="pt-4 border-t">
+                  {/* <div className="pt-4 border-t">
                     <LanguageToggle />
-                  </div>
+                  </div> */}
                   
                   <Button asChild className="bg-primary hover:bg-primary/90 w-full">
                     <a
