@@ -23,7 +23,7 @@ import { AdminPages } from "./pages/admin/AdminPages"
 import { AdminArchive } from "./pages/admin/AdminArchive"
 import { AdminSettings } from "./pages/admin/AdminSettings"
 import { useState, useEffect } from "react"
-import { getFestivalInfo } from "./api/festival"
+import { getFestivalInfo, logVisit } from "./api/festival"
 
 function App() {
   const [festivalActive, setFestivalActive] = useState(true)
@@ -32,6 +32,10 @@ function App() {
   useEffect(() => {
     checkFestivalStatus()
   }, [])
+
+  useEffect(() => {
+    logVisit();
+  }, []);
 
   const checkFestivalStatus = async () => {
     try {

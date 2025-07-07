@@ -313,13 +313,12 @@ export function AdminSettings() {
       </div>
 
       <Tabs defaultValue="festival" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="festival">Festival</TabsTrigger>
           <TabsTrigger value="assets">Assets</TabsTrigger>
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="tracking">Tracking</TabsTrigger>
           <TabsTrigger value="social">Social Media</TabsTrigger>
-          <TabsTrigger value="advanced">Advanced</TabsTrigger>
         </TabsList>
 
         <TabsContent value="festival" className="space-y-6">
@@ -651,33 +650,6 @@ export function AdminSettings() {
                 <FaSave className="mr-2 h-4 w-4" />
                 {saving ? "Saving..." : "Save Changes"}
               </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="advanced" className="space-y-6">
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle>Advanced Settings</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Site Backup</Label>
-                <div className="flex gap-2">
-                  <Button variant="outline">Download Backup</Button>
-                  <Button variant="outline">Restore Backup</Button>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Cache Management</Label>
-                <Button variant="outline">Clear Cache</Button>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Database</Label>
-                <Button variant="outline">Export Data</Button>
-              </div>
             </CardContent>
           </Card>
         </TabsContent>

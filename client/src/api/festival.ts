@@ -531,7 +531,34 @@ export const updateInfoPage = async (infoPageData: any) => {
     const response = await api.put('/api/infopage', infoPageData);
     return response.data;
   } catch (error) {
-    console.error("API: Error in updateInfoPage:", error)
+    console.error("API: Error in updateInfoPage:", error);
+    throw new Error(error?.response?.data?.error || error.message);
+  }
+};
+
+// --- Visitor Tracking ---
+
+// Description: Log a new site visit
+// Endpoint: POST /api/visits/log
+export const logVisit = async () => {
+  try {
+    await api.post('/api/visits/log');
+  } catch (error) {
+    // Fail silently so it doesn't impact user experience
+    console.error("API: Error logging visit:", error);
+  }
+};
+
+// Description: Get visitor statistics (admin only)
+// Endpoint: GET /api/visits/stats
+export const getVisitorStats = async () => {
+  try {
+    console.log("API: Making request to GET /api/visits/stats");
+    const response = await api.get('/api/visits/stats');
+    console.log("API: Received response from GET /api/visits/stats:", response.data);
+    return response.data.data;
+  } catch (error) {
+    console.error("API: Error in getVisitorStats:", error);
     throw new Error(error?.response?.data?.error || error.message);
   }
 };

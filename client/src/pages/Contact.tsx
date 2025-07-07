@@ -78,16 +78,16 @@ export function Contact() {
           <div className="space-y-4">
             {contactEmails.map((contact, index) => (
               <Card key={index} className="glass-card">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <FaEnvelope className="h-6 w-6 text-primary mt-1" />
-                    <div>
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <FaEnvelope className="h-6 w-6 text-primary mt-1" />
+                  <div>
                       <h3 className="font-semibold mb-1">{contact.purpose}</h3>
                       <p className="text-muted-foreground">{contact.email}</p>
-                    </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </CardContent>
+            </Card>
             ))}
           </div>
         </div>

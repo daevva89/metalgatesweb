@@ -40,18 +40,18 @@ export function ComingSoon() {
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-lg text-gray-300">
-            Our next festival edition is currently being planned.
+            Our next festival edition is currently being planned. 
             Stay tuned for updates on dates, lineup, and tickets.
           </p>
-
+          
           {contactEmails.length > 0 && (
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-white">Get in Touch</h3>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <div className="flex items-center gap-2 text-purple-200">
-                  <FaEnvelope className="h-5 w-5" />
+                  <div className="flex items-center gap-2 text-purple-200">
+                    <FaEnvelope className="h-5 w-5" />
                   <span>{contactEmails[0].email}</span>
-                </div>
+                  </div>
               </div>
             </div>
           )}
