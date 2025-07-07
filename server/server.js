@@ -68,6 +68,17 @@ app.use((req, res, next) => {
 console.log("Setting up static file serving for uploads");
 app.use("/api/uploads", express.static(path.join(__dirname, "uploads")));
 
+// Serve frontend files in production
+if (process.env.NODE_ENV === "production") {
+  // Serve the static files from the React app
+  app.use(express.static(path.join(__dirname, "../client/dist")));
+
+  // Handles any requests that don't match the ones above
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+  });
+}
+
 app.on("error", (error) => {
   console.error(`Server error: ${error.message}`);
   console.error(error.stack);
@@ -130,10 +141,14 @@ app.use("/api/visits", visitRoutes);
 // Info Page Routes
 app.use("/api/infopage", infoPageRoutes);
 
-// Default route
-app.get("/", (req, res) => {
-  res.json({ message: "Metal Gates Festival API" });
-});
+// The "catchall" handler: for any request that doesn't match one above, send back React's index.html file.
+// This is disabled in development to allow for the Vite dev server to handle frontend requests.
+if (process.env.NODE_ENV !== "production") {
+  // Default route for API testing
+  app.get("/", (req, res) => {
+    res.json({ message: "Metal Gates Festival API" });
+  });
+}
 
 // If no routes handled the request, it's a 404
 app.use((req, res, next) => {
