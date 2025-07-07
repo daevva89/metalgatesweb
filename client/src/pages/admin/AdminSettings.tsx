@@ -1,5 +1,15 @@
 import { useState, useEffect } from "react"
-import { FaSave, FaExternalLinkAlt, FaCode, FaGlobe, FaCalendarAlt, FaTimes, FaImage } from "react-icons/fa"
+import {
+  FaSave,
+  FaExternalLinkAlt,
+  FaCode,
+  FaGlobe,
+  FaCalendarAlt,
+  FaTimes,
+  FaImage,
+  FaPlus,
+  FaTrash
+} from "react-icons/fa";
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -21,6 +31,35 @@ interface Festival {
   isActive: boolean;
 }
 
+interface ContactEmail {
+  purpose: string;
+  email: string;
+}
+
+interface Settings {
+  festival: {
+    name: string;
+    dates: string;
+    description: string;
+    location: string;
+    ticketUrl: string;
+    isActive: boolean;
+  };
+  general: {
+    bannerText: string;
+    contactEmails: ContactEmail[];
+  };
+  tracking: {
+    googleAnalytics: string;
+    metaPixel: string;
+  };
+  social: {
+    facebook: string;
+    instagram: string;
+    youtube: string;
+  };
+}
+
 export function AdminSettings() {
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -28,7 +67,7 @@ export function AdminSettings() {
   const [siteAssets, setSiteAssets] = useState<{ logo: string | null }>({ logo: null })
   const { toast } = useToast()
 
-  const [settings, setSettings] = useState({
+  const [settings, setSettings] = useState<Settings>({
     festival: {
       name: "",
       dates: "",
@@ -38,9 +77,8 @@ export function AdminSettings() {
       isActive: true
     },
     general: {
-      contactEmail: "",
-      phoneNumber: "",
-      bannerText: ""
+      bannerText: "",
+      contactEmails: []
     },
     tracking: {
       googleAnalytics: "",
@@ -95,20 +133,21 @@ export function AdminSettings() {
       console.log("AdminSettings: Assets object:", data.assets)
       console.log("AdminSettings: General settings from API:", {
         bannerText: data.assets?.bannerText,
-        contactEmail: data.assets?.contactEmail,
-        phoneNumber: data.assets?.phoneNumber
+        contactEmails: data.assets?.contactEmails
       })
       
       setSiteAssets(data.assets || { logo: null })
       
       if (data.assets) {
         const newGeneralSettings = {
-          contactEmail: data.assets.contactEmail || "",
-          phoneNumber: data.assets.phoneNumber || "",
+          contactEmails: data.assets.contactEmails || [],
           bannerText: data.assets.bannerText || ""
         }
         
-        console.log("AdminSettings: Setting general settings to:", newGeneralSettings)
+        console.log(
+          "AdminSettings: Setting general settings to:",
+          newGeneralSettings
+        )
         
         setSettings(prev => ({
           ...prev,
@@ -144,9 +183,8 @@ export function AdminSettings() {
         
         const dataToSave = {
           bannerText: settings.general.bannerText,
-          contactEmail: settings.general.contactEmail,
-          phoneNumber: settings.general.phoneNumber
-        }
+          contactEmails: settings.general.contactEmails
+        };
         
         console.log("AdminSettings: Data being sent to API:", dataToSave)
         
@@ -182,6 +220,37 @@ export function AdminSettings() {
       setSaving(false)
     }
   }
+
+  const handleEmailChange = (
+    index: number,
+    field: "purpose" | "email",
+    value: string
+  ) => {
+    const updatedEmails = [...settings.general.contactEmails];
+    updatedEmails[index][field] = value;
+    setSettings(prev => ({
+      ...prev,
+      general: { ...prev.general, contactEmails: updatedEmails }
+    }));
+  };
+
+  const addEmail = () => {
+    setSettings(prev => ({
+      ...prev,
+      general: {
+        ...prev.general,
+        contactEmails: [...prev.general.contactEmails, { purpose: "", email: "" }]
+      }
+    }));
+  };
+
+  const removeEmail = (index: number) => {
+    const updatedEmails = settings.general.contactEmails.filter((_, i) => i !== index);
+    setSettings(prev => ({
+      ...prev,
+      general: { ...prev.general, contactEmails: updatedEmails }
+    }));
+  };
 
   const handleLogoUpload = async (file: string) => {
     try {
@@ -420,60 +489,72 @@ export function AdminSettings() {
         </TabsContent>
 
         <TabsContent value="general" className="space-y-6">
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FaGlobe className="h-5 w-5" />
-                General Settings
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="contactEmail">Contact Email</Label>
-                <Input
-                  id="contactEmail"
-                  type="email"
-                  value={settings.general.contactEmail}
-                  onChange={(e) => setSettings(prev => ({
-                    ...prev,
-                    general: { ...prev.general, contactEmail: e.target.value }
-                  }))}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phoneNumber">Phone Number</Label>
-                <Input
-                  id="phoneNumber"
-                  value={settings.general.phoneNumber}
-                  onChange={(e) => setSettings(prev => ({
-                    ...prev,
-                    general: { ...prev.general, phoneNumber: e.target.value }
-                  }))}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="bannerText">Promotional Banner Text</Label>
-                <Textarea
-                  id="bannerText"
-                  rows={3}
-                  value={settings.general.bannerText}
-                  onChange={(e) => setSettings(prev => ({
-                    ...prev,
-                    general: { ...prev.general, bannerText: e.target.value }
-                  }))}
-                  placeholder="🎸 Early Bird Tickets Available Now! Limited Time Offer 🎸"
-                />
-                <p className="text-sm text-muted-foreground">This banner appears at the top of all pages</p>
-              </div>
-
-              <Button onClick={() => handleSave('general')} disabled={saving}>
-                <FaSave className="mr-2 h-4 w-4" />
-                {saving ? "Saving..." : "Save Changes"}
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Contact Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {settings.general.contactEmails.map((contact, index) => (
+                    <div key={index} className="flex items-center gap-2 p-2 border rounded-md">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 flex-grow">
+                        <Input
+                          placeholder="Purpose (e.g., General Inquiries)"
+                          value={contact.purpose}
+                          onChange={e => handleEmailChange(index, "purpose", e.target.value)}
+                        />
+                        <Input
+                          type="email"
+                          placeholder="Email Address"
+                          value={contact.email}
+                          onChange={e => handleEmailChange(index, "email", e.target.value)}
+                        />
+                      </div>
+                      <Button variant="ghost" size="icon" onClick={() => removeEmail(index)}>
+                        <FaTrash className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button variant="outline" onClick={addEmail} className="mt-2">
+                    <FaPlus className="mr-2 h-4 w-4" />
+                    Add Email
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Top Banner Settings</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="bannerText">Promotional Banner Text</Label>
+                    <Textarea
+                      id="bannerText"
+                      rows={3}
+                      value={settings.general.bannerText}
+                      onChange={(e) =>
+                        setSettings((prev) => ({
+                          ...prev,
+                          general: { ...prev.general, bannerText: e.target.value }
+                        }))
+                      }
+                      placeholder="🎸 Early Bird Tickets Available Now! Limited Time Offer 🎸"
+                    />
+                    <p className="text-sm text-muted-foreground">This banner appears at the top of all pages</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+          <div className="md:col-span-2">
+            <Button onClick={() => handleSave('general')} disabled={saving}>
+              <FaSave className="mr-2 h-4 w-4" />
+              Save General Settings
+            </Button>
+          </div>
         </TabsContent>
 
         <TabsContent value="tracking" className="space-y-6">

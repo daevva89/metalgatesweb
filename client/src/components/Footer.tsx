@@ -2,27 +2,26 @@ import { useState, useEffect } from "react"
 import { FaFacebook, FaInstagram, FaYoutube, FaEnvelope, FaMapPin } from "react-icons/fa"
 import { getSiteAssets } from "@/api/festival"
 
+interface ContactEmail {
+  purpose: string;
+  email: string;
+}
+
 export function Footer() {
-  const [contactInfo, setContactInfo] = useState({
-    contactEmail: "",
-    phoneNumber: ""
-  })
+  const [contactEmails, setContactEmails] = useState<ContactEmail[]>([]);
 
   useEffect(() => {
-    loadContactInfo()
-  }, [])
+    loadContactInfo();
+  }, []);
 
   const loadContactInfo = async () => {
     try {
-      const data = await getSiteAssets()
-      setContactInfo({
-        contactEmail: data.assets?.contactEmail || "",
-        phoneNumber: data.assets?.phoneNumber || ""
-      })
+      const data = await getSiteAssets();
+      setContactEmails(data.assets?.contactEmails || []);
     } catch (error) {
-      console.error("Footer: Error loading contact info:", error)
+      console.error("Footer: Error loading contact info:", error);
     }
-  }
+  };
 
   return (
     <footer className="fixed bottom-0 left-0 right-0 glass border-t">
@@ -57,11 +56,11 @@ export function Footer() {
           </div>
 
           {/* Contact Info */}
-          {contactInfo.contactEmail && (
+          {contactEmails.length > 0 && (
             <div className="flex items-center space-x-6 text-sm text-muted-foreground">
               <div className="flex items-center space-x-1">
                 <FaEnvelope className="h-4 w-4" />
-                <span>{contactInfo.contactEmail}</span>
+                <span>{contactEmails[0].email}</span>
               </div>
               <div className="flex items-center space-x-1">
                 <FaMapPin className="h-4 w-4" />

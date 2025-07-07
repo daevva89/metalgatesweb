@@ -1,29 +1,28 @@
 import { useState, useEffect } from "react"
-import { FaCalendarAlt, FaEnvelope, FaPhone } from "react-icons/fa"
+import { FaCalendarAlt, FaEnvelope } from "react-icons/fa"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getSiteAssets } from "@/api/festival"
 
+interface ContactEmail {
+  purpose: string;
+  email: string;
+}
+
 export function ComingSoon() {
-  const [contactInfo, setContactInfo] = useState({
-    contactEmail: "",
-    phoneNumber: ""
-  })
+  const [contactEmails, setContactEmails] = useState<ContactEmail[]>([]);
 
   useEffect(() => {
-    loadContactInfo()
-  }, [])
+    loadContactInfo();
+  }, []);
 
   const loadContactInfo = async () => {
     try {
-      const data = await getSiteAssets()
-      setContactInfo({
-        contactEmail: data.assets?.contactEmail || "",
-        phoneNumber: data.assets?.phoneNumber || ""
-      })
+      const data = await getSiteAssets();
+      setContactEmails(data.assets?.contactEmails || []);
     } catch (error) {
-      console.error("ComingSoon: Error loading contact info:", error)
+      console.error("ComingSoon: Error loading contact info:", error);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
@@ -41,26 +40,18 @@ export function ComingSoon() {
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-lg text-gray-300">
-            Our next festival edition is currently being planned. 
+            Our next festival edition is currently being planned.
             Stay tuned for updates on dates, lineup, and tickets.
           </p>
-          
-          {(contactInfo.contactEmail || contactInfo.phoneNumber) && (
+
+          {contactEmails.length > 0 && (
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-white">Get in Touch</h3>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                {contactInfo.contactEmail && (
-                  <div className="flex items-center gap-2 text-purple-200">
-                    <FaEnvelope className="h-5 w-5" />
-                    <span>{contactInfo.contactEmail}</span>
-                  </div>
-                )}
-                {contactInfo.phoneNumber && (
-                  <div className="flex items-center gap-2 text-purple-200">
-                    <FaPhone className="h-5 w-5" />
-                    <span>{contactInfo.phoneNumber}</span>
-                  </div>
-                )}
+                <div className="flex items-center gap-2 text-purple-200">
+                  <FaEnvelope className="h-5 w-5" />
+                  <span>{contactEmails[0].email}</span>
+                </div>
               </div>
             </div>
           )}

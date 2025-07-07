@@ -15,8 +15,7 @@ class SiteAssetsService {
         mobileHeroImage: assets.mobileHeroImage,
         countdownDate: assets.countdownDate,
         bannerText: assets.bannerText,
-        contactEmail: assets.contactEmail,
-        phoneNumber: assets.phoneNumber,
+        contactEmails: assets.contactEmails,
         lineupTitle: assets.lineupTitle,
         lineupDescription: assets.lineupDescription,
         createdAt: assets.createdAt,
@@ -34,8 +33,7 @@ class SiteAssetsService {
           : null,
         countdownDate: assets.countdownDate,
         bannerText: assets.bannerText,
-        contactEmail: assets.contactEmail,
-        phoneNumber: assets.phoneNumber,
+        contactEmails: assets.contactEmails,
         lineupTitle: assets.lineupTitle,
         lineupDescription: assets.lineupDescription,
       };
@@ -74,13 +72,9 @@ class SiteAssetsService {
         assets.bannerText = updateData.bannerText;
         console.log("SiteAssetsService: Banner text updated");
       }
-      if (updateData.contactEmail !== undefined) {
-        assets.contactEmail = updateData.contactEmail;
-        console.log("SiteAssetsService: Contact email updated");
-      }
-      if (updateData.phoneNumber !== undefined) {
-        assets.phoneNumber = updateData.phoneNumber;
-        console.log("SiteAssetsService: Phone number updated");
+      if (updateData.contactEmails !== undefined) {
+        assets.contactEmails = updateData.contactEmails;
+        console.log("SiteAssetsService: Contact emails updated");
       }
       if (updateData.countdownDate !== undefined) {
         assets.countdownDate = new Date(updateData.countdownDate);
@@ -180,8 +174,7 @@ class SiteAssetsService {
         mobileHeroImage: assets.mobileHeroImage,
         countdownDate: assets.countdownDate,
         bannerText: assets.bannerText,
-        contactEmail: assets.contactEmail,
-        phoneNumber: assets.phoneNumber,
+        contactEmails: assets.contactEmails,
         lineupTitle: assets.lineupTitle,
         lineupDescription: assets.lineupDescription,
       });
@@ -197,8 +190,7 @@ class SiteAssetsService {
         mobileHeroImage: updatedAssets.mobileHeroImage,
         countdownDate: updatedAssets.countdownDate,
         bannerText: updatedAssets.bannerText,
-        contactEmail: updatedAssets.contactEmail,
-        phoneNumber: updatedAssets.phoneNumber,
+        contactEmails: updatedAssets.contactEmails,
         lineupTitle: updatedAssets.lineupTitle,
         lineupDescription: updatedAssets.lineupDescription,
         createdAt: updatedAssets.createdAt,
@@ -218,8 +210,7 @@ class SiteAssetsService {
           : null,
         countdownDate: updatedAssets.countdownDate,
         bannerText: updatedAssets.bannerText,
-        contactEmail: updatedAssets.contactEmail,
-        phoneNumber: updatedAssets.phoneNumber,
+        contactEmails: updatedAssets.contactEmails,
         lineupTitle: updatedAssets.lineupTitle,
         lineupDescription: updatedAssets.lineupDescription,
       };

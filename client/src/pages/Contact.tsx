@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
-import { FaEnvelope, FaPhone, FaMapPin, FaClock, FaPaperPlane } from "react-icons/fa"
+import { FaEnvelope, FaPaperPlane } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -21,12 +21,14 @@ interface SubmitContactFormResponse {
   message: string
 }
 
+interface ContactEmail {
+  purpose: string
+  email: string
+}
+
 export function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [contactInfo, setContactInfo] = useState({
-    contactEmail: "",
-    phoneNumber: ""
-  })
+  const [contactEmails, setContactEmails] = useState<ContactEmail[]>([])
   const { toast } = useToast()
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ContactFormData>()
 
@@ -37,10 +39,7 @@ export function Contact() {
   const loadContactInfo = async () => {
     try {
       const data = await getSiteAssets()
-      setContactInfo({
-        contactEmail: data.assets?.contactEmail || "",
-        phoneNumber: data.assets?.phoneNumber || ""
-      })
+      setContactEmails(data.assets?.contactEmails || [])
     } catch (error) {
       console.error("Contact: Error loading contact info:", error)
     }
@@ -77,68 +76,19 @@ export function Contact() {
           <h2 className="text-2xl font-bold">Get in Touch</h2>
 
           <div className="space-y-4">
-            <Card className="glass-card">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <FaEnvelope className="h-6 w-6 text-primary mt-1" />
-                  <div>
-                    <h3 className="font-semibold mb-1">Email</h3>
-                    <p className="text-muted-foreground">{contactInfo.contactEmail || "Not available"}</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      General inquiries and information
-                    </p>
+            {contactEmails.map((contact, index) => (
+              <Card key={index} className="glass-card">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <FaEnvelope className="h-6 w-6 text-primary mt-1" />
+                    <div>
+                      <h3 className="font-semibold mb-1">{contact.purpose}</h3>
+                      <p className="text-muted-foreground">{contact.email}</p>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="glass-card">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <FaPhone className="h-6 w-6 text-primary mt-1" />
-                  <div>
-                    <h3 className="font-semibold mb-1">Phone</h3>
-                    <p className="text-muted-foreground">{contactInfo.phoneNumber || "Not available"}</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Available Monday - Friday, 9 AM - 6 PM
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="glass-card">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <FaMapPin className="h-6 w-6 text-primary mt-1" />
-                  <div>
-                    <h3 className="font-semibold mb-1">Address</h3>
-                    <p className="text-muted-foreground">
-                      Strada Blanari 14<br />
-                      Bucharest 030167<br />
-                      Romania
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="glass-card">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <FaClock className="h-6 w-6 text-primary mt-1" />
-                  <div>
-                    <h3 className="font-semibold mb-1">Response Time</h3>
-                    <p className="text-muted-foreground">
-                      We typically respond within 24 hours
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Faster response during business hours
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
 

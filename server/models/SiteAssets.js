@@ -21,14 +21,18 @@ const siteAssetsSchema = new mongoose.Schema({
     type: String,
     default: "🎸 Early Bird Tickets Available Now! Limited Time Offer 🎸",
   },
-  contactEmail: {
-    type: String,
-    default: "info@metalgates.ro",
-  },
-  phoneNumber: {
-    type: String,
-    default: "+40 21 123 4567",
-  },
+  contactEmails: [
+    {
+      purpose: {
+        type: String,
+        required: true,
+      },
+      email: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
   lineupTitle: {
     type: String,
     default: "Lineup 2024",

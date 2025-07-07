@@ -18,8 +18,7 @@ router.get("/", async (req, res) => {
           mobileHeroImage: assets.mobileHeroImage,
           countdownDate: assets.countdownDate,
           bannerText: assets.bannerText,
-          contactEmail: assets.contactEmail,
-          phoneNumber: assets.phoneNumber,
+          contactEmails: assets.contactEmails,
           lineupTitle: assets.lineupTitle,
           lineupDescription: assets.lineupDescription,
         },
@@ -64,8 +63,7 @@ router.put("/", auth, async (req, res) => {
       mobileHeroImage,
       countdownDate,
       bannerText,
-      contactEmail,
-      phoneNumber,
+      contactEmails,
       lineupTitle,
       lineupDescription,
     } = req.body;
@@ -76,8 +74,7 @@ router.put("/", auth, async (req, res) => {
       hasMobileHeroImage: !!mobileHeroImage,
       hasCountdownDate: !!countdownDate,
       hasBannerText: bannerText !== undefined,
-      hasContactEmail: contactEmail !== undefined,
-      hasPhoneNumber: phoneNumber !== undefined,
+      hasContactEmails: contactEmails !== undefined,
       hasLineupTitle: lineupTitle !== undefined,
       hasLineupDescription: lineupDescription !== undefined,
       logoLength: logo ? logo.length : 0,
@@ -85,8 +82,7 @@ router.put("/", auth, async (req, res) => {
       mobileHeroImageLength: mobileHeroImage ? mobileHeroImage.length : 0,
       countdownDateValue: countdownDate,
       bannerTextValue: bannerText,
-      contactEmailValue: contactEmail,
-      phoneNumberValue: phoneNumber,
+      contactEmailsValue: contactEmails,
       lineupTitleValue: lineupTitle,
       lineupDescriptionValue: lineupDescription,
     });
@@ -98,8 +94,7 @@ router.put("/", auth, async (req, res) => {
       updateData.mobileHeroImage = mobileHeroImage;
     if (countdownDate !== undefined) updateData.countdownDate = countdownDate;
     if (bannerText !== undefined) updateData.bannerText = bannerText;
-    if (contactEmail !== undefined) updateData.contactEmail = contactEmail;
-    if (phoneNumber !== undefined) updateData.phoneNumber = phoneNumber;
+    if (contactEmails !== undefined) updateData.contactEmails = contactEmails;
     if (lineupTitle !== undefined) updateData.lineupTitle = lineupTitle;
     if (lineupDescription !== undefined)
       updateData.lineupDescription = lineupDescription;
@@ -112,8 +107,7 @@ router.put("/", auth, async (req, res) => {
         hasMobileHeroImage: "mobileHeroImage" in updateData,
         hasCountdownDate: "countdownDate" in updateData,
         hasBannerText: "bannerText" in updateData,
-        hasContactEmail: "contactEmail" in updateData,
-        hasPhoneNumber: "phoneNumber" in updateData,
+        hasContactEmails: "contactEmails" in updateData,
         hasLineupTitle: "lineupTitle" in updateData,
         hasLineupDescription: "lineupDescription" in updateData,
       }
@@ -135,8 +129,7 @@ router.put("/", auth, async (req, res) => {
           mobileHeroImage: updatedAssets.mobileHeroImage,
           countdownDate: updatedAssets.countdownDate,
           bannerText: updatedAssets.bannerText,
-          contactEmail: updatedAssets.contactEmail,
-          phoneNumber: updatedAssets.phoneNumber,
+          contactEmails: updatedAssets.contactEmails,
           lineupTitle: updatedAssets.lineupTitle,
           lineupDescription: updatedAssets.lineupDescription,
         },
@@ -187,8 +180,7 @@ router.put("/logo", auth, async (req, res) => {
           mobileHeroImage: updatedAssets.mobileHeroImage,
           countdownDate: updatedAssets.countdownDate,
           bannerText: updatedAssets.bannerText,
-          contactEmail: updatedAssets.contactEmail,
-          phoneNumber: updatedAssets.phoneNumber,
+          contactEmails: updatedAssets.contactEmails,
           lineupTitle: updatedAssets.lineupTitle,
           lineupDescription: updatedAssets.lineupDescription,
         },
@@ -232,8 +224,7 @@ router.put("/hero", auth, async (req, res) => {
           mobileHeroImage: updatedAssets.mobileHeroImage,
           countdownDate: updatedAssets.countdownDate,
           bannerText: updatedAssets.bannerText,
-          contactEmail: updatedAssets.contactEmail,
-          phoneNumber: updatedAssets.phoneNumber,
+          contactEmails: updatedAssets.contactEmails,
           lineupTitle: updatedAssets.lineupTitle,
           lineupDescription: updatedAssets.lineupDescription,
         },
@@ -274,8 +265,7 @@ router.delete("/logo", auth, async (req, res) => {
           mobileHeroImage: updatedAssets.mobileHeroImage,
           countdownDate: updatedAssets.countdownDate,
           bannerText: updatedAssets.bannerText,
-          contactEmail: updatedAssets.contactEmail,
-          phoneNumber: updatedAssets.phoneNumber,
+          contactEmails: updatedAssets.contactEmails,
           lineupTitle: updatedAssets.lineupTitle,
           lineupDescription: updatedAssets.lineupDescription,
         },
@@ -316,8 +306,7 @@ router.delete("/hero", auth, async (req, res) => {
           mobileHeroImage: updatedAssets.mobileHeroImage,
           countdownDate: updatedAssets.countdownDate,
           bannerText: updatedAssets.bannerText,
-          contactEmail: updatedAssets.contactEmail,
-          phoneNumber: updatedAssets.phoneNumber,
+          contactEmails: updatedAssets.contactEmails,
           lineupTitle: updatedAssets.lineupTitle,
           lineupDescription: updatedAssets.lineupDescription,
         },
