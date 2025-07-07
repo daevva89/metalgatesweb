@@ -23,7 +23,7 @@ import { AdminPages } from "./pages/admin/AdminPages"
 import { AdminArchive } from "./pages/admin/AdminArchive"
 import { AdminSettings } from "./pages/admin/AdminSettings"
 import { useState, useEffect } from "react"
-import { getFestivalInfo, logVisit } from "./api/festival"
+import { getFestivalInfo, logVisit, getSiteAssets } from "./api/festival"
 
 function App() {
   const [festivalActive, setFestivalActive] = useState(true)
@@ -34,6 +34,56 @@ function App() {
   }, [])
 
   useEffect(() => {
+    const fetchAssetsAndInjectScripts = async () => {
+      try {
+        const data = await getSiteAssets();
+        const assets = data.assets;
+
+        if (assets.googleAnalytics) {
+          const gaScript = document.createElement('script');
+          gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${assets.googleAnalytics}`;
+          gaScript.async = true;
+          document.head.appendChild(gaScript);
+
+          const gaScript2 = document.createElement('script');
+          gaScript2.innerHTML = `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${assets.googleAnalytics}');
+          `;
+          document.head.appendChild(gaScript2);
+        }
+
+        if (assets.metaPixel) {
+          const metaScript = document.createElement('script');
+          metaScript.innerHTML = `
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', '${assets.metaPixel}');
+            fbq('track', 'PageView');
+          `;
+          document.head.appendChild(metaScript);
+
+          const metaNoscript = document.createElement('noscript');
+          metaNoscript.innerHTML = `<img height="1" width="1" style="display:none"
+            src="https://www.facebook.com/tr?id=${assets.metaPixel}&ev=PageView&noscript=1"
+          />`;
+          document.head.appendChild(metaNoscript);
+        }
+
+      } catch (error) {
+        console.error("Error fetching site assets for script injection:", error);
+      }
+    };
+
+    fetchAssetsAndInjectScripts();
     logVisit();
   }, []);
 

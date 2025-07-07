@@ -18,6 +18,8 @@ class SiteAssetsService {
         contactEmails: assets.contactEmails,
         lineupTitle: assets.lineupTitle,
         lineupDescription: assets.lineupDescription,
+        googleAnalytics: assets.googleAnalytics,
+        metaPixel: assets.metaPixel,
         createdAt: assets.createdAt,
         updatedAt: assets.updatedAt,
       });
@@ -36,6 +38,8 @@ class SiteAssetsService {
         contactEmails: assets.contactEmails,
         lineupTitle: assets.lineupTitle,
         lineupDescription: assets.lineupDescription,
+        googleAnalytics: assets.googleAnalytics,
+        metaPixel: assets.metaPixel,
       };
 
       console.log(
@@ -90,6 +94,14 @@ class SiteAssetsService {
       if (updateData.lineupDescription !== undefined) {
         assets.lineupDescription = updateData.lineupDescription;
         console.log("SiteAssetsService: Lineup description updated");
+      }
+      if (updateData.googleAnalytics !== undefined) {
+        assets.googleAnalytics = updateData.googleAnalytics;
+        console.log("SiteAssetsService: Google Analytics updated");
+      }
+      if (updateData.metaPixel !== undefined) {
+        assets.metaPixel = updateData.metaPixel;
+        console.log("SiteAssetsService: Meta Pixel updated");
       }
 
       if (updateData.logo !== undefined) {
@@ -177,6 +189,8 @@ class SiteAssetsService {
         contactEmails: assets.contactEmails,
         lineupTitle: assets.lineupTitle,
         lineupDescription: assets.lineupDescription,
+        googleAnalytics: assets.googleAnalytics,
+        metaPixel: assets.metaPixel,
       });
 
       // Save the assets
@@ -193,6 +207,8 @@ class SiteAssetsService {
         contactEmails: updatedAssets.contactEmails,
         lineupTitle: updatedAssets.lineupTitle,
         lineupDescription: updatedAssets.lineupDescription,
+        googleAnalytics: updatedAssets.googleAnalytics,
+        metaPixel: updatedAssets.metaPixel,
         createdAt: updatedAssets.createdAt,
         updatedAt: updatedAssets.updatedAt,
       });
@@ -213,6 +229,8 @@ class SiteAssetsService {
         contactEmails: updatedAssets.contactEmails,
         lineupTitle: updatedAssets.lineupTitle,
         lineupDescription: updatedAssets.lineupDescription,
+        googleAnalytics: updatedAssets.googleAnalytics,
+        metaPixel: updatedAssets.metaPixel,
       };
     } catch (error) {
       console.error("SiteAssetsService: Error updating site assets:", error);

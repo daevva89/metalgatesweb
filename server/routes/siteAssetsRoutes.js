@@ -21,6 +21,8 @@ router.get("/", async (req, res) => {
           contactEmails: assets.contactEmails,
           lineupTitle: assets.lineupTitle,
           lineupDescription: assets.lineupDescription,
+          googleAnalytics: assets.googleAnalytics,
+          metaPixel: assets.metaPixel,
         },
       },
       message: "Site assets retrieved successfully",
@@ -66,6 +68,8 @@ router.put("/", auth, async (req, res) => {
       contactEmails,
       lineupTitle,
       lineupDescription,
+      googleAnalytics,
+      metaPixel,
     } = req.body;
     console.log("SiteAssetsRoutes: Full request body:", req.body);
     console.log("SiteAssetsRoutes: Update data received:", {
@@ -77,6 +81,8 @@ router.put("/", auth, async (req, res) => {
       hasContactEmails: contactEmails !== undefined,
       hasLineupTitle: lineupTitle !== undefined,
       hasLineupDescription: lineupDescription !== undefined,
+      hasGoogleAnalytics: googleAnalytics !== undefined,
+      hasMetaPixel: metaPixel !== undefined,
       logoLength: logo ? logo.length : 0,
       heroImageLength: heroImage ? heroImage.length : 0,
       mobileHeroImageLength: mobileHeroImage ? mobileHeroImage.length : 0,
@@ -98,6 +104,9 @@ router.put("/", auth, async (req, res) => {
     if (lineupTitle !== undefined) updateData.lineupTitle = lineupTitle;
     if (lineupDescription !== undefined)
       updateData.lineupDescription = lineupDescription;
+    if (googleAnalytics !== undefined)
+      updateData.googleAnalytics = googleAnalytics;
+    if (metaPixel !== undefined) updateData.metaPixel = metaPixel;
 
     console.log(
       "SiteAssetsRoutes: Calling siteAssetsService.updateSiteAssets with:",
@@ -110,6 +119,8 @@ router.put("/", auth, async (req, res) => {
         hasContactEmails: "contactEmails" in updateData,
         hasLineupTitle: "lineupTitle" in updateData,
         hasLineupDescription: "lineupDescription" in updateData,
+        hasGoogleAnalytics: "googleAnalytics" in updateData,
+        hasMetaPixel: "metaPixel" in updateData,
       }
     );
 
@@ -132,6 +143,8 @@ router.put("/", auth, async (req, res) => {
           contactEmails: updatedAssets.contactEmails,
           lineupTitle: updatedAssets.lineupTitle,
           lineupDescription: updatedAssets.lineupDescription,
+          googleAnalytics: updatedAssets.googleAnalytics,
+          metaPixel: updatedAssets.metaPixel,
         },
       },
       message: "Site assets updated successfully",
@@ -183,6 +196,8 @@ router.put("/logo", auth, async (req, res) => {
           contactEmails: updatedAssets.contactEmails,
           lineupTitle: updatedAssets.lineupTitle,
           lineupDescription: updatedAssets.lineupDescription,
+          googleAnalytics: updatedAssets.googleAnalytics,
+          metaPixel: updatedAssets.metaPixel,
         },
       },
       message: "Logo updated successfully",
@@ -227,6 +242,8 @@ router.put("/hero", auth, async (req, res) => {
           contactEmails: updatedAssets.contactEmails,
           lineupTitle: updatedAssets.lineupTitle,
           lineupDescription: updatedAssets.lineupDescription,
+          googleAnalytics: updatedAssets.googleAnalytics,
+          metaPixel: updatedAssets.metaPixel,
         },
       },
       message: "Hero image updated successfully",
@@ -268,6 +285,8 @@ router.delete("/logo", auth, async (req, res) => {
           contactEmails: updatedAssets.contactEmails,
           lineupTitle: updatedAssets.lineupTitle,
           lineupDescription: updatedAssets.lineupDescription,
+          googleAnalytics: updatedAssets.googleAnalytics,
+          metaPixel: updatedAssets.metaPixel,
         },
       },
       message: "Logo removed successfully",
@@ -309,6 +328,8 @@ router.delete("/hero", auth, async (req, res) => {
           contactEmails: updatedAssets.contactEmails,
           lineupTitle: updatedAssets.lineupTitle,
           lineupDescription: updatedAssets.lineupDescription,
+          googleAnalytics: updatedAssets.googleAnalytics,
+          metaPixel: updatedAssets.metaPixel,
         },
       },
       message: "Hero image removed successfully",

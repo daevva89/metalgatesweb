@@ -144,6 +144,11 @@ export function AdminSettings() {
           bannerText: data.assets.bannerText || ""
         }
         
+        const newTrackingSettings = {
+          googleAnalytics: data.assets.googleAnalytics || "",
+          metaPixel: data.assets.metaPixel || ""
+        }
+
         console.log(
           "AdminSettings: Setting general settings to:",
           newGeneralSettings
@@ -151,7 +156,8 @@ export function AdminSettings() {
         
         setSettings(prev => ({
           ...prev,
-          general: newGeneralSettings
+          general: newGeneralSettings,
+          tracking: newTrackingSettings,
         }))
       }
     } catch (error) {
@@ -200,6 +206,17 @@ export function AdminSettings() {
         toast({
           title: "Success",
           description: "General settings updated successfully"
+        })
+      } else if (section === 'tracking') {
+        console.log("AdminSettings: Saving tracking settings...")
+        const dataToSave = {
+          googleAnalytics: settings.tracking.googleAnalytics,
+          metaPixel: settings.tracking.metaPixel,
+        };
+        await updateSiteAssets(dataToSave as any)
+        toast({
+          title: "Success",
+          description: "Tracking settings updated successfully"
         })
       } else {
         console.log("Saving settings:", section)
@@ -302,7 +319,21 @@ export function AdminSettings() {
     }
   }
 
+  const handleInputChange = (
+    section: keyof Settings,
+    field: string,
+    value: string | boolean
+  ) => {
+    setSettings(prev => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        [field]: value
+      }
+    }))
+  }
 
+  if (loading) return <div>Loading settings...</div>;
 
   return (
     <div className="space-y-6">
