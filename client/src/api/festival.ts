@@ -223,9 +223,9 @@ export const getLineup = async () => {
 
 // Description: Create new band
 // Endpoint: POST /api/lineup
-// Request: { name: string, country: string, genre: string, biography: string, spotifyEmbed: string, facebook: string, instagram: string, youtube: string }
+// Request: { name: string, country: string, genre: string, biography: string, spotifyEmbed: string, facebook: string, instagram: string, youtube: string, tiktok: string, bandcamp: string, website: string }
 // Response: { success: boolean, data: { band: object }, message: string }
-export const createBand = async (bandData: { name: string; country: string; genre: string; biography: string; spotifyEmbed: string; facebook: string; instagram: string; youtube: string; image?: string }) => {
+export const createBand = async (bandData: { name: string; country: string; genre: string; biography: string; spotifyEmbed: string; facebook: string; instagram: string; youtube: string; tiktok: string; bandcamp: string; website: string; image?: string }) => {
   try {
     console.log("API: Making request to POST /api/lineup with data:", {
       ...bandData,
@@ -242,9 +242,9 @@ export const createBand = async (bandData: { name: string; country: string; genr
 
 // Description: Update existing band
 // Endpoint: PUT /api/lineup/:id
-// Request: { name: string, country: string, genre: string, biography: string, spotifyEmbed: string, facebook: string, instagram: string, youtube: string }
+// Request: { name: string, country: string, genre: string, biography: string, spotifyEmbed: string, facebook: string, instagram: string, youtube: string, tiktok: string, bandcamp: string, website: string }
 // Response: { success: boolean, data: { band: object }, message: string }
-export const updateBand = async (bandId: string, bandData: { name: string; country: string; genre: string; biography: string; spotifyEmbed: string; facebook: string; instagram: string; youtube: string; image?: string }) => {
+export const updateBand = async (bandId: string, bandData: { name: string; country: string; genre: string; biography: string; spotifyEmbed: string; facebook: string; instagram: string; youtube: string; tiktok: string; bandcamp: string; website: string; image?: string }) => {
   try {
     console.log("API: Making request to PUT /api/lineup/" + bandId + " with data:", {
       ...bandData,

@@ -23,6 +23,9 @@ interface Band {
     facebook?: string
     instagram?: string
     youtube?: string
+    tiktok?: string
+    bandcamp?: string
+    website?: string
   }
 }
 
@@ -35,6 +38,9 @@ interface BandFormData {
   facebook: string
   instagram: string
   youtube: string
+  tiktok: string
+  bandcamp: string
+  website: string
 }
 
 export function AdminLineup() {
@@ -98,6 +104,9 @@ export function AdminLineup() {
     setValue("facebook", band.socialLinks.facebook || "")
     setValue("instagram", band.socialLinks.instagram || "")
     setValue("youtube", band.socialLinks.youtube || "")
+    setValue("tiktok", band.socialLinks.tiktok || "")
+    setValue("bandcamp", band.socialLinks.bandcamp || "")
+    setValue("website", band.socialLinks.website || "")
     setSelectedImage(null)
     setIsDialogOpen(true)
   }
@@ -321,7 +330,7 @@ export function AdminLineup() {
 
             <div className="space-y-4">
               <Label>Social Media Links</Label>
-              <div className="grid md:grid-cols-3 gap-4">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="facebook">Facebook</Label>
                   <Input id="facebook" {...register("facebook")} />
@@ -333,6 +342,18 @@ export function AdminLineup() {
                 <div className="space-y-2">
                   <Label htmlFor="youtube">YouTube</Label>
                   <Input id="youtube" {...register("youtube")} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="tiktok">TikTok</Label>
+                  <Input id="tiktok" {...register("tiktok")} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="bandcamp">Bandcamp</Label>
+                  <Input id="bandcamp" {...register("bandcamp")} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="website">Website</Label>
+                  <Input id="website" {...register("website")} />
                 </div>
               </div>
             </div>

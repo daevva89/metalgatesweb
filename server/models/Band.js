@@ -42,7 +42,15 @@ const bandSchema = new mongoose.Schema({
       type: String,
       default: "",
     },
+    tiktok: {
+      type: String,
+      default: "",
+    },
     bandcamp: {
+      type: String,
+      default: "",
+    },
+    website: {
       type: String,
       default: "",
     },

@@ -29,7 +29,9 @@ class BandService {
           facebook: bandData.facebook || "",
           instagram: bandData.instagram || "",
           youtube: bandData.youtube || "",
+          tiktok: bandData.tiktok || "",
           bandcamp: bandData.bandcamp || "",
+          website: bandData.website || "",
         },
       });
 
@@ -138,7 +140,9 @@ class BandService {
             facebook: updateData.facebook || "",
             instagram: updateData.instagram || "",
             youtube: updateData.youtube || "",
+            tiktok: updateData.tiktok || "",
             bandcamp: updateData.bandcamp || "",
+            website: updateData.website || "",
           },
         },
         { new: true }

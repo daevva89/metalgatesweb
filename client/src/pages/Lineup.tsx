@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
-import { Music, MapPin, ExternalLink, Facebook, Instagram, Youtube } from "lucide-react"
+import { MapPin, Globe } from "lucide-react"
+import { SiSpotify, SiFacebook, SiInstagram, SiYoutube, SiTiktok, SiBandcamp } from "react-icons/si"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -18,6 +19,9 @@ interface Band {
     facebook?: string
     instagram?: string
     youtube?: string
+    tiktok?: string
+    bandcamp?: string
+    website?: string
   }
 }
 
@@ -117,25 +121,46 @@ export function Lineup() {
                   />
                   
                   {/* Social Links */}
-                  <div className="flex justify-center gap-4">
+                  <div className="flex justify-center gap-4 flex-wrap">
                     {selectedBand.socialLinks.facebook && (
                       <Button asChild variant="outline" size="icon">
                         <a href={selectedBand.socialLinks.facebook} target="_blank" rel="noopener noreferrer">
-                          <Facebook className="h-4 w-4" />
+                          <SiFacebook className="h-4 w-4 text-blue-600" />
                         </a>
                       </Button>
                     )}
                     {selectedBand.socialLinks.instagram && (
                       <Button asChild variant="outline" size="icon">
                         <a href={selectedBand.socialLinks.instagram} target="_blank" rel="noopener noreferrer">
-                          <Instagram className="h-4 w-4" />
+                          <SiInstagram className="h-4 w-4 text-pink-500" />
                         </a>
                       </Button>
                     )}
                     {selectedBand.socialLinks.youtube && (
                       <Button asChild variant="outline" size="icon">
                         <a href={selectedBand.socialLinks.youtube} target="_blank" rel="noopener noreferrer">
-                          <Youtube className="h-4 w-4" />
+                          <SiYoutube className="h-4 w-4 text-red-600" />
+                        </a>
+                      </Button>
+                    )}
+                    {selectedBand.socialLinks.tiktok && (
+                      <Button asChild variant="outline" size="icon">
+                        <a href={selectedBand.socialLinks.tiktok} target="_blank" rel="noopener noreferrer">
+                          <SiTiktok className="h-4 w-4 text-black dark:text-white" />
+                        </a>
+                      </Button>
+                    )}
+                    {selectedBand.socialLinks.bandcamp && (
+                      <Button asChild variant="outline" size="icon">
+                        <a href={selectedBand.socialLinks.bandcamp} target="_blank" rel="noopener noreferrer">
+                          <SiBandcamp className="h-4 w-4 text-cyan-400" />
+                        </a>
+                      </Button>
+                    )}
+                    {selectedBand.socialLinks.website && (
+                      <Button asChild variant="outline" size="icon">
+                        <a href={selectedBand.socialLinks.website} target="_blank" rel="noopener noreferrer">
+                          <Globe className="h-4 w-4 text-gray-600" />
                         </a>
                       </Button>
                     )}
@@ -160,15 +185,25 @@ export function Lineup() {
                   </div>
 
                   {/* Spotify Embed */}
-                  <div className="space-y-2">
-                    <h4 className="font-semibold flex items-center gap-2">
-                      <Music className="h-4 w-4" />
-                      Listen on Spotify
-                    </h4>
-                    <div className="aspect-[4/5] bg-muted rounded-lg flex items-center justify-center">
-                      <p className="text-muted-foreground">Spotify Player Embed</p>
+                  {selectedBand.spotifyEmbed && (
+                    <div className="space-y-2">
+                      <h4 className="font-semibold flex items-center gap-2">
+                        <SiSpotify className="h-4 w-4 text-green-500" />
+                        Listen on Spotify
+                      </h4>
+                      <div className="aspect-[5/2] bg-muted rounded-lg overflow-hidden">
+                        <iframe
+                          src={selectedBand.spotifyEmbed.replace('open.spotify.com/', 'open.spotify.com/embed/')}
+                          width="100%"
+                          height="100%"
+                          frameBorder="0"
+                          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                          loading="lazy"
+                          title={`${selectedBand.name} on Spotify`}
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </>

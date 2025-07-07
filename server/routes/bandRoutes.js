@@ -82,6 +82,9 @@ router.post("/", auth, async (req, res) => {
       facebook,
       instagram,
       youtube,
+      tiktok,
+      bandcamp,
+      website,
     } = req.body;
 
     console.log("POST /api/lineup - Extracted fields:", {
@@ -94,6 +97,9 @@ router.post("/", auth, async (req, res) => {
       facebook: facebook ? "present" : "missing",
       instagram: instagram ? "present" : "missing",
       youtube: youtube ? "present" : "missing",
+      tiktok: tiktok ? "present" : "missing",
+      bandcamp: bandcamp ? "present" : "missing",
+      website: website ? "present" : "missing",
     });
 
     if (!name || !country || !biography) {
@@ -114,6 +120,9 @@ router.post("/", auth, async (req, res) => {
       facebook: facebook || "",
       instagram: instagram || "",
       youtube: youtube || "",
+      tiktok: tiktok || "",
+      bandcamp: bandcamp || "",
+      website: website || "",
     };
 
     console.log("POST /api/lineup - Band data to save:", {
@@ -165,6 +174,9 @@ router.put("/:id", auth, async (req, res) => {
       facebook,
       instagram,
       youtube,
+      tiktok,
+      bandcamp,
+      website,
     } = req.body;
 
     console.log("PUT /api/lineup/:id - Extracted fields:", {
@@ -177,6 +189,9 @@ router.put("/:id", auth, async (req, res) => {
       facebook: facebook ? "present" : "missing",
       instagram: instagram ? "present" : "missing",
       youtube: youtube ? "present" : "missing",
+      tiktok: tiktok ? "present" : "missing",
+      bandcamp: bandcamp ? "present" : "missing",
+      website: website ? "present" : "missing",
     });
 
     const updateData = {
@@ -189,6 +204,9 @@ router.put("/:id", auth, async (req, res) => {
       facebook: facebook || "",
       instagram: instagram || "",
       youtube: youtube || "",
+      tiktok: tiktok || "",
+      bandcamp: bandcamp || "",
+      website: website || "",
     };
 
     console.log("PUT /api/lineup/:id - Update data:", {
