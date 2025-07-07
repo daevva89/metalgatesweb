@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react"
-import { Plus, Edit, Trash2, Music, MapPin, Image } from "lucide-react"
+import { useEffect, useState, useCallback } from "react"
+import { FaPlus, FaEdit, FaTrash, FaMusic, FaMapMarkerAlt, FaImage } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Card, CardContent } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
@@ -52,11 +52,7 @@ export function AdminLineup() {
   const { register, handleSubmit, reset, setValue } = useForm<BandFormData>()
   const { toast } = useToast()
 
-  useEffect(() => {
-    fetchBands()
-  }, [])
-
-  const fetchBands = async () => {
+  const fetchBands = useCallback(async () => {
     try {
       console.log("LINEUP: Fetching bands for admin...")
       const response = await getLineup()
@@ -64,7 +60,7 @@ export function AdminLineup() {
       console.log("LINEUP: Bands array:", response.bands)
       
       if (response.bands && response.bands.length > 0) {
-        response.bands.forEach((band: any, index: number) => {
+        response.bands.forEach((band: Band, index: number) => {
           console.log(`LINEUP: Band ${index + 1} (${band.name}):`, {
             _id: band._id,
             name: band.name,
@@ -87,7 +83,11 @@ export function AdminLineup() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [toast])
+
+  useEffect(() => {
+    fetchBands()
+  }, [fetchBands])
 
   const handleEdit = (band: Band) => {
     console.log("LINEUP: Editing band:", {
@@ -221,15 +221,15 @@ export function AdminLineup() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Lineup Management</h1>
-          <p className="text-muted-foreground">Manage festival bands and lineup</p>
+          <p className="text-muted-foreground">Add, edit, and remove bands from the festival lineup</p>
         </div>
         <Button onClick={handleAdd}>
-          <Plus className="mr-2 h-4 w-4" />
+          <FaPlus className="mr-2 h-4 w-4" />
           Add Band
         </Button>
       </div>
 
-      {/* Bands Grid */}
+      {/* Bands List */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {bands.map((band) => {
           return (
@@ -242,36 +242,32 @@ export function AdminLineup() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <Image className="h-12 w-12 text-muted-foreground" />
+                  <FaImage className="h-12 w-12 text-muted-foreground" />
                 )}
               </div>
               <CardContent className="p-4">
-                <div className="space-y-2">
-                  <h3 className="font-semibold">{band.name}</h3>
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <MapPin className="h-3 w-3" />
-                    {band.country}
+                <div className="space-y-1">
+                  <h3 className="text-lg font-semibold">{band.name}</h3>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <FaMusic className="h-4 w-4" />
+                    {band.genre || "No genre specified"}
                   </div>
-                  {band.genre && (
-                    <div className="text-sm text-muted-foreground">
-                      {band.genre}
-                    </div>
-                  )}
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={() => handleEdit(band)}>
-                      <Edit className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleDelete(band._id)}
-                      className="text-red-400 hover:text-red-300"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <FaMapMarkerAlt className="h-4 w-4" />
+                    {band.country}
                   </div>
                 </div>
               </CardContent>
+              <div className="flex items-center gap-2 p-4 border-t border-muted">
+                <Button variant="outline" size="sm" onClick={() => handleEdit(band)}>
+                  <FaEdit className="mr-2 h-4 w-4" />
+                  Edit
+                </Button>
+                <Button variant="destructive" size="sm" onClick={() => handleDelete(band._id)}>
+                  <FaTrash className="mr-2 h-4 w-4" />
+                  Delete
+                </Button>
+              </div>
             </Card>
           )
         })}
@@ -288,7 +284,10 @@ export function AdminLineup() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="image">Band Image</Label>
+              <Label htmlFor="image" className="flex items-center gap-2">
+                <FaImage className="h-4 w-4" />
+                Band Image
+              </Label>
               <FileUpload
                 onFileSelect={setSelectedImage}
                 description="Upload band image"

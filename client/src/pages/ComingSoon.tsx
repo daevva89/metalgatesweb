@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
-import { Calendar, Mail, Phone } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { FaCalendarAlt, FaEnvelope, FaPhone } from "react-icons/fa"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getSiteAssets } from "@/api/festival"
 
@@ -31,7 +30,7 @@ export function ComingSoon() {
       <Card className="w-full max-w-2xl glass-card text-center">
         <CardHeader className="space-y-4">
           <div className="mx-auto w-24 h-24 bg-purple-600 rounded-full flex items-center justify-center">
-            <Calendar className="h-12 w-12 text-white" />
+            <FaCalendarAlt className="h-12 w-12 text-white" />
           </div>
           <CardTitle className="text-4xl font-bold text-white">
             Coming Soon
@@ -52,13 +51,13 @@ export function ComingSoon() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 {contactInfo.contactEmail && (
                   <div className="flex items-center gap-2 text-purple-200">
-                    <Mail className="h-5 w-5" />
+                    <FaEnvelope className="h-5 w-5" />
                     <span>{contactInfo.contactEmail}</span>
                   </div>
                 )}
                 {contactInfo.phoneNumber && (
                   <div className="flex items-center gap-2 text-purple-200">
-                    <Phone className="h-5 w-5" />
+                    <FaPhone className="h-5 w-5" />
                     <span>{contactInfo.phoneNumber}</span>
                   </div>
                 )}

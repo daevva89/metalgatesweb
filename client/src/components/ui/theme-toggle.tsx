@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Moon, Sun } from "lucide-react"
+import { FaMoon, FaSun } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 
 export function ThemeToggle() {
@@ -30,9 +30,9 @@ export function ThemeToggle() {
       className="w-9 h-9 rounded-full transition-colors hover:bg-accent"
     >
       {theme === "dark" ? (
-        <Sun className="h-5 w-5 transition-all" />
+        <FaSun className="h-5 w-5 transition-all" />
       ) : (
-        <Moon className="h-5 w-5 transition-all" />
+        <FaMoon className="h-5 w-5 transition-all" />
       )}
       <span className="sr-only">Toggle theme</span>
     </Button>

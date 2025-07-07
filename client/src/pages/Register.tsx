@@ -13,9 +13,7 @@ import {
   CardFooter,
 } from "@/components/ui/card"
 import { useToast } from "@/hooks/useToast"
-import {
-  UserPlus
-} from "lucide-react"
+import { FaUserPlus } from "react-icons/fa"
 import { useAuth } from "@/contexts/AuthContext"
 
 type RegisterForm = {
@@ -45,7 +43,7 @@ export function Register() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error?.message,
+        description: (error as Error).message,
       })
     } finally {
       setLoading(false)
@@ -84,7 +82,7 @@ export function Register() {
                 "Loading..."
               ) : (
                 <>
-                  <UserPlus className="mr-2 h-4 w-4" />
+                  <FaUserPlus className="mr-2 h-4 w-4" />
                   Create Account
                 </>
               )}

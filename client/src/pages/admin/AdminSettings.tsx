@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Save, ExternalLink, Code, Globe, Mail, Calendar, Upload, X, Image } from "lucide-react"
+import { FaSave, FaExternalLinkAlt, FaCode, FaGlobe, FaCalendarAlt, FaTimes, FaImage } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -11,11 +11,21 @@ import { FileUpload } from "@/components/ui/file-upload"
 import { useToast } from "@/hooks/useToast"
 import { getFestivals, createFestival, updateFestival, getSiteAssets, updateSiteAssets } from "@/api/festival"
 
+interface Festival {
+  _id: string;
+  name: string;
+  dates: string;
+  description: string;
+  location: string;
+  ticketUrl: string;
+  isActive: boolean;
+}
+
 export function AdminSettings() {
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [currentFestival, setCurrentFestival] = useState(null)
-  const [siteAssets, setSiteAssets] = useState({ logo: null })
+  const [currentFestival, setCurrentFestival] = useState<Festival | null>(null)
+  const [siteAssets, setSiteAssets] = useState<{ logo: string | null }>({ logo: null })
   const { toast } = useToast()
 
   const [settings, setSettings] = useState({
@@ -54,7 +64,7 @@ export function AdminSettings() {
       const data = await getFestivals()
       const festivals = data.festivals || []
 
-      const activeFestival = festivals.find(f => f.isActive) || festivals[0]
+      const activeFestival = festivals.find((f: Festival) => f.isActive) || festivals[0]
 
       if (activeFestival) {
         setCurrentFestival(activeFestival)
@@ -165,7 +175,7 @@ export function AdminSettings() {
       console.error("Error saving settings:", error)
       toast({
         title: "Error",
-        description: error.message || "Failed to save settings",
+        description: (error as Error).message || "Failed to save settings",
         variant: "destructive"
       })
     } finally {
@@ -187,10 +197,10 @@ export function AdminSettings() {
       })
     } catch (error) {
       console.error("AdminSettings: Error uploading logo:", error)
-      console.error("AdminSettings: Error message:", error.message)
+      console.error("AdminSettings: Error message:", (error as Error).message)
       toast({
         title: "Error",
-        description: error.message || "Failed to upload logo",
+        description: (error as Error).message || "Failed to upload logo",
         variant: "destructive"
       })
     } finally {
@@ -202,18 +212,20 @@ export function AdminSettings() {
 
   const handleRemoveLogo = async () => {
     try {
+      console.log("AdminSettings: Removing logo")
       setSaving(true)
-      const response = await updateSiteAssets({ logo: null })
+      const response = await updateSiteAssets({ logo: '' })
+      console.log("AdminSettings: Logo removal response:", response)
       setSiteAssets(response.data.assets)
       toast({
         title: "Success",
         description: "Logo removed successfully"
       })
     } catch (error) {
-      console.error("Error removing logo:", error)
+      console.error("AdminSettings: Error removing logo:", error)
       toast({
         title: "Error",
-        description: error.message || "Failed to remove logo",
+        description: (error as Error).message || "Failed to remove logo",
         variant: "destructive"
       })
     } finally {
@@ -245,7 +257,7 @@ export function AdminSettings() {
           <Card className="glass-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
+                <FaCalendarAlt className="h-5 w-5" />
                 Festival Configuration
               </CardTitle>
             </CardHeader>
@@ -339,7 +351,7 @@ export function AdminSettings() {
                     onClick={() => handleSave('festival')}
                     disabled={saving || !settings.festival.name || !settings.festival.dates || !settings.festival.description || !settings.festival.location}
                   >
-                    <Save className="mr-2 h-4 w-4" />
+                    <FaSave className="mr-2 h-4 w-4" />
                     {saving ? "Saving..." : "Save Festival Settings"}
                   </Button>
                 </>
@@ -352,7 +364,7 @@ export function AdminSettings() {
           <Card className="glass-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Image className="h-5 w-5" />
+                <FaImage className="h-5 w-5" />
                 Site Assets
               </CardTitle>
             </CardHeader>
@@ -382,7 +394,7 @@ export function AdminSettings() {
                         onClick={handleRemoveLogo}
                         disabled={saving}
                       >
-                        <X className="h-4 w-4" />
+                        <FaTimes className="h-4 w-4" />
                       </Button>
                     </div>
                     <FileUpload
@@ -411,7 +423,7 @@ export function AdminSettings() {
           <Card className="glass-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Globe className="h-5 w-5" />
+                <FaGlobe className="h-5 w-5" />
                 General Settings
               </CardTitle>
             </CardHeader>
@@ -457,7 +469,7 @@ export function AdminSettings() {
               </div>
 
               <Button onClick={() => handleSave('general')} disabled={saving}>
-                <Save className="mr-2 h-4 w-4" />
+                <FaSave className="mr-2 h-4 w-4" />
                 {saving ? "Saving..." : "Save Changes"}
               </Button>
             </CardContent>
@@ -468,7 +480,7 @@ export function AdminSettings() {
           <Card className="glass-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Code className="h-5 w-5" />
+                <FaCode className="h-5 w-5" />
                 Tracking Codes
               </CardTitle>
             </CardHeader>
@@ -502,7 +514,7 @@ export function AdminSettings() {
               </div>
 
               <Button onClick={() => handleSave('tracking')} disabled={saving}>
-                <Save className="mr-2 h-4 w-4" />
+                <FaSave className="mr-2 h-4 w-4" />
                 {saving ? "Saving..." : "Save Changes"}
               </Button>
             </CardContent>
@@ -512,7 +524,10 @@ export function AdminSettings() {
         <TabsContent value="social" className="space-y-6">
           <Card className="glass-card">
             <CardHeader>
-              <CardTitle>Social Media Links</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <FaExternalLinkAlt className="h-5 w-5" />
+                Social Media Links
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -552,7 +567,7 @@ export function AdminSettings() {
               </div>
 
               <Button onClick={() => handleSave('social')} disabled={saving}>
-                <Save className="mr-2 h-4 w-4" />
+                <FaSave className="mr-2 h-4 w-4" />
                 {saving ? "Saving..." : "Save Changes"}
               </Button>
             </CardContent>

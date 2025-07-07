@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Globe } from "lucide-react"
+import { FaGlobe } from "react-icons/fa"
 import { Button } from "./ui/button"
 import {
   DropdownMenu,
@@ -20,7 +20,7 @@ export function LanguageToggle() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="gap-2">
-          <Globe className="h-4 w-4" />
+          <FaGlobe className="h-4 w-4" />
           {language}
         </Button>
       </DropdownMenuTrigger>

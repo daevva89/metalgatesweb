@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card"
 import { useAuth } from "@/contexts/AuthContext"
 import { useToast } from "@/hooks/useToast"
-import { Loader2 } from "lucide-react"
+import { FaSpinner } from "react-icons/fa"
 
 interface LoginFormData {
   email: string
@@ -44,7 +44,7 @@ export function Login() {
       console.error('Login error:', error)
       toast({
         title: "Error",
-        description: error.message || "Login failed",
+        description: (error as Error).message || "Login failed",
         variant: "destructive",
       })
     } finally {
@@ -102,7 +102,7 @@ export function Login() {
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {loading && <FaSpinner className="mr-2 h-4 w-4 animate-spin" />}
               {loading ? "Signing in..." : "Sign In"}
             </Button>
           </form>

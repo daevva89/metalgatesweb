@@ -35,10 +35,10 @@ function App() {
 
   const checkFestivalStatus = async () => {
     try {
-      const festivalInfo = await getFestivalInfo()
+      await getFestivalInfo()
       // The festival info will be returned if there's an active festival
       setFestivalActive(true)
-    } catch (error) {
+    } catch {
       // If no active festival found, show coming soon page
       setFestivalActive(false)
     } finally {

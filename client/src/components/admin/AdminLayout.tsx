@@ -1,14 +1,14 @@
 import { Outlet, Link, useLocation } from "react-router-dom"
 import { 
-  LayoutDashboard, 
-  Music, 
-  Newspaper, 
-  FileText, 
-  Archive, 
-  Settings,
-  LogOut,
-  Globe
-} from "lucide-react"
+  FaThLarge, 
+  FaMusic, 
+  FaNewspaper, 
+  FaFileAlt, 
+  FaArchive, 
+  FaCog,
+  FaSignOutAlt,
+  FaGlobe
+} from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/AuthContext"
 import { LanguageToggle } from "../LanguageToggle"
@@ -18,12 +18,12 @@ export function AdminLayout() {
   const location = useLocation()
 
   const navigation = [
-    { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-    { name: "Lineup", href: "/admin/lineup", icon: Music },
-    { name: "News", href: "/admin/news", icon: Newspaper },
-    { name: "Pages", href: "/admin/pages", icon: FileText },
-    { name: "Archive", href: "/admin/archive", icon: Archive },
-    { name: "Settings", href: "/admin/settings", icon: Settings },
+    { name: "Dashboard", href: "/admin", icon: FaThLarge },
+    { name: "Lineup", href: "/admin/lineup", icon: FaMusic },
+    { name: "News", href: "/admin/news", icon: FaNewspaper },
+    { name: "Pages", href: "/admin/pages", icon: FaFileAlt },
+    { name: "Archive", href: "/admin/archive", icon: FaArchive },
+    { name: "Settings", href: "/admin/settings", icon: FaCog },
   ]
 
   const isActive = (path: string) => {
@@ -51,7 +51,7 @@ export function AdminLayout() {
             {/* Language Toggle */}
             <div className="px-6 py-4 border-b border-border/50">
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                <Globe className="h-4 w-4" />
+                <FaGlobe className="h-4 w-4" />
                 Content Language
               </div>
               <LanguageToggle />
@@ -88,7 +88,7 @@ export function AdminLayout() {
                 onClick={logout}
                 className="w-full justify-start text-muted-foreground hover:text-foreground"
               >
-                <LogOut className="mr-2 h-4 w-4" />
+                <FaSignOutAlt className="mr-2 h-4 w-4" />
                 Logout
               </Button>
             </div>

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
-import { Facebook, Instagram, Youtube, Mail, MapPin } from "lucide-react"
-import { Link } from "react-router-dom"
+import { FaFacebook, FaInstagram, FaYoutube, FaEnvelope, FaMapPin } from "react-icons/fa"
 import { getSiteAssets } from "@/api/festival"
 
 export function Footer() {
@@ -37,7 +36,7 @@ export function Footer() {
               rel="noopener noreferrer"
               className="text-muted-foreground hover:text-primary transition-colors"
             >
-              <Facebook className="h-5 w-5" />
+              <FaFacebook className="h-5 w-5" />
             </a>
             <a
               href="https://instagram.com/metalgatesfestival"
@@ -45,7 +44,7 @@ export function Footer() {
               rel="noopener noreferrer"
               className="text-muted-foreground hover:text-primary transition-colors"
             >
-              <Instagram className="h-5 w-5" />
+              <FaInstagram className="h-5 w-5" />
             </a>
             <a
               href="https://youtube.com/metalgatesfestival"
@@ -53,7 +52,7 @@ export function Footer() {
               rel="noopener noreferrer"
               className="text-muted-foreground hover:text-primary transition-colors"
             >
-              <Youtube className="h-5 w-5" />
+              <FaYoutube className="h-5 w-5" />
             </a>
           </div>
 
@@ -61,11 +60,11 @@ export function Footer() {
           {contactInfo.contactEmail && (
             <div className="flex items-center space-x-6 text-sm text-muted-foreground">
               <div className="flex items-center space-x-1">
-                <Mail className="h-4 w-4" />
+                <FaEnvelope className="h-4 w-4" />
                 <span>{contactInfo.contactEmail}</span>
               </div>
               <div className="flex items-center space-x-1">
-                <MapPin className="h-4 w-4" />
+                <FaMapPin className="h-4 w-4" />
                 <span>Quantic Club, Bucharest</span>
               </div>
             </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { Calendar, ArrowRight } from "lucide-react"
+import { FaCalendarAlt, FaArrowRight } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { getNews } from "@/api/festival"
@@ -14,6 +14,10 @@ interface NewsArticle {
   publishedAt: string
 }
 
+interface GetNewsResponse {
+  articles: NewsArticle[]
+}
+
 export function News() {
   const [articles, setArticles] = useState<NewsArticle[]>([])
   const [loading, setLoading] = useState(true)
@@ -24,7 +28,7 @@ export function News() {
       try {
         console.log("Fetching news articles...")
         const response = await getNews()
-        setArticles((response as any).articles)
+        setArticles((response as GetNewsResponse).articles)
         console.log("News articles fetched successfully")
       } catch (error) {
         console.error("Error fetching news:", error)
@@ -68,7 +72,7 @@ export function News() {
               {/* Content */}
               <CardContent className={`${index % 2 === 1 ? 'md:order-1' : ''} p-6 flex flex-col justify-center space-y-4`}>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Calendar className="h-4 w-4" />
+                  <FaCalendarAlt className="h-4 w-4" />
                   {new Date(article.publishedAt).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
@@ -84,7 +88,7 @@ export function News() {
                 
                 <Button asChild variant="ghost" className="self-start p-0 h-auto text-primary hover:text-primary/80">
                   <Link to={`/news/${article._id}`} className="flex items-center gap-2">
-                    Read Full Article <ArrowRight className="h-4 w-4" />
+                    Read Full Article <FaArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
               </CardContent>

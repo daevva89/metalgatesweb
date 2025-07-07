@@ -1,4 +1,4 @@
-import { Image } from "lucide-react"
+import { FaImage } from "react-icons/fa"
 
 interface ImagePlaceholderProps {
   width?: number
@@ -19,7 +19,7 @@ export function ImagePlaceholder({
       style={{ width, height }}
     >
       <div className="text-center space-y-2">
-        <Image className="h-12 w-12 text-muted-foreground mx-auto" />
+        <FaImage className="h-12 w-12 text-muted-foreground mx-auto" />
         <p className="text-sm text-muted-foreground">{alt}</p>
       </div>
     </div>

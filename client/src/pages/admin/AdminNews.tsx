@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react"
-import { Plus, Edit, Trash2, Calendar, Eye } from "lucide-react"
+import { useEffect, useState, useCallback } from "react"
+import { FaPlus, FaEdit, FaTrash, FaCalendarAlt, FaEye } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -36,11 +36,7 @@ export function AdminNews() {
   const { register, handleSubmit, reset, setValue } = useForm<ArticleFormData>()
   const { toast } = useToast()
 
-  useEffect(() => {
-    fetchArticles()
-  }, [])
-
-  const fetchArticles = async () => {
+  const fetchArticles = useCallback(async () => {
     try {
       console.log("NEWS: Fetching articles...")
       const response = await getNews()
@@ -56,7 +52,11 @@ export function AdminNews() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [toast])
+
+  useEffect(() => {
+    fetchArticles()
+  }, [fetchArticles])
 
   const handleEdit = (article: NewsArticle) => {
     console.log("NEWS: Editing article:", {
@@ -181,7 +181,7 @@ export function AdminNews() {
           <p className="text-muted-foreground">Create and manage news articles</p>
         </div>
         <Button onClick={handleAdd}>
-          <Plus className="mr-2 h-4 w-4" />
+          <FaPlus className="mr-2 h-4 w-4" />
           Create Article
         </Button>
       </div>
@@ -204,27 +204,27 @@ export function AdminNews() {
                   )}
                   <div className="flex-1 space-y-2">
                     <h3 className="text-lg font-semibold">{article.title}</h3>
-                    <p className="text-muted-foreground line-clamp-2">{article.excerpt}</p>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Calendar className="h-4 w-4" />
-                      {new Date(article.publishedAt).toLocaleDateString()}
+                    <p className="text-sm text-muted-foreground line-clamp-2">{article.excerpt}</p>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
+                      <FaCalendarAlt className="h-4 w-4" />
+                      Published: {new Date(article.publishedAt).toLocaleDateString()}
                     </div>
                   </div>
                 </div>
-                <div className="flex gap-2 ml-4">
-                  <Button size="sm" variant="outline">
-                    <Eye className="h-4 w-4" />
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={`/news/${article._id}`} target="_blank" rel="noopener noreferrer" className="flex items-center">
+                      <FaEye className="mr-2 h-4 w-4" />
+                      View
+                    </a>
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleEdit(article)}>
-                    <Edit className="h-4 w-4" />
+                  <Button variant="outline" size="sm" onClick={() => handleEdit(article)}>
+                    <FaEdit className="mr-2 h-4 w-4" />
+                    Edit
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleDelete(article._id)}
-                    className="text-red-400 hover:text-red-300"
-                  >
-                    <Trash2 className="h-4 w-4" />
+                  <Button variant="destructive" size="sm" onClick={() => handleDelete(article._id)}>
+                    <FaTrash className="mr-2 h-4 w-4" />
+                    Delete
                   </Button>
                 </div>
               </div>

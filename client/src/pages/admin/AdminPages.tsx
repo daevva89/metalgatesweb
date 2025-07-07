@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Save, FileText, Calendar } from "lucide-react"
+import { FaSave, FaFileAlt, FaCalendarAlt } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
@@ -8,11 +8,16 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { FileUpload } from "@/components/ui/file-upload"
 import { useToast } from "@/hooks/useToast"
-import { getSiteAssets, updateHeroImage, updateSiteAssets } from "@/api/festival"
+import { getSiteAssets, updateSiteAssets } from "@/api/festival"
+
+interface UpdateData {
+  heroImage?: string
+  mobileHeroImage?: string
+  countdownDate?: string
+}
 
 export function AdminPages() {
   const [saving, setSaving] = useState(false)
-  const [loading, setLoading] = useState(false)
   const [selectedHeroImage, setSelectedHeroImage] = useState<string | null>(null)
   const [selectedMobileHeroImage, setSelectedMobileHeroImage] = useState<string | null>(null)
   const [countdownDate, setCountdownDate] = useState<string>("")
@@ -39,7 +44,6 @@ export function AdminPages() {
 
   const loadHeroImage = async () => {
     try {
-      setLoading(true)
       const data = await getSiteAssets()
       console.log("PAGES: Loaded site assets from API:", {
         heroImage: data.assets?.heroImage ? "found" : "not found",
@@ -74,7 +78,7 @@ export function AdminPages() {
     } catch (error) {
       console.error("PAGES: Error loading site assets:", error)
     } finally {
-      setLoading(false)
+      // setLoading(false) // Removed as per edit hint
     }
   }
 
@@ -84,7 +88,7 @@ export function AdminPages() {
       console.log("Saving page content:", section)
       
       if (section === 'home') {
-        const updateData: any = {}
+        const updateData: UpdateData = {}
         
         if (selectedHeroImage) {
           console.log("PAGES: Uploading new desktop hero image, length:", selectedHeroImage.length)
@@ -175,7 +179,7 @@ export function AdminPages() {
           <Card className="glass-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
+                <FaFileAlt className="h-5 w-5" />
                 Home Page Content
               </CardTitle>
             </CardHeader>
@@ -204,7 +208,7 @@ export function AdminPages() {
               
               <div className="space-y-2">
                 <Label htmlFor="countdownDate" className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
+                  <FaCalendarAlt className="h-4 w-4" />
                   Countdown Target Date & Time (Romanian Time)
                 </Label>
                 <Input
@@ -264,7 +268,7 @@ export function AdminPages() {
                 />
               </div>
               <Button onClick={() => handleSave('home')} disabled={saving}>
-                <Save className="mr-2 h-4 w-4" />
+                <FaSave className="mr-2 h-4 w-4" />
                 {saving ? "Saving..." : "Save Changes"}
               </Button>
             </CardContent>
@@ -302,7 +306,7 @@ export function AdminPages() {
                 />
               </div>
               <Button onClick={() => handleSave('info')} disabled={saving}>
-                <Save className="mr-2 h-4 w-4" />
+                <FaSave className="mr-2 h-4 w-4" />
                 {saving ? "Saving..." : "Save Changes"}
               </Button>
             </CardContent>
@@ -330,7 +334,7 @@ export function AdminPages() {
                 />
               </div>
               <Button onClick={() => handleSave('footer')} disabled={saving}>
-                <Save className="mr-2 h-4 w-4" />
+                <FaSave className="mr-2 h-4 w-4" />
                 {saving ? "Saving..." : "Save Changes"}
               </Button>
             </CardContent>

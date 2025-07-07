@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { MapPin, Globe } from "lucide-react"
+import { FaGlobe, FaMapMarkerAlt } from "react-icons/fa"
 import { SiSpotify, SiFacebook, SiInstagram, SiYoutube, SiTiktok, SiBandcamp } from "react-icons/si"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -25,6 +25,10 @@ interface Band {
   }
 }
 
+interface GetLineupResponse {
+  bands: Band[]
+}
+
 export function Lineup() {
   const [bands, setBands] = useState<Band[]>([])
   const [selectedBand, setSelectedBand] = useState<Band | null>(null)
@@ -36,7 +40,7 @@ export function Lineup() {
       try {
         console.log("Fetching lineup...")
         const response = await getLineup()
-        setBands((response as any).bands)
+        setBands((response as GetLineupResponse).bands)
         console.log("Lineup fetched successfully")
       } catch (error) {
         console.error("Error fetching lineup:", error)
@@ -81,7 +85,7 @@ export function Lineup() {
             <CardContent className="p-4 text-center">
               <h3 className="text-lg font-semibold mb-1">{band.name}</h3>
               <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground mb-1">
-                <MapPin className="h-3 w-3" />
+                <FaMapMarkerAlt className="h-3 w-3" />
                 {band.country}
               </div>
               {band.genre && (
@@ -152,7 +156,7 @@ export function Lineup() {
                     {selectedBand.socialLinks.website && (
                       <Button asChild variant="outline" size="icon">
                         <a href={selectedBand.socialLinks.website} target="_blank" rel="noopener noreferrer">
-                          <Globe className="h-4 w-4 text-gray-600" />
+                          <FaGlobe className="h-4 w-4 text-gray-600" />
                         </a>
                       </Button>
                     )}
@@ -162,7 +166,7 @@ export function Lineup() {
                 {/* Band Info */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 text-muted-foreground">
-                    <MapPin className="h-4 w-4" />
+                    <FaMapMarkerAlt className="h-4 w-4" />
                     {selectedBand.country}
                   </div>
                   

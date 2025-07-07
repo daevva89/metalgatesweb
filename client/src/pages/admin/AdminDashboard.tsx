@@ -1,16 +1,15 @@
-import { useEffect, useState } from "react"
-import { Users, Calendar, MessageSquare, TrendingUp, Plus, Edit, Eye } from "lucide-react"
+import { FaUsers, FaCalendarAlt, FaCommentDots, FaChartLine, FaPlus, FaEdit, FaEye } from "react-icons/fa"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 
 export function AdminDashboard() {
-  const [stats, setStats] = useState({
+  const stats = {
     totalVisitors: 12543,
     upcomingEvents: 3,
     contactMessages: 28,
     ticketsSold: 1847
-  })
+  }
 
   return (
     <div className="space-y-8">
@@ -27,7 +26,7 @@ export function AdminDashboard() {
         <Card className="glass-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Visitors</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <FaUsers className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalVisitors.toLocaleString()}</div>
@@ -40,7 +39,7 @@ export function AdminDashboard() {
         <Card className="glass-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Upcoming Events</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <FaCalendarAlt className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.upcomingEvents}</div>
@@ -53,7 +52,7 @@ export function AdminDashboard() {
         <Card className="glass-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Contact Messages</CardTitle>
-            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+            <FaCommentDots className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.contactMessages}</div>
@@ -66,7 +65,7 @@ export function AdminDashboard() {
         <Card className="glass-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Tickets Sold</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <FaChartLine className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.ticketsSold.toLocaleString()}</div>
@@ -118,19 +117,19 @@ export function AdminDashboard() {
             <div className="space-y-3">
               <Button asChild className="w-full justify-start">
                 <Link to="/admin/lineup">
-                  <Plus className="mr-2 h-4 w-4" />
+                  <FaPlus className="mr-2 h-4 w-4" />
                   Add New Band
                 </Link>
               </Button>
               <Button asChild variant="outline" className="w-full justify-start">
                 <Link to="/admin/news">
-                  <Edit className="mr-2 h-4 w-4" />
+                  <FaEdit className="mr-2 h-4 w-4" />
                   Create News Article
                 </Link>
               </Button>
               <Button asChild variant="outline" className="w-full justify-start">
                 <Link to="/">
-                  <Eye className="mr-2 h-4 w-4" />
+                  <FaEye className="mr-2 h-4 w-4" />
                   View Live Site
                 </Link>
               </Button>

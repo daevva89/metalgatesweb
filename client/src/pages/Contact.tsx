@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
-import { Mail, Phone, MapPin, Clock, Send } from "lucide-react"
+import { FaEnvelope, FaPhone, FaMapPin, FaClock, FaPaperPlane } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -14,6 +14,10 @@ interface ContactFormData {
   name: string
   email: string
   subject: string
+  message: string
+}
+
+interface SubmitContactFormResponse {
   message: string
 }
 
@@ -49,7 +53,7 @@ export function Contact() {
       const response = await submitContactForm(data)
       toast({
         title: "Message sent!",
-        description: (response as any).message,
+        description: (response as SubmitContactFormResponse).message,
       })
       reset()
       console.log("Contact form submitted successfully")
@@ -76,7 +80,7 @@ export function Contact() {
             <Card className="glass-card">
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
-                  <Mail className="h-6 w-6 text-primary mt-1" />
+                  <FaEnvelope className="h-6 w-6 text-primary mt-1" />
                   <div>
                     <h3 className="font-semibold mb-1">Email</h3>
                     <p className="text-muted-foreground">{contactInfo.contactEmail || "Not available"}</p>
@@ -91,7 +95,7 @@ export function Contact() {
             <Card className="glass-card">
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
-                  <Phone className="h-6 w-6 text-primary mt-1" />
+                  <FaPhone className="h-6 w-6 text-primary mt-1" />
                   <div>
                     <h3 className="font-semibold mb-1">Phone</h3>
                     <p className="text-muted-foreground">{contactInfo.phoneNumber || "Not available"}</p>
@@ -106,7 +110,7 @@ export function Contact() {
             <Card className="glass-card">
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
-                  <MapPin className="h-6 w-6 text-primary mt-1" />
+                  <FaMapPin className="h-6 w-6 text-primary mt-1" />
                   <div>
                     <h3 className="font-semibold mb-1">Address</h3>
                     <p className="text-muted-foreground">
@@ -122,7 +126,7 @@ export function Contact() {
             <Card className="glass-card">
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
-                  <Clock className="h-6 w-6 text-primary mt-1" />
+                  <FaClock className="h-6 w-6 text-primary mt-1" />
                   <div>
                     <h3 className="font-semibold mb-1">Response Time</h3>
                     <p className="text-muted-foreground">
@@ -218,7 +222,7 @@ export function Contact() {
                     </>
                   ) : (
                     <>
-                      <Send className="mr-2 h-4 w-4" />
+                      <FaPaperPlane className="mr-2 h-4 w-4" />
                       Send Message
                     </>
                   )}

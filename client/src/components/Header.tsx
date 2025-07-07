@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { Link, useLocation } from "react-router-dom"
-import { Menu, X, ExternalLink } from "lucide-react"
+import { FaBars, FaExternalLinkAlt } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { LanguageToggle } from "./LanguageToggle"
@@ -118,7 +118,7 @@ export function Header() {
                 className="flex items-center gap-2"
               >
                 Buy Tickets
-                <ExternalLink className="h-4 w-4" />
+                <FaExternalLinkAlt className="h-4 w-4" />
               </a>
             </Button>
           </div>
@@ -128,7 +128,7 @@ export function Header() {
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
-                  <Menu className="h-6 w-6" />
+                  <FaBars className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-80">
@@ -160,7 +160,7 @@ export function Header() {
                       className="flex items-center justify-center gap-2"
                     >
                       Buy Tickets
-                      <ExternalLink className="h-4 w-4" />
+                      <FaExternalLinkAlt className="h-4 w-4" />
                     </a>
                   </Button>
                 </div>

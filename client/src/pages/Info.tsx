@@ -1,4 +1,4 @@
-import { MapPin, Clock, Shield, HelpCircle, Car, Plane, Hotel } from "lucide-react"
+import { FaMapPin, FaShieldAlt, FaQuestionCircle, FaCar, FaPlane, FaHotel } from "react-icons/fa"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
@@ -39,7 +39,7 @@ export function Info() {
         <Card className="glass-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-primary" />
+              <FaMapPin className="h-5 w-5 text-primary" />
               Quantic Club, Bucharest
             </CardTitle>
           </CardHeader>
@@ -51,7 +51,7 @@ export function Info() {
             {/* Map Placeholder */}
             <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
               <div className="text-center space-y-2">
-                <MapPin className="h-12 w-12 text-primary mx-auto" />
+                <FaMapPin className="h-12 w-12 text-primary mx-auto" />
                 <p className="text-muted-foreground">Interactive Google Maps</p>
                 <p className="text-sm text-muted-foreground">Quantic Club, Bucharest</p>
               </div>
@@ -68,7 +68,7 @@ export function Info() {
           <Card className="glass-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Plane className="h-5 w-5 text-primary" />
+                <FaPlane className="h-5 w-5 text-primary" />
                 By Air
               </CardTitle>
             </CardHeader>
@@ -83,7 +83,7 @@ export function Info() {
           <Card className="glass-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Car className="h-5 w-5 text-primary" />
+                <FaCar className="h-5 w-5 text-primary" />
                 By Car
               </CardTitle>
             </CardHeader>
@@ -98,7 +98,7 @@ export function Info() {
           <Card className="glass-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Hotel className="h-5 w-5 text-primary" />
+                <FaHotel className="h-5 w-5 text-primary" />
                 Accommodation
               </CardTitle>
             </CardHeader>
@@ -119,7 +119,7 @@ export function Info() {
         <Card className="glass-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
+              <FaShieldAlt className="h-5 w-5 text-primary" />
               Important Guidelines
             </CardTitle>
           </CardHeader>
@@ -164,7 +164,7 @@ export function Info() {
         <Card className="glass-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <HelpCircle className="h-5 w-5 text-primary" />
+              <FaQuestionCircle className="h-5 w-5 text-primary" />
               Common Questions
             </CardTitle>
           </CardHeader>

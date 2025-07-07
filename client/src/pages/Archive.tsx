@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Calendar, Users } from "lucide-react"
+import { FaCalendarAlt, FaUsers } from "react-icons/fa"
 import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { getArchive } from "@/api/festival"
@@ -13,6 +13,10 @@ interface ArchiveItem {
   description: string
 }
 
+interface GetArchiveResponse {
+  archives: ArchiveItem[]
+}
+
 export function Archive() {
   const [archives, setArchives] = useState<ArchiveItem[]>([])
   const [selectedArchive, setSelectedArchive] = useState<ArchiveItem | null>(null)
@@ -24,7 +28,7 @@ export function Archive() {
       try {
         console.log("Fetching archive...")
         const response = await getArchive()
-        setArchives((response as any).archives)
+        setArchives((response as GetArchiveResponse).archives)
         console.log("Archive fetched successfully")
       } catch (error) {
         console.error("Error fetching archive:", error)
@@ -68,7 +72,7 @@ export function Archive() {
             </div>
             <CardContent className="p-6 text-center">
               <div className="flex items-center justify-center gap-2 mb-2">
-                <Calendar className="h-4 w-4 text-primary" />
+                <FaCalendarAlt className="h-4 w-4 text-primary" />
                 <span className="text-2xl font-bold text-primary">{archive.year}</span>
               </div>
               <p className="text-sm text-muted-foreground line-clamp-2">
@@ -104,7 +108,7 @@ export function Archive() {
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-primary">
-                      <Calendar className="h-5 w-5" />
+                      <FaCalendarAlt className="h-5 w-5" />
                       <span className="text-xl font-semibold">{selectedArchive.year}</span>
                     </div>
                     <p className="text-muted-foreground leading-relaxed">
@@ -114,7 +118,7 @@ export function Archive() {
 
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
-                      <Users className="h-5 w-5 text-primary" />
+                      <FaUsers className="h-5 w-5 text-primary" />
                       <span className="font-semibold">Lineup</span>
                     </div>
                     <div className="bg-muted/50 rounded-lg p-4">

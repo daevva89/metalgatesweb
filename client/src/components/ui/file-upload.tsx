@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useRef, useEffect } from 'react'
-import { Upload, X } from 'lucide-react'
+import { FaUpload, FaTimes } from 'react-icons/fa'
 import { Button } from './button'
 
 interface FileUploadProps {
@@ -163,7 +163,7 @@ export function FileUpload({
           className="hidden"
         />
         <div className="flex flex-col items-center gap-2">
-          <Upload className="h-8 w-8 text-muted-foreground" />
+          <FaUpload className="h-8 w-8 text-muted-foreground" />
           <div>
             <p className="text-sm font-medium">{description}</p>
             <p className="text-xs text-muted-foreground">
@@ -190,7 +190,7 @@ export function FileUpload({
               size="sm"
               onClick={removeFile}
             >
-              <X className="h-4 w-4" />
+              <FaTimes className="h-4 w-4" />
             </Button>
           </div>
         </div>

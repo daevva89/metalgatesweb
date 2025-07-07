@@ -1,31 +1,32 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Link } from "react-router-dom"
-import { Calendar, MapPin, Clock, ExternalLink } from "lucide-react"
+import { FaExternalLinkAlt } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
+import { Card, CardContent } from "@/components/ui/card"
 import { getFestivalInfo, getNews, getSiteAssets } from "@/api/festival"
 import { useToast } from "@/hooks/useToast"
 
+interface FestivalInfo {
+  ticketUrl: string
+}
+
+interface NewsArticle {
+  _id: string
+  title: string
+  excerpt: string
+  image: string
+  publishedAt: string
+}
+
 export function Home() {
-  const [festivalInfo, setFestivalInfo] = useState<any>(null)
-  const [news, setNews] = useState<any[]>([])
+  const [festivalInfo, setFestivalInfo] = useState<FestivalInfo | null>(null)
+  const [news, setNews] = useState<NewsArticle[]>([])
   const [siteAssets, setSiteAssets] = useState<{ logo: string | null; heroImage: string | null; mobileHeroImage: string | null; countdownDate: string | null }>({ logo: null, heroImage: null, mobileHeroImage: null, countdownDate: null })
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
 
-  useEffect(() => {
-    loadData()
-    loadSiteAssets()
-  }, [])
-
-  useEffect(() => {
-    const interval = setInterval(updateCountdown, 1000)
-    return () => clearInterval(interval)
-  }, [siteAssets.countdownDate])
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const [festivalData, newsData] = await Promise.all([
         getFestivalInfo(),
@@ -44,23 +45,21 @@ export function Home() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [toast])
 
-  const loadSiteAssets = async () => {
+  const loadSiteAssets = useCallback(async () => {
     try {
       const data = await getSiteAssets()
       setSiteAssets(data.assets || { logo: null, heroImage: null, mobileHeroImage: null, countdownDate: null })
     } catch (error) {
       console.error("Error loading site assets:", error)
     }
-  }
+  }, [])
 
-  const updateCountdown = () => {
-    // Use countdown date from API if available, otherwise use default
-    // The API returns UTC time, so we can use it directly
+  const updateCountdown = useCallback(() => {
     const targetDate = siteAssets.countdownDate 
       ? new Date(siteAssets.countdownDate)
-      : new Date("2025-09-26T14:00:00.000Z") // This is 17:00 Romanian time in UTC
+      : new Date("2025-09-26T14:00:00.000Z")
     
     const now = new Date()
     const difference = targetDate.getTime() - now.getTime()
@@ -73,10 +72,19 @@ export function Home() {
 
       setCountdown({ days, hours, minutes, seconds })
     } else {
-      // Festival has started or passed
       setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 })
     }
-  }
+  }, [siteAssets.countdownDate])
+
+  useEffect(() => {
+    loadData()
+    loadSiteAssets()
+  }, [loadData, loadSiteAssets])
+
+  useEffect(() => {
+    const interval = setInterval(updateCountdown, 1000)
+    return () => clearInterval(interval)
+  }, [updateCountdown])
 
   if (loading) {
     return (
@@ -158,7 +166,7 @@ export function Home() {
               <Button asChild size="lg" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
                 <a href={festivalInfo?.ticketUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                   Buy Tickets
-                  <ExternalLink className="h-4 w-4" />
+                  <FaExternalLinkAlt className="h-4 w-4" />
                 </a>
               </Button>
             </div>

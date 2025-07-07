@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useParams, Link } from "react-router-dom"
-import { Calendar, ArrowLeft, Share2 } from "lucide-react"
+import { FaCalendarAlt, FaArrowLeft, FaShareAlt } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 import { getNewsArticle } from "@/api/festival"
 import { useToast } from "@/hooks/useToast"
@@ -11,6 +11,10 @@ interface Article {
   content: string
   image: string
   publishedAt: string
+}
+
+interface GetNewsArticleResponse {
+  article: Article
 }
 
 export function NewsArticle() {
@@ -26,7 +30,7 @@ export function NewsArticle() {
       try {
         console.log("Fetching news article:", id)
         const response = await getNewsArticle(id)
-        setArticle((response as any).article)
+        setArticle((response as GetNewsArticleResponse).article)
         console.log("News article fetched successfully")
       } catch (error) {
         console.error("Error fetching news article:", error)
@@ -76,7 +80,7 @@ export function NewsArticle() {
         <h1 className="text-2xl font-bold">Article not found</h1>
         <Button asChild>
           <Link to="/news">
-            <ArrowLeft className="mr-2 h-4 w-4" />
+            <FaArrowLeft className="mr-2 h-4 w-4" />
             Back to News
           </Link>
         </Button>
@@ -90,13 +94,13 @@ export function NewsArticle() {
       <div className="flex items-center justify-between">
         <Button asChild variant="ghost">
           <Link to="/news">
-            <ArrowLeft className="mr-2 h-4 w-4" />
+            <FaArrowLeft className="mr-2 h-4 w-4" />
             Back to News
           </Link>
         </Button>
         
         <Button variant="outline" onClick={handleShare}>
-          <Share2 className="mr-2 h-4 w-4" />
+          <FaShareAlt className="mr-2 h-4 w-4" />
           Share
         </Button>
       </div>
@@ -104,7 +108,7 @@ export function NewsArticle() {
       {/* Article Header */}
       <div className="space-y-4">
         <div className="flex items-center gap-2 text-muted-foreground">
-          <Calendar className="h-4 w-4" />
+          <FaCalendarAlt className="h-4 w-4" />
           {new Date(article.publishedAt).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
@@ -138,7 +142,7 @@ export function NewsArticle() {
         <div className="flex items-center justify-between">
           <p className="text-muted-foreground">Share this article:</p>
           <Button variant="outline" onClick={handleShare}>
-            <Share2 className="mr-2 h-4 w-4" />
+            <FaShareAlt className="mr-2 h-4 w-4" />
             Share Article
           </Button>
         </div>

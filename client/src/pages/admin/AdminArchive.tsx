@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react"
-import { Plus, Edit, Trash2, Calendar, Image } from "lucide-react"
+import { useEffect, useState, useCallback } from "react"
+import { FaPlus, FaEdit, FaTrash, FaCalendarAlt, FaImage } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -34,11 +34,7 @@ export function AdminArchive() {
   const { register, handleSubmit, reset, setValue } = useForm<ArchiveFormData>()
   const { toast } = useToast()
 
-  useEffect(() => {
-    fetchArchives()
-  }, [])
-
-  const fetchArchives = async () => {
+  const fetchArchives = useCallback(async () => {
     try {
       console.log("Fetching archives...")
       const response = await getArchive()
@@ -54,7 +50,11 @@ export function AdminArchive() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [toast])
+
+  useEffect(() => {
+    fetchArchives()
+  }, [fetchArchives])
 
   const handleEdit = (archive: ArchiveItem) => {
     setSelectedArchive(archive)
@@ -171,7 +171,7 @@ export function AdminArchive() {
           <p className="text-muted-foreground">Manage festival archive and past editions</p>
         </div>
         <Button onClick={handleAdd}>
-          <Plus className="mr-2 h-4 w-4" />
+          <FaPlus className="mr-2 h-4 w-4" />
           Add Archive
         </Button>
       </div>
@@ -188,29 +188,26 @@ export function AdminArchive() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <Image className="h-12 w-12 text-muted-foreground" />
+                <FaImage className="h-12 w-12 text-muted-foreground" />
               )}
             </div>
             <CardContent className="p-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-primary" />
+                  <FaCalendarAlt className="h-4 w-4 text-primary" />
                   <span className="font-semibold text-primary">{archive.year}</span>
                 </div>
                 <p className="text-sm text-muted-foreground line-clamp-2">
                   {archive.description}
                 </p>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => handleEdit(archive)}>
-                    <Edit className="h-3 w-3" />
+                <div className="flex gap-2 pt-2">
+                  <Button variant="outline" size="sm" onClick={() => handleEdit(archive)}>
+                    <FaEdit className="mr-2 h-4 w-4" />
+                    Edit
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleDelete(archive._id)}
-                    className="text-red-400 hover:text-red-300"
-                  >
-                    <Trash2 className="h-3 w-3" />
+                  <Button variant="destructive" size="sm" onClick={() => handleDelete(archive._id)}>
+                    <FaTrash className="mr-2 h-4 w-4" />
+                    Delete
                   </Button>
                 </div>
               </div>
@@ -230,7 +227,10 @@ export function AdminArchive() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="poster">Festival Poster</Label>
+              <Label htmlFor="poster" className="flex items-center gap-2">
+                <FaImage className="h-4 w-4" />
+                Festival Poster
+              </Label>
               <FileUpload
                 onFileSelect={setSelectedImage}
                 description="Upload festival poster"
@@ -241,7 +241,10 @@ export function AdminArchive() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="year">Year</Label>
+              <Label htmlFor="year" className="flex items-center gap-2">
+                <FaCalendarAlt className="h-4 w-4" />
+                Year
+              </Label>
               <Input
                 id="year"
                 {...register("year", { required: true })}
