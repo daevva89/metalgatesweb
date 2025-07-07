@@ -62,15 +62,7 @@ export function Lineup() {
   }
 
   return (
-    <div className="container mx-auto px-4 space-y-12">
-      {/* Header */}
-      <div className="text-center space-y-4">
-        <h1 className="text-5xl font-bold text-gradient">Lineup 2024</h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Get ready for an incredible lineup of metal legends and rising stars that will make this festival unforgettable
-        </p>
-      </div>
-
+    <div className="container mx-auto px-4 space-y-8 pt-8">
       {/* Band Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         {bands.map((band) => (

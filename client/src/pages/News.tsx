@@ -50,15 +50,7 @@ export function News() {
   }
 
   return (
-    <div className="container mx-auto px-4 space-y-12">
-      {/* Header */}
-      <div className="text-center space-y-4">
-        <h1 className="text-5xl font-bold text-gradient">Festival News</h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Stay up to date with the latest announcements, lineup updates, and festival information
-        </p>
-      </div>
-
+    <div className="container mx-auto px-4 space-y-12 pt-8">
       {/* Articles Grid */}
       <div className="space-y-8">
         {articles.map((article, index) => (

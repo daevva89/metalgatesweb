@@ -29,6 +29,15 @@ const siteAssetsSchema = new mongoose.Schema({
     type: String,
     default: "+40 21 123 4567",
   },
+  lineupTitle: {
+    type: String,
+    default: "Lineup 2024",
+  },
+  lineupDescription: {
+    type: String,
+    default:
+      "Get ready for an incredible lineup of metal legends and rising stars that will make this festival unforgettable",
+  },
   createdAt: {
     type: Date,
     default: Date.now,

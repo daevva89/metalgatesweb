@@ -17,6 +17,8 @@ class SiteAssetsService {
         bannerText: assets.bannerText,
         contactEmail: assets.contactEmail,
         phoneNumber: assets.phoneNumber,
+        lineupTitle: assets.lineupTitle,
+        lineupDescription: assets.lineupDescription,
         createdAt: assets.createdAt,
         updatedAt: assets.updatedAt,
       });
@@ -34,6 +36,8 @@ class SiteAssetsService {
         bannerText: assets.bannerText,
         contactEmail: assets.contactEmail,
         phoneNumber: assets.phoneNumber,
+        lineupTitle: assets.lineupTitle,
+        lineupDescription: assets.lineupDescription,
       };
 
       console.log(
@@ -84,6 +88,14 @@ class SiteAssetsService {
           "SiteAssetsService: Countdown date updated to:",
           assets.countdownDate
         );
+      }
+      if (updateData.lineupTitle !== undefined) {
+        assets.lineupTitle = updateData.lineupTitle;
+        console.log("SiteAssetsService: Lineup title updated");
+      }
+      if (updateData.lineupDescription !== undefined) {
+        assets.lineupDescription = updateData.lineupDescription;
+        console.log("SiteAssetsService: Lineup description updated");
       }
 
       if (updateData.logo !== undefined) {
@@ -170,6 +182,8 @@ class SiteAssetsService {
         bannerText: assets.bannerText,
         contactEmail: assets.contactEmail,
         phoneNumber: assets.phoneNumber,
+        lineupTitle: assets.lineupTitle,
+        lineupDescription: assets.lineupDescription,
       });
 
       // Save the assets
@@ -185,6 +199,8 @@ class SiteAssetsService {
         bannerText: updatedAssets.bannerText,
         contactEmail: updatedAssets.contactEmail,
         phoneNumber: updatedAssets.phoneNumber,
+        lineupTitle: updatedAssets.lineupTitle,
+        lineupDescription: updatedAssets.lineupDescription,
         createdAt: updatedAssets.createdAt,
         updatedAt: updatedAssets.updatedAt,
       });
@@ -204,6 +220,8 @@ class SiteAssetsService {
         bannerText: updatedAssets.bannerText,
         contactEmail: updatedAssets.contactEmail,
         phoneNumber: updatedAssets.phoneNumber,
+        lineupTitle: updatedAssets.lineupTitle,
+        lineupDescription: updatedAssets.lineupDescription,
       };
     } catch (error) {
       console.error("SiteAssetsService: Error updating site assets:", error);

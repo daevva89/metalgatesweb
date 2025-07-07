@@ -31,15 +31,7 @@ export function Info() {
   ]
 
   return (
-    <div className="container mx-auto px-4 space-y-12">
-      {/* Header */}
-      <div className="text-center space-y-4">
-        <h1 className="text-5xl font-bold text-gradient">Festival Info</h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Everything you need to know for an amazing festival experience
-        </p>
-      </div>
-
+    <div className="container mx-auto px-4 space-y-12 pt-8">
       {/* Location Section */}
       <section className="space-y-6">
         <h2 className="text-3xl font-bold text-center">Location</h2>

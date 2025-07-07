@@ -66,15 +66,7 @@ export function Contact() {
   }
 
   return (
-    <div className="container mx-auto px-4 space-y-12">
-      {/* Header */}
-      <div className="text-center space-y-4">
-        <h1 className="text-5xl font-bold text-gradient">Contact Us</h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Have questions about the festival? We're here to help!
-        </p>
-      </div>
-
+    <div className="container mx-auto px-4 space-y-12 pt-8">
       <div className="grid lg:grid-cols-2 gap-12">
         {/* Contact Information */}
         <div className="space-y-6">

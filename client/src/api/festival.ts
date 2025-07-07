@@ -114,9 +114,9 @@ export const getSiteAssets = async () => {
 
 // Description: Update site assets (logo, hero image, mobile hero image, countdown date, and general settings)
 // Endpoint: PUT /api/site-assets
-// Request: { logo?: string, heroImage?: string, mobileHeroImage?: string, countdownDate?: string, bannerText?: string, contactEmail?: string, phoneNumber?: string }
-// Response: { success: boolean, data: { assets: { logo: string | null, heroImage: string | null, mobileHeroImage: string | null, countdownDate: string, bannerText: string, contactEmail: string, phoneNumber: string } }, message: string }
-export const updateSiteAssets = async (assetsData: { logo?: string; heroImage?: string; mobileHeroImage?: string; countdownDate?: string; bannerText?: string; contactEmail?: string; phoneNumber?: string }) => {
+// Request: { logo?: string, heroImage?: string, mobileHeroImage?: string, countdownDate?: string, bannerText?: string, contactEmail?: string, phoneNumber?: string, lineupTitle?: string, lineupDescription?: string }
+// Response: { success: boolean, data: { assets: { logo: string | null, heroImage: string | null, mobileHeroImage: string | null, countdownDate: string, bannerText: string, contactEmail: string, phoneNumber: string, lineupTitle: string, lineupDescription: string } }, message: string }
+export const updateSiteAssets = async (assetsData: { logo?: string; heroImage?: string; mobileHeroImage?: string; countdownDate?: string; bannerText?: string; contactEmail?: string; phoneNumber?: string; lineupTitle?: string; lineupDescription?: string }) => {
   try {
     console.log("API: Making request to PUT /api/site-assets with data:", {
       hasLogo: !!assetsData.logo,
@@ -126,6 +126,8 @@ export const updateSiteAssets = async (assetsData: { logo?: string; heroImage?: 
       hasBannerText: !!assetsData.bannerText,
       hasContactEmail: !!assetsData.contactEmail,
       hasPhoneNumber: !!assetsData.phoneNumber,
+      hasLineupTitle: !!assetsData.lineupTitle,
+      hasLineupDescription: !!assetsData.lineupDescription,
     });
 
     const response = await api.put('/api/site-assets', assetsData);

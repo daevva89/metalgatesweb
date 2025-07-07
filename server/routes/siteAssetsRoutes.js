@@ -20,6 +20,8 @@ router.get("/", async (req, res) => {
           bannerText: assets.bannerText,
           contactEmail: assets.contactEmail,
           phoneNumber: assets.phoneNumber,
+          lineupTitle: assets.lineupTitle,
+          lineupDescription: assets.lineupDescription,
         },
       },
       message: "Site assets retrieved successfully",
@@ -64,6 +66,8 @@ router.put("/", auth, async (req, res) => {
       bannerText,
       contactEmail,
       phoneNumber,
+      lineupTitle,
+      lineupDescription,
     } = req.body;
     console.log("SiteAssetsRoutes: Full request body:", req.body);
     console.log("SiteAssetsRoutes: Update data received:", {
@@ -74,6 +78,8 @@ router.put("/", auth, async (req, res) => {
       hasBannerText: bannerText !== undefined,
       hasContactEmail: contactEmail !== undefined,
       hasPhoneNumber: phoneNumber !== undefined,
+      hasLineupTitle: lineupTitle !== undefined,
+      hasLineupDescription: lineupDescription !== undefined,
       logoLength: logo ? logo.length : 0,
       heroImageLength: heroImage ? heroImage.length : 0,
       mobileHeroImageLength: mobileHeroImage ? mobileHeroImage.length : 0,
@@ -81,6 +87,8 @@ router.put("/", auth, async (req, res) => {
       bannerTextValue: bannerText,
       contactEmailValue: contactEmail,
       phoneNumberValue: phoneNumber,
+      lineupTitleValue: lineupTitle,
+      lineupDescriptionValue: lineupDescription,
     });
 
     const updateData = {};
@@ -92,6 +100,9 @@ router.put("/", auth, async (req, res) => {
     if (bannerText !== undefined) updateData.bannerText = bannerText;
     if (contactEmail !== undefined) updateData.contactEmail = contactEmail;
     if (phoneNumber !== undefined) updateData.phoneNumber = phoneNumber;
+    if (lineupTitle !== undefined) updateData.lineupTitle = lineupTitle;
+    if (lineupDescription !== undefined)
+      updateData.lineupDescription = lineupDescription;
 
     console.log(
       "SiteAssetsRoutes: Calling siteAssetsService.updateSiteAssets with:",
@@ -103,6 +114,8 @@ router.put("/", auth, async (req, res) => {
         hasBannerText: "bannerText" in updateData,
         hasContactEmail: "contactEmail" in updateData,
         hasPhoneNumber: "phoneNumber" in updateData,
+        hasLineupTitle: "lineupTitle" in updateData,
+        hasLineupDescription: "lineupDescription" in updateData,
       }
     );
 
@@ -124,6 +137,8 @@ router.put("/", auth, async (req, res) => {
           bannerText: updatedAssets.bannerText,
           contactEmail: updatedAssets.contactEmail,
           phoneNumber: updatedAssets.phoneNumber,
+          lineupTitle: updatedAssets.lineupTitle,
+          lineupDescription: updatedAssets.lineupDescription,
         },
       },
       message: "Site assets updated successfully",
@@ -174,6 +189,8 @@ router.put("/logo", auth, async (req, res) => {
           bannerText: updatedAssets.bannerText,
           contactEmail: updatedAssets.contactEmail,
           phoneNumber: updatedAssets.phoneNumber,
+          lineupTitle: updatedAssets.lineupTitle,
+          lineupDescription: updatedAssets.lineupDescription,
         },
       },
       message: "Logo updated successfully",
@@ -217,6 +234,8 @@ router.put("/hero", auth, async (req, res) => {
           bannerText: updatedAssets.bannerText,
           contactEmail: updatedAssets.contactEmail,
           phoneNumber: updatedAssets.phoneNumber,
+          lineupTitle: updatedAssets.lineupTitle,
+          lineupDescription: updatedAssets.lineupDescription,
         },
       },
       message: "Hero image updated successfully",
@@ -257,6 +276,8 @@ router.delete("/logo", auth, async (req, res) => {
           bannerText: updatedAssets.bannerText,
           contactEmail: updatedAssets.contactEmail,
           phoneNumber: updatedAssets.phoneNumber,
+          lineupTitle: updatedAssets.lineupTitle,
+          lineupDescription: updatedAssets.lineupDescription,
         },
       },
       message: "Logo removed successfully",
@@ -297,6 +318,8 @@ router.delete("/hero", auth, async (req, res) => {
           bannerText: updatedAssets.bannerText,
           contactEmail: updatedAssets.contactEmail,
           phoneNumber: updatedAssets.phoneNumber,
+          lineupTitle: updatedAssets.lineupTitle,
+          lineupDescription: updatedAssets.lineupDescription,
         },
       },
       message: "Hero image removed successfully",
