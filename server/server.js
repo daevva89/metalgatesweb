@@ -64,21 +64,6 @@ app.use((req, res, next) => {
   });
 });
 
-// Serve static files from uploads directory
-console.log("Setting up static file serving for uploads");
-app.use("/api/uploads", express.static(path.join(__dirname, "uploads")));
-
-// Serve frontend files in production
-if (process.env.NODE_ENV === "production") {
-  // Serve the static files from the React app
-  app.use(express.static(path.join(__dirname, "../client/dist")));
-
-  // Handles any requests that don't match the ones above
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../client/dist/index.html"));
-  });
-}
-
 app.on("error", (error) => {
   console.error(`Server error: ${error.message}`);
   console.error(error.stack);
@@ -140,6 +125,23 @@ app.use("/api/visits", visitRoutes);
 
 // Info Page Routes
 app.use("/api/infopage", infoPageRoutes);
+
+// Serve frontend files in production
+// This should be after all API routes and before the 404 handler
+if (process.env.NODE_ENV === "production") {
+  // Serve the static files from the React app
+  const clientDistPath = path.join(__dirname, "../client/dist");
+  console.log(`Serving static files from: ${clientDistPath}`);
+  app.use(express.static(clientDistPath));
+
+  // Handles any requests that don't match the ones above by sending the React app
+  app.get("*", (req, res) => {
+    console.log(
+      `Serving index.html for non-API GET request: ${req.originalUrl}`
+    );
+    res.sendFile(path.join(clientDistPath, "index.html"));
+  });
+}
 
 // The "catchall" handler: for any request that doesn't match one above, send back React's index.html file.
 // This is disabled in development to allow for the Vite dev server to handle frontend requests.
