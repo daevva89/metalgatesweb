@@ -193,6 +193,7 @@ export function AdminSettings() {
             description: "Festival created successfully"
           })
         }
+        await loadFestivalSettings()
       } else if (section === 'general') {
         console.log("AdminSettings: Saving general settings...")
         console.log("AdminSettings: Current general settings state:", settings.general)
