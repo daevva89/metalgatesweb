@@ -12,8 +12,8 @@ import { getSiteAssets, updateSiteAssets, getInfoPage, updateInfoPage } from "@/
 import { FaPlus, FaTrash } from "react-icons/fa"
 
 interface UpdateData {
-  heroImage?: string
-  mobileHeroImage?: string
+  heroImage?: File
+  mobileHeroImage?: File
   countdownDate?: string
 }
 
@@ -45,8 +45,8 @@ interface InfoPageData {
 
 export function AdminPages() {
   const [saving, setSaving] = useState(false)
-  const [selectedHeroImage, setSelectedHeroImage] = useState<string | null>(null)
-  const [selectedMobileHeroImage, setSelectedMobileHeroImage] = useState<string | null>(null)
+  const [selectedHeroImage, setSelectedHeroImage] = useState<File | null>(null)
+  const [selectedMobileHeroImage, setSelectedMobileHeroImage] = useState<File | null>(null)
   const [countdownDate, setCountdownDate] = useState<string>("")
   const { toast } = useToast()
 
@@ -167,33 +167,30 @@ export function AdminPages() {
       console.log("Saving page content:", section)
       
       if (section === 'home') {
-        const updateData: UpdateData = {}
+        const formData = new FormData()
         
         if (selectedHeroImage) {
-          console.log("PAGES: Uploading new desktop hero image, length:", selectedHeroImage.length)
-          updateData.heroImage = selectedHeroImage
+          console.log("PAGES: Uploading new desktop hero image")
+          formData.append("heroImage", selectedHeroImage)
         }
         
         if (selectedMobileHeroImage) {
-          console.log("PAGES: Uploading new mobile hero image, length:", selectedMobileHeroImage.length)
-          updateData.mobileHeroImage = selectedMobileHeroImage
+          console.log("PAGES: Uploading new mobile hero image")
+          formData.append("mobileHeroImage", selectedMobileHeroImage)
         }
         
         if (countdownDate) {
-          // Convert the input date (assumed to be Romanian time) to UTC for storage
           const inputDate = new Date(countdownDate)
-          // Subtract 3 hours to convert from Romanian time to UTC
           const utcDate = new Date(inputDate.getTime() - (3 * 60 * 60 * 1000))
           console.log("PAGES: Updating countdown date:", {
             input: countdownDate,
-            inputDate: inputDate.toISOString(),
             utcDate: utcDate.toISOString()
           })
-          updateData.countdownDate = utcDate.toISOString()
+          formData.append("countdownDate", utcDate.toISOString())
         }
         
-        if (Object.keys(updateData).length > 0) {
-          const response = await updateSiteAssets(updateData)
+        if (formData.has("heroImage") || formData.has("mobileHeroImage") || formData.has("countdownDate")) {
+          const response = await updateSiteAssets(formData)
           console.log("PAGES: Site assets update response:", response)
           
           setPageContent(prev => ({
@@ -211,8 +208,8 @@ export function AdminPages() {
           })
         } else {
           toast({
-            title: "Success", 
-            description: "Page content updated successfully"
+            title: "No Changes", 
+            description: "No new images or countdown date to save."
           })
         }
       } else if (section === 'info') {
@@ -280,10 +277,10 @@ export function AdminPages() {
                 <Label htmlFor="heroImage">Hero Background Image (Desktop)</Label>
                 <FileUpload
                   onFileSelect={setSelectedHeroImage}
-                  description="Upload hero background image for desktop (1000x524 recommended)"
+                  currentImage={pageContent.home.heroImage}
+                  description="Upload desktop hero image"
                   accept="image/*"
                   maxSize={10}
-                  currentImage={pageContent.home.heroImage}
                 />
               </div>
               
@@ -291,10 +288,10 @@ export function AdminPages() {
                 <Label htmlFor="mobileHeroImage">Hero Background Image (Mobile)</Label>
                 <FileUpload
                   onFileSelect={setSelectedMobileHeroImage}
-                  description="Upload hero background image for mobile devices (portrait orientation recommended)"
+                  currentImage={pageContent.home.mobileHeroImage}
+                  description="Upload mobile hero image"
                   accept="image/*"
                   maxSize={10}
-                  currentImage={pageContent.home.mobileHeroImage}
                 />
               </div>
               

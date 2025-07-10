@@ -7,32 +7,20 @@ class BandService {
     try {
       console.log("BandService: Creating new band");
 
-      // Handle image upload if provided
-      let imagePath = null;
-      if (bandData.image) {
-        console.log("BandService: Processing band image upload");
-        imagePath = await FileUploadUtil.saveBase64Image(
-          bandData.image,
-          "band"
-        );
-        console.log("BandService: Band image saved successfully");
-      }
+      // The image path is now coming from multer as a URL path.
+      // We need to strip the /api/ prefix to store a relative path.
+      const imagePath = bandData.image
+        ? bandData.image.replace("/api/", "")
+        : null;
 
       const band = new Band({
         name: bandData.name,
         country: bandData.country,
         genre: bandData.genre || "",
-        image: imagePath,
+        image: imagePath, // Save the relative path
         biography: bandData.biography,
         spotifyEmbed: bandData.spotifyEmbed || "",
-        socialLinks: {
-          facebook: bandData.facebook || "",
-          instagram: bandData.instagram || "",
-          youtube: bandData.youtube || "",
-          tiktok: bandData.tiktok || "",
-          bandcamp: bandData.bandcamp || "",
-          website: bandData.website || "",
-        },
+        socialLinks: bandData.socialLinks || {},
       });
 
       const savedBand = await band.save();
@@ -106,45 +94,56 @@ class BandService {
         throw new Error("Band not found");
       }
 
-      // Handle image update if provided
       let imagePath = existingBand.image;
+
+      // Handle image update if a new image path is provided in updateData
       if (updateData.image !== undefined) {
+        // A new image is being uploaded or the existing one is removed.
+        // Clean up the old image first.
+        if (existingBand.image) {
+          await ImageCleanupUtil.cleanupBandImages(existingBand);
+        }
+
         if (updateData.image) {
-          console.log("BandService: Processing band image update");
-          imagePath = await FileUploadUtil.saveBase64Image(
-            updateData.image,
-            "band",
-            existingBand.image
-          );
+          // New image provided. Store its relative path.
+          imagePath = updateData.image.replace("/api/", "");
           console.log("BandService: Band image updated successfully");
         } else {
-          // Remove image
-          if (existingBand.image) {
-            await ImageCleanupUtil.cleanupBandImages(existingBand);
-          }
+          // Image is being removed.
           imagePath = null;
           console.log("BandService: Band image removed");
         }
       }
 
+      const {
+        name,
+        country,
+        genre,
+        biography,
+        spotifyEmbed,
+        ...socialLinksData
+      } = updateData;
+
+      const updatedBandData = {
+        name,
+        country,
+        genre: genre || "",
+        image: imagePath,
+        biography,
+        spotifyEmbed: spotifyEmbed || "",
+        socialLinks: {
+          facebook: socialLinksData.facebook,
+          instagram: socialLinksData.instagram,
+          youtube: socialLinksData.youtube,
+          tiktok: socialLinksData.tiktok,
+          bandcamp: socialLinksData.bandcamp,
+          website: socialLinksData.website,
+        },
+      };
+
       const updatedBand = await Band.findByIdAndUpdate(
         bandId,
-        {
-          name: updateData.name,
-          country: updateData.country,
-          genre: updateData.genre || "",
-          image: imagePath,
-          biography: updateData.biography,
-          spotifyEmbed: updateData.spotifyEmbed || "",
-          socialLinks: {
-            facebook: updateData.facebook || "",
-            instagram: updateData.instagram || "",
-            youtube: updateData.youtube || "",
-            tiktok: updateData.tiktok || "",
-            bandcamp: updateData.bandcamp || "",
-            website: updateData.website || "",
-          },
-        },
+        updatedBandData,
         { new: true }
       );
 

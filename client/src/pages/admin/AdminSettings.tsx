@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react"
 import {
   FaSave,
@@ -36,6 +37,20 @@ interface ContactEmail {
   email: string;
 }
 
+interface SiteAssets {
+  logo: string | null;
+  heroImage: string | null;
+  mobileHeroImage: string | null;
+  bannerText: string;
+  contactEmails: ContactEmail[];
+  copyright: string;
+  googleAnalytics: string;
+  metaPixel: string;
+  facebook: string;
+  instagram: string;
+  youtube: string;
+}
+
 interface Settings {
   festival: {
     name: string;
@@ -65,7 +80,7 @@ export function AdminSettings() {
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(false)
   const [currentFestival, setCurrentFestival] = useState<Festival | null>(null)
-  const [siteAssets, setSiteAssets] = useState<{ logo: string | null }>({ logo: null })
+  const [siteAssets, setSiteAssets] = useState<Partial<SiteAssets>>({})
   const { toast } = useToast()
 
   const [settings, setSettings] = useState<Settings>({
@@ -129,45 +144,26 @@ export function AdminSettings() {
 
   const loadSiteAssets = async () => {
     try {
-      console.log("AdminSettings: Loading site assets...")
       const data = await getSiteAssets()
-      console.log("AdminSettings: Raw data from getSiteAssets:", data)
-      console.log("AdminSettings: Assets object:", data.assets)
-      console.log("AdminSettings: General settings from API:", {
-        bannerText: data.assets?.bannerText,
-        contactEmails: data.assets?.contactEmails
-      })
-      
-      setSiteAssets(data.assets || { logo: null })
+      setSiteAssets(data.assets || {})
       
       if (data.assets) {
-        const newGeneralSettings = {
-          contactEmails: data.assets.contactEmails || [],
-          bannerText: data.assets.bannerText || "",
-          copyright: data.assets.copyright || "© 2024 Metal Gates Festival. All rights reserved."
-        }
-        
-        const newTrackingSettings = {
-          googleAnalytics: data.assets.googleAnalytics || "",
-          metaPixel: data.assets.metaPixel || ""
-        }
-
-        const newSocialSettings = {
-          facebook: data.assets.facebook || "",
-          instagram: data.assets.instagram || "",
-          youtube: data.assets.youtube || "",
-        }
-        
-        console.log(
-          "AdminSettings: Setting general settings to:",
-          newGeneralSettings
-        )
-        
         setSettings(prev => ({
           ...prev,
-          general: newGeneralSettings,
-          tracking: newTrackingSettings,
-          social: newSocialSettings,
+          general: {
+            contactEmails: data.assets.contactEmails || [],
+            bannerText: data.assets.bannerText || "",
+            copyright: data.assets.copyright || "© 2024 Metal Gates Festival. All rights reserved."
+          },
+          tracking: {
+            googleAnalytics: data.assets.googleAnalytics || "",
+            metaPixel: data.assets.metaPixel || ""
+          },
+          social: {
+            facebook: data.assets.facebook || "",
+            instagram: data.assets.instagram || "",
+            youtube: data.assets.youtube || "",
+          }
         }))
       }
     } catch (error) {
@@ -181,67 +177,20 @@ export function AdminSettings() {
       if (section === 'festival') {
         if (currentFestival) {
           await updateFestival(currentFestival._id, settings.festival)
-          toast({
-            title: "Success",
-            description: "Festival updated successfully"
-          })
         } else {
           const newFestival = await createFestival(settings.festival)
           setCurrentFestival(newFestival.data.festival)
-          toast({
-            title: "Success",
-            description: "Festival created successfully"
-          })
         }
+        toast({ title: "Success", description: "Festival settings updated." })
         await loadFestivalSettings()
-      } else if (section === 'general') {
-        console.log("AdminSettings: Saving general settings...")
-        console.log("AdminSettings: Current general settings state:", settings.general)
+      } else {
+        let dataToSave = {}
+        if (section === 'general') dataToSave = settings.general
+        if (section === 'tracking') dataToSave = settings.tracking
+        if (section === 'social') dataToSave = settings.social
         
-        const dataToSave = {
-          bannerText: settings.general.bannerText,
-          contactEmails: settings.general.contactEmails,
-          copyright: settings.general.copyright
-        };
-        
-        console.log("AdminSettings: Data being sent to API:", dataToSave)
-        
-        const response = await updateSiteAssets(dataToSave)
-        
-        console.log("AdminSettings: Response from updateSiteAssets:", response)
-        console.log("AdminSettings: Response assets:", response.data.assets)
-        
-        setSiteAssets(response.data.assets)
-        
-        console.log("AdminSettings: General settings saved successfully")
-        
-        toast({
-          title: "Success",
-          description: "General settings updated successfully"
-        })
-      } else if (section === 'tracking') {
-        console.log("AdminSettings: Saving tracking settings...")
-        const dataToSave = {
-          googleAnalytics: settings.tracking.googleAnalytics,
-          metaPixel: settings.tracking.metaPixel,
-        };
-        await updateSiteAssets(dataToSave as any)
-        toast({
-          title: "Success",
-          description: "Tracking settings updated successfully"
-        })
-      } else if (section === 'social') {
-        console.log("AdminSettings: Saving social settings...")
-        const dataToSave = {
-          facebook: settings.social.facebook,
-          instagram: settings.social.instagram,
-          youtube: settings.social.youtube,
-        };
-        await updateSiteAssets(dataToSave as any) // Using as any to avoid type errors
-        toast({
-          title: "Success",
-          description: "Social media links updated successfully"
-        })
+        await updateSiteAssets(dataToSave)
+        toast({ title: "Success", description: `${section.charAt(0).toUpperCase() + section.slice(1)} settings updated.` })
       }
     } catch (error) {
       console.error("Error saving settings:", error)
@@ -255,86 +204,35 @@ export function AdminSettings() {
     }
   }
 
-  const handleEmailChange = (
-    index: number,
-    field: "purpose" | "email",
-    value: string
-  ) => {
-    const updatedEmails = [...settings.general.contactEmails];
-    updatedEmails[index][field] = value;
-    setSettings(prev => ({
-      ...prev,
-      general: { ...prev.general, contactEmails: updatedEmails }
-    }));
-  };
-
-  const addEmail = () => {
-    setSettings(prev => ({
-      ...prev,
-      general: {
-        ...prev.general,
-        contactEmails: [...prev.general.contactEmails, { purpose: "", email: "" }]
+  const handleFileUpdate = async (section: 'logo' | 'heroImage' | 'mobileHeroImage', file: File | null) => {
+    setSaving(true);
+    try {
+      const formData = new FormData();
+      if (file) {
+        formData.append(section, file);
+      } else {
+        // Handle image removal
+        formData.append(section, '');
       }
-    }));
-  };
-
-  const removeEmail = (index: number) => {
-    const updatedEmails = settings.general.contactEmails.filter((_, i) => i !== index);
-    setSettings(prev => ({
-      ...prev,
-      general: { ...prev.general, contactEmails: updatedEmails }
-    }));
-  };
-
-  const handleLogoUpload = async (file: string) => {
-    try {
-      console.log("AdminSettings: Starting logo upload, file length:", file ? file.length : 'undefined')
-      console.log("AdminSettings: File starts with:", file ? file.substring(0, 50) : 'file is undefined')
-      setSaving(true)
-      const response = await updateSiteAssets({ logo: file })
-      console.log("AdminSettings: Logo upload response:", response)
-      setSiteAssets(response.data.assets)
+      
+      await updateSiteAssets(formData);
+      
       toast({
         title: "Success",
-        description: "Logo updated successfully"
-      })
+        description: `${section.replace(/([A-Z])/g, ' $1')} updated successfully.`,
+      });
+      await loadSiteAssets();
     } catch (error) {
-      console.error("AdminSettings: Error uploading logo:", error)
-      console.error("AdminSettings: Error message:", (error as Error).message)
+      console.error(`Error updating ${section}:`, error);
       toast({
         title: "Error",
-        description: (error as Error).message || "Failed to upload logo",
-        variant: "destructive"
-      })
+        description: `Failed to update ${section.replace(/([A-Z])/g, ' $1')}`,
+        variant: "destructive",
+      });
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
-
-
-
-  const handleRemoveLogo = async () => {
-    try {
-      console.log("AdminSettings: Removing logo")
-      setSaving(true)
-      const response = await updateSiteAssets({ logo: '' })
-      console.log("AdminSettings: Logo removal response:", response)
-      setSiteAssets(response.data.assets)
-      toast({
-        title: "Success",
-        description: "Logo removed successfully"
-      })
-    } catch (error) {
-      console.error("AdminSettings: Error removing logo:", error)
-      toast({
-        title: "Error",
-        description: (error as Error).message || "Failed to remove logo",
-        variant: "destructive"
-      })
-    } finally {
-      setSaving(false)
-    }
-  }
+  };
 
   const handleInputChange = (
     section: keyof Settings,
@@ -344,375 +242,298 @@ export function AdminSettings() {
     setSettings(prev => ({
       ...prev,
       [section]: {
-        ...prev[section],
-        [field]: value
-      }
+        ...(prev[section] as any),
+        [field]: value,
+      },
     }))
   }
 
-  if (loading) return <div>Loading settings...</div>;
+  const handleEmailChange = (
+    index: number,
+    field: "purpose" | "email",
+    value: string
+  ) => {
+    const updatedEmails = [...settings.general.contactEmails]
+    updatedEmails[index][field] = value
+    handleInputChange("general", "contactEmails", updatedEmails as any)
+  }
 
+  const addEmail = () => {
+    const updatedEmails = [...settings.general.contactEmails, { purpose: "", email: "" }]
+    handleInputChange("general", "contactEmails", updatedEmails as any)
+  }
+
+  const removeEmail = (index: number) => {
+    const updatedEmails = settings.general.contactEmails.filter((_, i) => i !== index)
+    handleInputChange("general", "contactEmails", updatedEmails as any)
+  }
+
+  if (loading) {
+    return <div>Loading...</div>
+  }
+  
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Settings</h1>
-        <p className="text-muted-foreground">Configure site settings and integrations</p>
-      </div>
-
-      <Tabs defaultValue="festival" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+    <div className="container mx-auto p-4 md:p-8">
+      <Tabs defaultValue="festival">
+        <TabsList>
           <TabsTrigger value="festival">Festival</TabsTrigger>
-          <TabsTrigger value="assets">Assets</TabsTrigger>
           <TabsTrigger value="general">General</TabsTrigger>
+          <TabsTrigger value="images">Images</TabsTrigger>
           <TabsTrigger value="tracking">Tracking</TabsTrigger>
           <TabsTrigger value="social">Social Media</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="festival" className="space-y-6">
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FaCalendarAlt className="h-5 w-5" />
-                Festival Configuration
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {loading ? (
-                <div className="text-center py-8">Loading festival settings...</div>
-              ) : (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="festivalName">Festival Name</Label>
-                    <Input
-                      id="festivalName"
-                      value={settings.festival.name}
-                      onChange={(e) => setSettings(prev => ({
-                        ...prev,
-                        festival: { ...prev.festival, name: e.target.value }
-                      }))}
-                      placeholder="Festival name"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="festivalDates">Festival Dates</Label>
-                    <Input
-                      id="festivalDates"
-                      value={settings.festival.dates}
-                      onChange={(e) => setSettings(prev => ({
-                        ...prev,
-                        festival: { ...prev.festival, dates: e.target.value }
-                      }))}
-                      placeholder="Festival dates"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="festivalDescription">Description</Label>
-                    <Textarea
-                      id="festivalDescription"
-                      rows={3}
-                      value={settings.festival.description}
-                      onChange={(e) => setSettings(prev => ({
-                        ...prev,
-                        festival: { ...prev.festival, description: e.target.value }
-                      }))}
-                      placeholder="Festival description"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="festivalLocation">Location</Label>
-                    <Input
-                      id="festivalLocation"
-                      value={settings.festival.location}
-                      onChange={(e) => setSettings(prev => ({
-                        ...prev,
-                        festival: { ...prev.festival, location: e.target.value }
-                      }))}
-                      placeholder="Festival location"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="festivalTicketUrl">Ticket URL</Label>
-                    <Input
-                      id="festivalTicketUrl"
-                      value={settings.festival.ticketUrl}
-                      onChange={(e) => setSettings(prev => ({
-                        ...prev,
-                        festival: { ...prev.festival, ticketUrl: e.target.value }
-                      }))}
-                      placeholder="Ticket purchase URL"
-                    />
-                  </div>
-
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="festivalActive"
-                      checked={settings.festival.isActive}
-                      onCheckedChange={(checked) => setSettings(prev => ({
-                        ...prev,
-                        festival: { ...prev.festival, isActive: checked }
-                      }))}
-                    />
-                    <Label htmlFor="festivalActive">Festival Active</Label>
-                    <span className="text-sm text-muted-foreground ml-2">
-                      (When off, visitors will see a generic "coming soon" page)
-                    </span>
-                  </div>
-
-                  <Button
-                    onClick={() => handleSave('festival')}
-                    disabled={saving || !settings.festival.name || !settings.festival.dates || !settings.festival.description || !settings.festival.location}
-                  >
-                    <FaSave className="mr-2 h-4 w-4" />
-                    {saving ? "Saving..." : "Save Festival Settings"}
-                  </Button>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="assets" className="space-y-6">
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FaImage className="h-5 w-5" />
-                Site Assets
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Logo Section */}
-              <div className="space-y-4">
-                <div>
-                  <Label>Site Logo</Label>
-                  <p className="text-sm text-muted-foreground">Upload your festival logo (recommended: 200x60px, PNG format)</p>
-                </div>
-                
-                {siteAssets.logo ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-4 p-4 border rounded-lg">
-                      <img 
-                        src={siteAssets.logo} 
-                        alt="Current Logo" 
-                        className="h-12 max-w-48 object-contain"
-                      />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">Current Logo</p>
-                        <p className="text-xs text-muted-foreground">Click to replace or remove</p>
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleRemoveLogo}
-                        disabled={saving}
-                      >
-                        <FaTimes className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <FileUpload
-                      onFileSelect={handleLogoUpload}
-                      accept="image/*"
-                      maxSize={5}
-                      description="Replace logo"
-                    />
-                  </div>
-                ) : (
-                  <FileUpload
-                    onFileSelect={handleLogoUpload}
-                    accept="image/*"
-                    maxSize={5}
-                    description="Upload your festival logo"
-                  />
-                )}
-              </div>
-
-
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="general" className="space-y-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Contact Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {settings.general.contactEmails.map((contact, index) => (
-                    <div key={index} className="flex items-center gap-2 p-2 border rounded-md">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 flex-grow">
-                        <Input
-                          placeholder="Purpose (e.g., General Inquiries)"
-                          value={contact.purpose}
-                          onChange={e => handleEmailChange(index, "purpose", e.target.value)}
-                        />
-                        <Input
-                          type="email"
-                          placeholder="Email Address"
-                          value={contact.email}
-                          onChange={e => handleEmailChange(index, "email", e.target.value)}
-                        />
-                      </div>
-                      <Button variant="ghost" size="icon" onClick={() => removeEmail(index)}>
-                        <FaTrash className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                  <Button variant="outline" onClick={addEmail} className="mt-2">
-                    <FaPlus className="mr-2 h-4 w-4" />
-                    Add Email
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Top Banner Settings</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="bannerText">Promotional Banner Text</Label>
-                    <Textarea
-                      id="bannerText"
-                      rows={3}
-                      value={settings.general.bannerText}
-                      onChange={(e) =>
-                        setSettings((prev) => ({
-                          ...prev,
-                          general: { ...prev.general, bannerText: e.target.value }
-                        }))
-                      }
-                      placeholder="🎸 Early Bird Tickets Available Now! Limited Time Offer 🎸"
-                    />
-                    <p className="text-sm text-muted-foreground">This banner appears at the top of all pages</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+        <TabsContent value="festival">
           <Card>
             <CardHeader>
-              <CardTitle>Copyright Notice</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Label htmlFor="copyright">Copyright Text</Label>
-              <Input
-                id="copyright"
-                placeholder="© 2024 Your Festival. All rights reserved."
-                value={settings.general.copyright}
-                onChange={e =>
-                  handleInputChange("general", "copyright", e.target.value)
-                }
-              />
-            </CardContent>
-          </Card>
-
-          <div className="md:col-span-2">
-            <Button onClick={() => handleSave('general')} disabled={saving}>
-              <FaSave className="mr-2 h-4 w-4" />
-              Save General Settings
-            </Button>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="tracking" className="space-y-6">
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FaCode className="h-5 w-5" />
-                Tracking Codes
-              </CardTitle>
+              <CardTitle>Festival Settings</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="googleAnalytics">Google Analytics Code</Label>
+                <Label htmlFor="festivalName">Festival Name</Label>
+                <Input
+                  id="festivalName"
+                  value={settings.festival.name}
+                  onChange={(e) =>
+                    handleInputChange("festival", "name", e.target.value)
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="dates">Dates</Label>
+                <Input
+                  id="dates"
+                  value={settings.festival.dates}
+                  onChange={(e) =>
+                    handleInputChange("festival", "dates", e.target.value)
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={settings.festival.description}
+                  onChange={(e) =>
+                    handleInputChange("festival", "description", e.target.value)
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="location">Location</Label>
+                <Input
+                  id="location"
+                  value={settings.festival.location}
+                  onChange={(e) =>
+                    handleInputChange("festival", "location", e.target.value)
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="ticketUrl">Ticket URL</Label>
+                <Input
+                  id="ticketUrl"
+                  value={settings.festival.ticketUrl}
+                  onChange={(e) =>
+                    handleInputChange("festival", "ticketUrl", e.target.value)
+                  }
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="isActive"
+                  checked={settings.festival.isActive}
+                  onCheckedChange={(checked) =>
+                    handleInputChange("festival", "isActive", checked)
+                  }
+                />
+                <Label htmlFor="isActive">Set as Active Festival</Label>
+              </div>
+            </CardContent>
+            <div className="p-6 pt-0">
+              <Button onClick={() => handleSave('festival')} disabled={saving}>
+                <FaSave className="mr-2" />
+                {saving ? "Saving..." : "Save Festival Settings"}
+              </Button>
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="general">
+          <Card>
+            <CardHeader>
+              <CardTitle>General Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="bannerText">Banner Text</Label>
+                <Input
+                  id="bannerText"
+                  value={settings.general.bannerText}
+                  onChange={(e) => handleInputChange("general", "bannerText", e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Contact Emails</Label>
+                {settings.general.contactEmails.map((contact, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <Input
+                      placeholder="Purpose"
+                      value={contact.purpose}
+                      onChange={(e) => handleEmailChange(index, "purpose", e.target.value)}
+                    />
+                    <Input
+                      type="email"
+                      placeholder="Email Address"
+                      value={contact.email}
+                      onChange={(e) => handleEmailChange(index, "email", e.target.value)}
+                    />
+                    <Button variant="destructive" size="sm" onClick={() => removeEmail(index)}>
+                      <FaTrash />
+                    </Button>
+                  </div>
+                ))}
+                <Button variant="outline" size="sm" onClick={addEmail}>
+                  <FaPlus className="mr-2" />
+                  Add Email
+                </Button>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="copyright">Copyright Text</Label>
+                <Input
+                  id="copyright"
+                  value={settings.general.copyright}
+                  onChange={(e) => handleInputChange("general", "copyright", e.target.value)}
+                />
+              </div>
+            </CardContent>
+            <div className="p-6 pt-0">
+              <Button onClick={() => handleSave('general')} disabled={saving}>
+                <FaSave className="mr-2" />
+                {saving ? "Saving..." : "Save General Settings"}
+              </Button>
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="images">
+          <Card>
+            <CardHeader>
+              <CardTitle>Image Assets</CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <Label>Logo</Label>
+                <FileUpload
+                  onFileSelect={(file) => handleFileUpdate("logo", file)}
+                  currentImage={siteAssets.logo}
+                  description="Upload Logo"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Hero Image</Label>
+                <FileUpload
+                  onFileSelect={(file) => handleFileUpdate("heroImage", file)}
+                  currentImage={siteAssets.heroImage}
+                  description="Upload Hero Image"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Mobile Hero Image</Label>
+                <FileUpload
+                  onFileSelect={(file) => handleFileUpdate("mobileHeroImage", file)}
+                  currentImage={siteAssets.mobileHeroImage}
+                  description="Upload Mobile Hero"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="tracking">
+          <Card>
+            <CardHeader>
+              <CardTitle>Tracking & SEO</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="googleAnalytics">Google Analytics ID</Label>
                 <Textarea
                   id="googleAnalytics"
                   rows={4}
                   value={settings.tracking.googleAnalytics}
-                  onChange={(e) => setSettings(prev => ({
-                    ...prev,
-                    tracking: { ...prev.tracking, googleAnalytics: e.target.value }
-                  }))}
-                  placeholder="<!-- Google Analytics code -->"
+                  onChange={(e) =>
+                    handleInputChange("tracking", "googleAnalytics", e.target.value)
+                  }
+                  placeholder="e.g., UA-XXXXX-Y or G-XXXXXXXXXX"
                 />
+                <p className="text-sm text-muted-foreground">
+                  Enter your Google Analytics Tracking ID.
+                </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="metaPixel">Meta Pixel Code</Label>
+                <Label htmlFor="metaPixel">Meta Pixel ID</Label>
                 <Textarea
                   id="metaPixel"
                   rows={4}
                   value={settings.tracking.metaPixel}
-                  onChange={(e) => setSettings(prev => ({
-                    ...prev,
-                    tracking: { ...prev.tracking, metaPixel: e.target.value }
-                  }))}
-                  placeholder="<!-- Meta Pixel code -->"
+                  onChange={(e) =>
+                    handleInputChange("tracking", "metaPixel", e.target.value)
+                  }
+                  placeholder="e.g., 123456789012345"
                 />
+                <p className="text-sm text-muted-foreground">
+                  Enter your Meta Pixel ID.
+                </p>
               </div>
-
-              <Button onClick={() => handleSave('tracking')} disabled={saving}>
-                <FaSave className="mr-2 h-4 w-4" />
-                {saving ? "Saving..." : "Save Changes"}
-              </Button>
             </CardContent>
+            <div className="p-6 pt-0">
+              <Button onClick={() => handleSave('tracking')} disabled={saving}>
+                <FaSave className="mr-2" />
+                {saving ? "Saving..." : "Save Tracking Settings"}
+              </Button>
+            </div>
           </Card>
         </TabsContent>
 
-        <TabsContent value="social" className="space-y-6">
-          <Card className="glass-card">
+        <TabsContent value="social">
+          <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FaExternalLinkAlt className="h-5 w-5" />
-                Social Media Links
-              </CardTitle>
+              <CardTitle>Social Media</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="facebook">Facebook</Label>
+              <div className="space-y-2">
+                <Label htmlFor="facebook">Facebook URL</Label>
                 <Input
                   id="facebook"
-                  placeholder="https://facebook.com/your-page"
                   value={settings.social.facebook}
-                  onChange={e =>
-                    handleInputChange("social", "facebook", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("social", "facebook", e.target.value)}
                 />
               </div>
-              <div>
-                <Label htmlFor="instagram">Instagram</Label>
+              <div className="space-y-2">
+                <Label htmlFor="instagram">Instagram URL</Label>
                 <Input
                   id="instagram"
-                  placeholder="https://instagram.com/your-profile"
                   value={settings.social.instagram}
-                  onChange={e =>
-                    handleInputChange("social", "instagram", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("social", "instagram", e.target.value)}
                 />
               </div>
-              <div>
-                <Label htmlFor="youtube">YouTube</Label>
+              <div className="space-y-2">
+                <Label htmlFor="youtube">YouTube URL</Label>
                 <Input
                   id="youtube"
-                  placeholder="https://youtube.com/your-channel"
                   value={settings.social.youtube}
-                  onChange={e =>
-                    handleInputChange("social", "youtube", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("social", "youtube", e.target.value)}
                 />
               </div>
-              <Button onClick={() => handleSave("social")} disabled={saving}>
-                <FaSave className="mr-2 h-4 w-4" />
-                {saving ? "Saving..." : "Save Social Links"}
-              </Button>
             </CardContent>
+            <div className="p-6 pt-0">
+              <Button onClick={() => handleSave('social')} disabled={saving}>
+                <FaSave className="mr-2" />
+                {saving ? "Saving..." : "Save Social Media Links"}
+              </Button>
+            </div>
           </Card>
         </TabsContent>
       </Tabs>

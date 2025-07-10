@@ -32,7 +32,7 @@ export function AdminNews() {
   const [loading, setLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null)
-  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
   const { register, handleSubmit, reset, setValue } = useForm<ArticleFormData>()
   const { toast } = useToast()
 
@@ -69,7 +69,7 @@ export function AdminNews() {
     setValue("excerpt", article.excerpt)
     setValue("content", article.content)
     setValue("publishedAt", article.publishedAt)
-    setSelectedImage(null)
+    setSelectedImageFile(null)
     setIsDialogOpen(true)
   }
 
@@ -77,54 +77,34 @@ export function AdminNews() {
     console.log("NEWS: Adding new article")
     setSelectedArticle(null)
     reset()
-    setSelectedImage(null)
+    setSelectedImageFile(null)
     setIsDialogOpen(true)
   }
 
   const onSubmit = async (data: ArticleFormData) => {
     try {
-      console.log("NEWS: Starting form submission")
-      console.log("NEWS: Form data:", data)
-      console.log("NEWS: Selected image (base64):", selectedImage ? {
-        isBase64: selectedImage.startsWith('data:'),
-        length: selectedImage.length
-      } : "No image selected")
-      console.log("NEWS: Selected article for editing:", selectedArticle ? {
-        title: selectedArticle.title,
-        hasExistingImage: !!selectedArticle.image
-      } : "No article selected (creating new)")
-
-      let imageUrl = ""
-
-      if (selectedImage) {
-        console.log("NEWS: Using uploaded image (already base64), length:", selectedImage.length)
-        imageUrl = selectedImage
-      } else if (selectedArticle && selectedArticle.image) {
-        console.log("NEWS: Keeping existing article image for:", selectedArticle.title)
-        imageUrl = selectedArticle.image
+      const formData = new FormData();
+      Object.keys(data).forEach(key => {
+        const value = data[key as keyof ArticleFormData];
+        if (value) {
+          formData.append(key, value);
+        }
+      });
+      
+      if (selectedImageFile) {
+        formData.append('image', selectedImageFile);
       }
-
-      const articleData = {
-        ...data,
-        publishedAt: data.publishedAt || new Date().toISOString(),
-        ...(imageUrl && { image: imageUrl })
-      }
-
-      console.log("NEWS: Sending to API:", {
-        ...articleData,
-        image: articleData.image ? `base64 data (${articleData.image.length} chars)` : "no image"
-      })
 
       if (selectedArticle) {
         console.log("NEWS: Updating existing article with ID:", selectedArticle._id)
-        await updateNewsArticle(selectedArticle._id, articleData)
+        await updateNewsArticle(selectedArticle._id, formData)
         toast({
           title: "Success",
           description: "Article updated successfully"
         })
       } else {
         console.log("NEWS: Creating new article")
-        await createNewsArticle(articleData)
+        await createNewsArticle(formData)
         toast({
           title: "Success", 
           description: "Article created successfully"
@@ -134,7 +114,7 @@ export function AdminNews() {
       setIsDialogOpen(false)
       fetchArticles()
       reset()
-      setSelectedImage(null)
+      setSelectedImageFile(null)
     } catch (error) {
       console.error("NEWS: Error saving article:", error)
       toast({
@@ -246,11 +226,13 @@ export function AdminNews() {
             <div className="space-y-2">
               <Label htmlFor="image">Featured Image</Label>
               <FileUpload
-                onFileSelect={setSelectedImage}
+                onFileSelect={setSelectedImageFile}
                 description="Upload featured image for article"
-                accept="image/*"
-                maxSize={5}
-                currentImage={selectedArticle?.image}
+                currentImage={
+                  selectedArticle?.image
+                    ? selectedArticle.image
+                    : null
+                }
               />
             </div>
 

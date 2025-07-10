@@ -41,18 +41,18 @@ function App() {
 
         if (assets.googleAnalytics) {
           const gaScript = document.createElement('script');
-          gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${assets.googleAnalytics}`;
           gaScript.async = true;
+          gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${assets.googleAnalytics}`;
           document.head.appendChild(gaScript);
 
-          const gaScript2 = document.createElement('script');
-          gaScript2.innerHTML = `
+          const gaInlineScript = document.createElement('script');
+          gaInlineScript.innerHTML = `
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', '${assets.googleAnalytics}');
           `;
-          document.head.appendChild(gaScript2);
+          document.head.appendChild(gaInlineScript);
         }
 
         if (assets.metaPixel) {

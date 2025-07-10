@@ -10,7 +10,7 @@ export const getFestivalInfo = async () => {
     const response = await api.get('/api/festivals/active');
     console.log("API: Received response from GET /api/festivals/active:", response.data)
     return response.data.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in getFestivalInfo:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -26,7 +26,7 @@ export const getFestivals = async () => {
     const response = await api.get('/api/festivals');
     console.log("API: Received response from GET /api/festivals:", response.data)
     return response.data.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in getFestivals:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -42,7 +42,7 @@ export const getFestival = async (id: string) => {
     const response = await api.get(`/api/festivals/${id}`);
     console.log("API: Received response from GET /api/festivals/" + id + ":", response.data)
     return response.data.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in getFestival:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -58,7 +58,7 @@ export const createFestival = async (festivalData: { name: string; dates: string
     const response = await api.post('/api/festivals', festivalData);
     console.log("API: Received response from POST /api/festivals:", response.data)
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in createFestival:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -74,7 +74,7 @@ export const updateFestival = async (festivalId: string, festivalData: { name: s
     const response = await api.put(`/api/festivals/${festivalId}`, festivalData);
     console.log("API: Received response from PUT /api/festivals/" + festivalId + ":", response.data)
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in updateFestival:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -90,7 +90,7 @@ export const deleteFestival = async (festivalId: string) => {
     const response = await api.delete(`/api/festivals/${festivalId}`);
     console.log("API: Received response from DELETE /api/festivals/" + festivalId + ":", response.data)
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in deleteFestival:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -106,7 +106,7 @@ export const getSiteAssets = async () => {
     const response = await api.get('/api/site-assets');
     console.log("API: Received response from GET /api/site-assets:", response.data)
     return response.data.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in getSiteAssets:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -114,30 +114,23 @@ export const getSiteAssets = async () => {
 
 // Description: Update site assets (logo, hero image, mobile hero image, countdown date, and general settings)
 // Endpoint: PUT /api/site-assets
-// Request: { logo?: string, heroImage?: string, mobileHeroImage?: string, countdownDate?: string, bannerText?: string, contactEmails?: Array<{purpose: string, email: string}>, lineupTitle?: string, lineupDescription?: string }
-// Response: { success: boolean, data: { assets: { logo: string | null, heroImage: string | null, mobileHeroImage: string | null, countdownDate: string, bannerText: string, contactEmails: Array<{purpose: string, email: string}>, lineupTitle: string, lineupDescription: string } }, message: string }
-export const updateSiteAssets = async (assetsData: { logo?: string; heroImage?: string; mobileHeroImage?: string; countdownDate?: string; bannerText?: string; contactEmails?: Array<{purpose: string, email: string}>; lineupTitle?: string; lineupDescription?: string }) => {
+// Request: FormData containing assets data
+// Response: { success: boolean, data: { assets: object }, message: string }
+export const updateSiteAssets = async (assetsData: FormData | object) => {
   try {
-    console.log("API: Making request to PUT /api/site-assets with data:", {
-      hasLogo: !!assetsData.logo,
-      hasHeroImage: !!assetsData.heroImage,
-      hasMobileHeroImage: !!assetsData.mobileHeroImage,
-      hasCountdownDate: !!assetsData.countdownDate,
-      hasBannerText: !!assetsData.bannerText,
-      hasContactEmails: !!assetsData.contactEmails,
-      hasLineupTitle: !!assetsData.lineupTitle,
-      hasLineupDescription: !!assetsData.lineupDescription,
-    });
+    const isFormData = assetsData instanceof FormData;
+    console.log(`API: Making request to PUT /api/site-assets with ${isFormData ? 'form data' : 'JSON'}`);
 
-    const response = await api.put('/api/site-assets', assetsData);
-    console.log("API: Received response from PUT /api/site-assets:", response.data)
-    console.log("API: Response assets data:", response.data.data?.assets)
+    const response = await api.put('/api/site-assets', assetsData, {
+      headers: {
+        ...(isFormData && { 'Content-Type': 'multipart/form-data' }),
+      },
+    });
+    
+    console.log("API: Received response from PUT /api/site-assets:", response.data);
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in updateSiteAssets:", error)
-    console.error("API: Error response:", error.response)
-    console.error("API: Error response data:", error.response?.data)
-    console.error("API: Error status:", error.response?.status)
     throw new Error(error?.response?.data?.error || error.message);
   }
 };
@@ -152,7 +145,7 @@ export const updateLogo = async (logo: string) => {
     const response = await api.put('/api/site-assets/logo', { logo });
     console.log("API: Received response from PUT /api/site-assets/logo:", response.data)
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in updateLogo:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -168,7 +161,7 @@ export const updateHeroImage = async (heroImage: string) => {
     const response = await api.put('/api/site-assets/hero', { heroImage });
     console.log("API: Received response from PUT /api-site-assets/hero:", response.data)
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in updateHeroImage:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -184,7 +177,7 @@ export const removeLogo = async () => {
     const response = await api.delete('/api/site-assets/logo');
     console.log("API: Received response from DELETE /api-site-assets/logo:", response.data)
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in removeLogo:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -200,7 +193,7 @@ export const removeHeroImage = async () => {
     const response = await api.delete('/api/site-assets/hero');
     console.log("API: Received response from DELETE /api-site-assets/hero:", response.data)
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in removeHeroImage:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -216,7 +209,7 @@ export const getLineup = async () => {
     const response = await api.get('/api/lineup');
     console.log("API: Received response from GET /api/lineup:", response.data)
     return response.data.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in getLineup:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -224,37 +217,35 @@ export const getLineup = async () => {
 
 // Description: Create new band
 // Endpoint: POST /api/lineup
-// Request: { name: string, country: string, genre: string, biography: string, spotifyEmbed: string, facebook: string, instagram: string, youtube: string, tiktok: string, bandcamp: string, website: string }
+// Request: { name: string, country: string, genre: string, biography: string, spotifyEmbed?: string, socialLinks?: object, image?: File }
 // Response: { success: boolean, data: { band: object }, message: string }
-export const createBand = async (bandData: { name: string; country: string; genre: string; biography: string; spotifyEmbed: string; facebook: string; instagram: string; youtube: string; tiktok: string; bandcamp: string; website: string; image?: string }) => {
+export const createBand = async (bandData: FormData) => {
   try {
-    console.log("API: Making request to POST /api/lineup with data:", {
-      ...bandData,
-      image: bandData.image ? `base64 data (${bandData.image.length} chars)` : "no image"
-    })
-    const response = await api.post('/api/lineup', bandData);
+    console.log("API: Making request to POST /api/lineup with form data")
+    const response = await api.post('/api/lineup', bandData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
     console.log("API: Received response from POST /api/lineup:", response.data)
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in createBand:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
 };
 
-// Description: Update existing band
+// Description: Update band
 // Endpoint: PUT /api/lineup/:id
-// Request: { name: string, country: string, genre: string, biography: string, spotifyEmbed: string, facebook: string, instagram: string, youtube: string, tiktok: string, bandcamp: string, website: string }
+// Request: { name: string, country: string, genre: string, biography: string, spotifyEmbed?: string, socialLinks?: object, image?: File | 'null' }
 // Response: { success: boolean, data: { band: object }, message: string }
-export const updateBand = async (bandId: string, bandData: { name: string; country: string; genre: string; biography: string; spotifyEmbed: string; facebook: string; instagram: string; youtube: string; tiktok: string; bandcamp: string; website: string; image?: string }) => {
+export const updateBand = async (id: string, bandData: FormData) => {
   try {
-    console.log("API: Making request to PUT /api/lineup/" + bandId + " with data:", {
-      ...bandData,
-      image: bandData.image ? `base64 data (${bandData.image.length} chars)` : "no image"
-    })
-    const response = await api.put(`/api/lineup/${bandId}`, bandData);
-    console.log("API: Received response from PUT /api/lineup/" + bandId + ":", response.data)
+    console.log(`API: Making request to PUT /api/lineup/${id} with form data`)
+    const response = await api.put(`/api/lineup/${id}`, bandData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    console.log(`API: Received response from PUT /api/lineup/${id}:`, response.data)
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in updateBand:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -270,7 +261,7 @@ export const deleteBand = async (bandId: string) => {
     const response = await api.delete(`/api/lineup/${bandId}`);
     console.log("API: Received response from DELETE /api/lineup/" + bandId + ":", response.data)
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in deleteBand:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -286,7 +277,7 @@ export const getNews = async () => {
     const response = await api.get('/api/news');
     console.log("API: Received response from GET /api/news:", response.data)
     return response.data.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in getNews:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -302,45 +293,43 @@ export const getNewsArticle = async (id: string) => {
     const response = await api.get(`/api/news/${id}`);
     console.log("API: Received response from GET /api/news/" + id + ":", response.data)
     return response.data.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in getNewsArticle:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
 };
 
-// Description: Create new news article
+// Description: Create news article
 // Endpoint: POST /api/news
-// Request: { title: string, excerpt: string, content: string, image?: string, publishedAt?: string }
+// Request: FormData containing article data and optional image
 // Response: { success: boolean, data: { article: object }, message: string }
-export const createNewsArticle = async (articleData: { title: string; excerpt: string; content: string; image?: string; publishedAt?: string }) => {
+export const createNewsArticle = async (articleData: FormData) => {
   try {
-    console.log("API: Making request to POST /api/news with data:", {
-      ...articleData,
-      image: articleData.image ? `base64 data (${articleData.image.length} chars)` : "no image"
-    })
-    const response = await api.post('/api/news', articleData);
+    console.log("API: Making request to POST /api/news with form data")
+    const response = await api.post('/api/news', articleData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
     console.log("API: Received response from POST /api/news:", response.data)
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in createNewsArticle:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
 };
 
-// Description: Update existing news article
+// Description: Update news article
 // Endpoint: PUT /api/news/:id
-// Request: { title: string, excerpt: string, content: string, image?: string, publishedAt?: string }
+// Request: FormData containing article data and optional image
 // Response: { success: boolean, data: { article: object }, message: string }
-export const updateNewsArticle = async (articleId: string, articleData: { title: string; excerpt: string; content: string; image?: string; publishedAt?: string }) => {
+export const updateNewsArticle = async (articleId: string, articleData: FormData) => {
   try {
-    console.log("API: Making request to PUT /api/news/" + articleId + " with data:", {
-      ...articleData,
-      image: articleData.image ? `base64 data (${articleData.image.length} chars)` : "no image"
-    })
-    const response = await api.put(`/api/news/${articleId}`, articleData);
-    console.log("API: Received response from PUT /api/news/" + articleId + ":", response.data)
+    console.log(`API: Making request to PUT /api/news/${articleId} with form data`)
+    const response = await api.put(`/api/news/${articleId}`, articleData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    console.log(`API: Received response from PUT /api/news/${articleId}:`, response.data)
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in updateNewsArticle:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -356,7 +345,7 @@ export const deleteNewsArticle = async (articleId: string) => {
     const response = await api.delete(`/api/news/${articleId}`);
     console.log("API: Received response from DELETE /api/news/" + articleId + ":", response.data)
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in deleteNewsArticle:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -372,7 +361,7 @@ export const getArchive = async () => {
     const response = await api.get('/api/archives');
     console.log("API: Received response from GET /api/archives:", response.data)
     return response.data.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in getArchive:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -382,16 +371,15 @@ export const getArchive = async () => {
 // Endpoint: POST /api/archives
 // Request: { year: string, poster?: string, lineup: string, description: string }
 // Response: { success: boolean, data: { archive: object }, message: string }
-export const createArchive = async (archiveData: { year: string; poster?: string; lineup: string; description: string }) => {
+export const createArchive = async (archiveData: FormData) => {
   try {
-    console.log("API: Making request to POST /api/archives with data:", {
-      ...archiveData,
-      poster: archiveData.poster ? `base64 data (${archiveData.poster.length} chars)` : "no poster"
-    })
-    const response = await api.post('/api/archives', archiveData);
+    console.log("API: Making request to POST /api/archives with form data")
+    const response = await api.post('/api/archives', archiveData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
     console.log("API: Received response from POST /api/archives:", response.data)
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in createArchive:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -401,16 +389,15 @@ export const createArchive = async (archiveData: { year: string; poster?: string
 // Endpoint: PUT /api/archives/:id
 // Request: { year: string, poster?: string, lineup: string, description: string }
 // Response: { success: boolean, data: { archive: object }, message: string }
-export const updateArchive = async (archiveId: string, archiveData: { year: string; poster?: string; lineup: string; description: string }) => {
+export const updateArchive = async (archiveId: string, archiveData: FormData) => {
   try {
-    console.log("API: Making request to PUT /api/archives/" + archiveId + " with data:", {
-      ...archiveData,
-      poster: archiveData.poster ? `base64 data (${archiveData.poster.length} chars)` : "no poster"
-    })
-    const response = await api.put(`/api/archives/${archiveId}`, archiveData);
+    console.log(`API: Making request to PUT /api/archives/${archiveId} with form data`)
+    const response = await api.put(`/api/archives/${archiveId}`, archiveData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
     console.log("API: Received response from PUT /api/archives/" + archiveId + ":", response.data)
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in updateArchive:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -426,7 +413,7 @@ export const deleteArchive = async (archiveId: string) => {
     const response = await api.delete(`/api/archives/${archiveId}`);
     console.log("API: Received response from DELETE /api/archives/" + archiveId + ":", response.data)
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in deleteArchive:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -442,7 +429,7 @@ export const submitContactForm = async (data: { name: string; email: string; sub
     const response = await api.post('/api/contact', data);
     console.log("API: Received response from POST /api/contact:", response.data)
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in submitContactForm:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -458,7 +445,7 @@ export const getContactSubmissions = async () => {
     const response = await api.get('/api/contact');
     console.log("API: Received response from GET /api/contact:", response.data)
     return response.data.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in getContactSubmissions:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -474,7 +461,7 @@ export const getContactSubmission = async (id: string) => {
     const response = await api.get(`/api/contact/${id}`);
     console.log("API: Received response from GET /api/contact/" + id + ":", response.data)
     return response.data.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in getContactSubmission:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -490,7 +477,7 @@ export const updateContactStatus = async (id: string, status: string) => {
     const response = await api.put(`/api/contact/${id}/status`, { status });
     console.log("API: Received response from PUT /api/contact/" + id + "/status:", response.data)
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in updateContactStatus:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -506,7 +493,7 @@ export const deleteContactSubmission = async (id: string) => {
     const response = await api.delete(`/api/contact/${id}`);
     console.log("API: Received response from DELETE /api/contact/" + id + ":", response.data)
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in deleteContactSubmission:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -518,7 +505,7 @@ export const getInfoPage = async () => {
   try {
     const response = await api.get('/api/infopage');
     return response.data.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in getInfoPage:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -530,7 +517,7 @@ export const updateInfoPage = async (infoPageData: any) => {
   try {
     const response = await api.put('/api/infopage', infoPageData);
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in updateInfoPage:", error);
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -543,7 +530,7 @@ export const updateInfoPage = async (infoPageData: any) => {
 export const logVisit = async () => {
   try {
     await api.post('/api/visits/log');
-  } catch (error) {
+  } catch (error: any) {
     // Fail silently so it doesn't impact user experience
     console.error("API: Error logging visit:", error);
   }
@@ -557,7 +544,7 @@ export const getVisitorStats = async () => {
     const response = await api.get('/api/visits/stats');
     console.log("API: Received response from GET /api/visits/stats:", response.data);
     return response.data.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("API: Error in getVisitorStats:", error);
     throw new Error(error?.response?.data?.error || error.message);
   }

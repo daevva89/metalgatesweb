@@ -1,60 +1,10 @@
 const SiteAssets = require("../models/SiteAssets");
-const FileUploadUtil = require("../utils/fileUpload");
-const ImageCleanupUtil = require("../utils/imageCleanup");
 
 class SiteAssetsService {
   async getSiteAssets() {
     try {
-      console.log("SiteAssetsService: Getting site assets");
       const assets = await SiteAssets.getSiteAssets();
-
-      console.log("SiteAssetsService: Raw assets from database:", {
-        _id: assets._id,
-        logo: assets.logo,
-        heroImage: assets.heroImage,
-        mobileHeroImage: assets.mobileHeroImage,
-        countdownDate: assets.countdownDate,
-        bannerText: assets.bannerText,
-        contactEmails: assets.contactEmails,
-        lineupTitle: assets.lineupTitle,
-        lineupDescription: assets.lineupDescription,
-        googleAnalytics: assets.googleAnalytics,
-        metaPixel: assets.metaPixel,
-        facebook: assets.facebook,
-        instagram: assets.instagram,
-        youtube: assets.youtube,
-        copyright: assets.copyright,
-        createdAt: assets.createdAt,
-        updatedAt: assets.updatedAt,
-      });
-
-      // Convert file paths to URLs
-      const response = {
-        logo: assets.logo ? FileUploadUtil.getImageUrl(assets.logo) : null,
-        heroImage: assets.heroImage
-          ? FileUploadUtil.getImageUrl(assets.heroImage)
-          : null,
-        mobileHeroImage: assets.mobileHeroImage
-          ? FileUploadUtil.getImageUrl(assets.mobileHeroImage)
-          : null,
-        countdownDate: assets.countdownDate,
-        bannerText: assets.bannerText,
-        contactEmails: assets.contactEmails,
-        lineupTitle: assets.lineupTitle,
-        lineupDescription: assets.lineupDescription,
-        googleAnalytics: assets.googleAnalytics,
-        metaPixel: assets.metaPixel,
-        facebook: assets.facebook,
-        instagram: assets.instagram,
-        youtube: assets.youtube,
-        copyright: assets.copyright,
-      };
-
-      console.log(
-        "SiteAssetsService: Final response being returned:",
-        response
-      );
-      return response;
+      return assets;
     } catch (error) {
       console.error("SiteAssetsService: Error getting site assets:", error);
       throw error;
@@ -63,214 +13,45 @@ class SiteAssetsService {
 
   async updateSiteAssets(updateData) {
     try {
-      console.log("SiteAssetsService: Updating site assets");
-      console.log("SiteAssetsService: Update data received:", {
-        hasLogo: "logo" in updateData,
-        hasHeroImage: "heroImage" in updateData,
-        hasMobileHeroImage: "mobileHeroImage" in updateData,
-        hasCountdownDate: "countdownDate" in updateData,
-      });
+      console.log(
+        "SiteAssetsService: Updating site assets with data:",
+        updateData
+      );
 
-      // Get existing assets or create new one
       let assets = await SiteAssets.findOne();
       if (!assets) {
         assets = new SiteAssets();
-        console.log("SiteAssetsService: Created new assets document");
-      }
-      console.log("SiteAssetsService: Current assets retrieved");
-
-      // Update general settings
-      if (updateData.bannerText !== undefined) {
-        assets.bannerText = updateData.bannerText;
-        console.log("SiteAssetsService: Banner text updated");
-      }
-      if (updateData.contactEmails !== undefined) {
-        assets.contactEmails = updateData.contactEmails;
-        console.log("SiteAssetsService: Contact emails updated");
-      }
-      if (updateData.countdownDate !== undefined) {
-        assets.countdownDate = new Date(updateData.countdownDate);
-        console.log(
-          "SiteAssetsService: Countdown date updated to:",
-          assets.countdownDate
-        );
-      }
-      if (updateData.lineupTitle !== undefined) {
-        assets.lineupTitle = updateData.lineupTitle;
-        console.log("SiteAssetsService: Lineup title updated");
-      }
-      if (updateData.lineupDescription !== undefined) {
-        assets.lineupDescription = updateData.lineupDescription;
-        console.log("SiteAssetsService: Lineup description updated");
-      }
-      if (updateData.googleAnalytics !== undefined) {
-        assets.googleAnalytics = updateData.googleAnalytics;
-        console.log("SiteAssetsService: Google Analytics updated");
-      }
-      if (updateData.metaPixel !== undefined) {
-        assets.metaPixel = updateData.metaPixel;
-        console.log("SiteAssetsService: Meta Pixel updated");
-      }
-      if (updateData.facebook !== undefined) {
-        assets.facebook = updateData.facebook;
-        console.log("SiteAssetsService: Facebook link updated");
-      }
-      if (updateData.instagram !== undefined) {
-        assets.instagram = updateData.instagram;
-        console.log("SiteAssetsService: Instagram link updated");
-      }
-      if (updateData.youtube !== undefined) {
-        assets.youtube = updateData.youtube;
-        console.log("SiteAssetsService: YouTube link updated");
-      }
-      if (updateData.copyright !== undefined) {
-        assets.copyright = updateData.copyright;
-        console.log("SiteAssetsService: Copyright updated");
       }
 
-      if (updateData.logo !== undefined) {
-        console.log("SiteAssetsService: Processing logo update");
-        const oldLogoPath = assets.logo;
-
-        if (updateData.logo) {
-          // Save new logo
-          const logoPath = await FileUploadUtil.saveBase64Image(
-            updateData.logo,
-            "logo",
-            oldLogoPath
-          );
-          assets.logo = logoPath;
-          console.log("SiteAssetsService: Logo updated with new file");
-        } else {
-          // Remove logo
-          if (oldLogoPath) {
-            await ImageCleanupUtil.cleanupSiteAssetImages(assets, "logo");
-          }
-          assets.logo = null;
-          console.log("SiteAssetsService: Logo removed");
+      // Directly update fields from updateData
+      Object.keys(updateData).forEach((key) => {
+        // Special handling for empty image fields to set them to null
+        if (
+          ["logo", "heroImage", "mobileHeroImage"].includes(key) &&
+          updateData[key] === ""
+        ) {
+          assets[key] = null;
+        } else if (updateData[key] !== undefined) {
+          assets[key] = updateData[key];
         }
-      }
-
-      if (updateData.heroImage !== undefined) {
-        console.log("SiteAssetsService: Processing hero image update");
-        const oldHeroPath = assets.heroImage;
-
-        if (updateData.heroImage) {
-          // Save new hero image
-          const heroPath = await FileUploadUtil.saveBase64Image(
-            updateData.heroImage,
-            "hero",
-            oldHeroPath
-          );
-          assets.heroImage = heroPath;
-          console.log("SiteAssetsService: Hero image updated with new file");
-        } else {
-          // Remove hero image
-          if (oldHeroPath) {
-            await ImageCleanupUtil.cleanupSiteAssetImages(assets, "heroImage");
-          }
-          assets.heroImage = null;
-          console.log("SiteAssetsService: Hero image removed");
-        }
-      }
-
-      if (updateData.mobileHeroImage !== undefined) {
-        console.log("SiteAssetsService: Processing mobile hero image update");
-        const oldMobileHeroPath = assets.mobileHeroImage;
-
-        if (updateData.mobileHeroImage) {
-          // Save new mobile hero image
-          const mobileHeroPath = await FileUploadUtil.saveBase64Image(
-            updateData.mobileHeroImage,
-            "mobile-hero",
-            oldMobileHeroPath
-          );
-          assets.mobileHeroImage = mobileHeroPath;
-          console.log(
-            "SiteAssetsService: Mobile hero image updated with new file"
-          );
-        } else {
-          // Remove mobile hero image
-          if (oldMobileHeroPath) {
-            await ImageCleanupUtil.cleanupSiteAssetImages(
-              assets,
-              "mobileHeroImage"
-            );
-          }
-          assets.mobileHeroImage = null;
-          console.log("SiteAssetsService: Mobile hero image removed");
-        }
-      }
-
-      console.log("SiteAssetsService: About to save assets");
-      console.log("SiteAssetsService: Assets object before save:", {
-        _id: assets._id,
-        logo: assets.logo,
-        heroImage: assets.heroImage,
-        mobileHeroImage: assets.mobileHeroImage,
-        countdownDate: assets.countdownDate,
-        bannerText: assets.bannerText,
-        contactEmails: assets.contactEmails,
-        lineupTitle: assets.lineupTitle,
-        lineupDescription: assets.lineupDescription,
-        googleAnalytics: assets.googleAnalytics,
-        metaPixel: assets.metaPixel,
-        facebook: assets.facebook,
-        instagram: assets.instagram,
-        youtube: assets.youtube,
-        copyright: assets.copyright,
       });
 
-      // Save the assets
+      if (
+        updateData.contactEmails &&
+        typeof updateData.contactEmails === "string"
+      ) {
+        try {
+          assets.contactEmails = JSON.parse(updateData.contactEmails);
+        } catch (e) {
+          console.error("Error parsing contactEmails", e);
+        }
+      }
+
       const updatedAssets = await assets.save();
       console.log("SiteAssetsService: Assets saved successfully");
-
-      console.log("SiteAssetsService: Updated assets from database:", {
-        _id: updatedAssets._id,
-        logo: updatedAssets.logo,
-        heroImage: updatedAssets.heroImage,
-        mobileHeroImage: updatedAssets.mobileHeroImage,
-        countdownDate: updatedAssets.countdownDate,
-        bannerText: updatedAssets.bannerText,
-        contactEmails: updatedAssets.contactEmails,
-        lineupTitle: updatedAssets.lineupTitle,
-        lineupDescription: updatedAssets.lineupDescription,
-        googleAnalytics: updatedAssets.googleAnalytics,
-        metaPixel: updatedAssets.metaPixel,
-        facebook: updatedAssets.facebook,
-        instagram: updatedAssets.instagram,
-        youtube: updatedAssets.youtube,
-        copyright: updatedAssets.copyright,
-        createdAt: updatedAssets.createdAt,
-        updatedAt: updatedAssets.updatedAt,
-      });
-
-      // Return URLs instead of file paths
-      return {
-        logo: updatedAssets.logo
-          ? FileUploadUtil.getImageUrl(updatedAssets.logo)
-          : null,
-        heroImage: updatedAssets.heroImage
-          ? FileUploadUtil.getImageUrl(updatedAssets.heroImage)
-          : null,
-        mobileHeroImage: updatedAssets.mobileHeroImage
-          ? FileUploadUtil.getImageUrl(updatedAssets.mobileHeroImage)
-          : null,
-        countdownDate: updatedAssets.countdownDate,
-        bannerText: updatedAssets.bannerText,
-        contactEmails: updatedAssets.contactEmails,
-        lineupTitle: updatedAssets.lineupTitle,
-        lineupDescription: updatedAssets.lineupDescription,
-        googleAnalytics: updatedAssets.googleAnalytics,
-        metaPixel: updatedAssets.metaPixel,
-        facebook: updatedAssets.facebook,
-        instagram: updatedAssets.instagram,
-        youtube: updatedAssets.youtube,
-        copyright: updatedAssets.copyright,
-      };
+      return updatedAssets;
     } catch (error) {
       console.error("SiteAssetsService: Error updating site assets:", error);
-      console.error("SiteAssetsService: Error stack:", error.stack);
       throw error;
     }
   }

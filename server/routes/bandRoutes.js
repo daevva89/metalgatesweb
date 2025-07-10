@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bandService = require("../services/bandService");
 const auth = require("./middleware/auth");
+const upload = require("../utils/upload");
 
 // GET /api/lineup - Get all bands
 router.get("/", async (req, res) => {
@@ -59,51 +60,12 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST /api/lineup - Create new band (admin only)
-router.post("/", auth, async (req, res) => {
+router.post("/", auth, upload.single("image"), async (req, res) => {
   console.log("POST /api/lineup - Creating new band by user:", req.user.email);
-  console.log(
-    "POST /api/lineup - Request body received:",
-    JSON.stringify(req.body, null, 2)
-  );
-  console.log("POST /api/lineup - Request body type:", typeof req.body);
-  console.log(
-    "POST /api/lineup - Request body keys:",
-    Object.keys(req.body || {})
-  );
-
   try {
-    const {
-      name,
-      country,
-      genre,
-      image,
-      biography,
-      spotifyEmbed,
-      facebook,
-      instagram,
-      youtube,
-      tiktok,
-      bandcamp,
-      website,
-    } = req.body;
-
-    console.log("POST /api/lineup - Extracted fields:", {
-      name: name,
-      country: country,
-      genre: genre ? "present" : "missing",
-      image: image ? `present (${image.length} chars)` : "missing",
-      biography: biography ? "present" : "missing",
-      spotifyEmbed: spotifyEmbed ? "present" : "missing",
-      facebook: facebook ? "present" : "missing",
-      instagram: instagram ? "present" : "missing",
-      youtube: youtube ? "present" : "missing",
-      tiktok: tiktok ? "present" : "missing",
-      bandcamp: bandcamp ? "present" : "missing",
-      website: website ? "present" : "missing",
-    });
+    const { name, country, biography, ...otherData } = req.body;
 
     if (!name || !country || !biography) {
-      console.log("POST /api/lineup - Missing required fields");
       return res.status(400).json({
         success: false,
         error: "Name, country, and biography are required",
@@ -113,33 +75,24 @@ router.post("/", auth, async (req, res) => {
     const bandData = {
       name,
       country,
-      genre: genre || "",
-      image: image || "",
       biography,
-      spotifyEmbed: spotifyEmbed || "",
-      facebook: facebook || "",
-      instagram: instagram || "",
-      youtube: youtube || "",
-      tiktok: tiktok || "",
-      bandcamp: bandcamp || "",
-      website: website || "",
+      genre: otherData.genre,
+      spotifyEmbed: otherData.spotifyEmbed,
+      socialLinks: {
+        facebook: otherData.facebook,
+        instagram: otherData.instagram,
+        youtube: otherData.youtube,
+        tiktok: otherData.tiktok,
+        bandcamp: otherData.bandcamp,
+        website: otherData.website,
+      },
     };
 
-    console.log("POST /api/lineup - Band data to save:", {
-      ...bandData,
-      image: bandData.image
-        ? `base64 data (${bandData.image.length} chars)`
-        : "no image",
-      socialLinks: bandData.socialLinks,
-    });
+    if (req.file) {
+      bandData.image = `/api/uploads/${req.file.filename}`;
+    }
 
     const band = await bandService.createBand(bandData);
-    console.log("POST /api/lineup - Band created successfully:", band.name);
-    console.log("POST /api/lineup - Created band image info:", {
-      hasImage: !!band.image,
-      imageLength: band.image ? band.image.length : 0,
-    });
-
     res.status(201).json({
       success: true,
       data: { band },
@@ -147,7 +100,6 @@ router.post("/", auth, async (req, res) => {
     });
   } catch (error) {
     console.error("POST /api/lineup - Error:", error.message);
-    console.error("POST /api/lineup - Error stack:", error.stack);
     res.status(500).json({
       success: false,
       error: error.message,
@@ -156,74 +108,16 @@ router.post("/", auth, async (req, res) => {
 });
 
 // PUT /api/lineup/:id - Update band (admin only)
-router.put("/:id", auth, async (req, res) => {
+router.put("/:id", auth, upload.single("image"), async (req, res) => {
   console.log("PUT /api/lineup/:id - Updating band with ID:", req.params.id);
-  console.log(
-    "PUT /api/lineup/:id - Request body received:",
-    JSON.stringify(req.body, null, 2)
-  );
-
   try {
-    const {
-      name,
-      country,
-      genre,
-      image,
-      biography,
-      spotifyEmbed,
-      facebook,
-      instagram,
-      youtube,
-      tiktok,
-      bandcamp,
-      website,
-    } = req.body;
+    const { ...updateData } = req.body;
 
-    console.log("PUT /api/lineup/:id - Extracted fields:", {
-      name: name,
-      country: country,
-      genre: genre ? "present" : "missing",
-      image: image ? `present (${image.length} chars)` : "missing",
-      biography: biography ? "present" : "missing",
-      spotifyEmbed: spotifyEmbed ? "present" : "missing",
-      facebook: facebook ? "present" : "missing",
-      instagram: instagram ? "present" : "missing",
-      youtube: youtube ? "present" : "missing",
-      tiktok: tiktok ? "present" : "missing",
-      bandcamp: bandcamp ? "present" : "missing",
-      website: website ? "present" : "missing",
-    });
-
-    const updateData = {
-      name,
-      country,
-      genre: genre || "",
-      image: image || "",
-      biography,
-      spotifyEmbed: spotifyEmbed || "",
-      facebook: facebook || "",
-      instagram: instagram || "",
-      youtube: youtube || "",
-      tiktok: tiktok || "",
-      bandcamp: bandcamp || "",
-      website: website || "",
-    };
-
-    console.log("PUT /api/lineup/:id - Update data:", {
-      ...updateData,
-      image: updateData.image
-        ? `base64 data (${updateData.image.length} chars)`
-        : "no image",
-      socialLinks: updateData.socialLinks,
-    });
+    if (req.file) {
+      updateData.image = `/api/uploads/${req.file.filename}`;
+    }
 
     const band = await bandService.updateBand(req.params.id, updateData);
-    console.log("PUT /api/lineup/:id - Band updated successfully:", band.name);
-    console.log("PUT /api/lineup/:id - Updated band image info:", {
-      hasImage: !!band.image,
-      imageLength: band.image ? band.image.length : 0,
-    });
-
     res.json({
       success: true,
       data: { band },
@@ -231,7 +125,6 @@ router.put("/:id", auth, async (req, res) => {
     });
   } catch (error) {
     console.error("PUT /api/lineup/:id - Error:", error.message);
-    console.error("PUT /api/lineup/:id - Error stack:", error.stack);
     const statusCode = error.message.includes("not found") ? 404 : 500;
     res.status(statusCode).json({
       success: false,

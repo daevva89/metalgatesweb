@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const siteAssetsService = require("../services/siteAssetsService");
 const auth = require("./middleware/auth");
+const upload = require("../utils/upload");
 
 // Get site assets (public endpoint)
 router.get("/", async (req, res) => {
@@ -41,153 +42,58 @@ router.get("/", async (req, res) => {
 });
 
 // Update site assets (admin only)
-router.put("/", auth, async (req, res) => {
-  console.log("SiteAssetsRoutes: PUT / - Updating site assets");
-  console.log("SiteAssetsRoutes: Request body keys:", Object.keys(req.body));
-  console.log("SiteAssetsRoutes: Request body structure:", {
-    hasLogo: "logo" in req.body,
-    hasHeroImage: "heroImage" in req.body,
-    logoType: typeof req.body.logo,
-    heroImageType: typeof req.body.heroImage,
-    logoLength: req.body.logo ? req.body.logo.length : 0,
-    heroImageLength: req.body.heroImage ? req.body.heroImage.length : 0,
-  });
+router.put(
+  "/",
+  auth,
+  upload.fields([
+    { name: "logo", maxCount: 1 },
+    { name: "heroImage", maxCount: 1 },
+    { name: "mobileHeroImage", maxCount: 1 },
+  ]),
+  async (req, res) => {
+    console.log("SiteAssetsRoutes: PUT / - Updating site assets");
 
-  try {
-    // Check if user is admin
-    if (req.user.role !== "admin") {
-      console.log("SiteAssetsRoutes: Access denied - user is not admin");
-      return res.status(403).json({
+    try {
+      if (req.user.role !== "admin") {
+        return res.status(403).json({
+          success: false,
+          error: "Access denied. Admin role required.",
+        });
+      }
+
+      const updateData = { ...req.body };
+
+      if (req.files) {
+        if (req.files.logo) {
+          updateData.logo = `/api/uploads/${req.files.logo[0].filename}`;
+        }
+        if (req.files.heroImage) {
+          updateData.heroImage = `/api/uploads/${req.files.heroImage[0].filename}`;
+        }
+        if (req.files.mobileHeroImage) {
+          updateData.mobileHeroImage = `/api/uploads/${req.files.mobileHeroImage[0].filename}`;
+        }
+      }
+
+      const updatedAssets = await siteAssetsService.updateSiteAssets(
+        updateData
+      );
+      console.log("SiteAssetsRoutes: Site assets updated successfully");
+
+      res.json({
+        success: true,
+        data: { assets: updatedAssets },
+        message: "Site assets updated successfully",
+      });
+    } catch (error) {
+      console.error("SiteAssetsRoutes: Error updating site assets:", error);
+      res.status(500).json({
         success: false,
-        error: "Access denied. Admin role required.",
+        error: "Failed to update site assets",
       });
     }
-
-    const {
-      logo,
-      heroImage,
-      mobileHeroImage,
-      countdownDate,
-      bannerText,
-      contactEmails,
-      lineupTitle,
-      lineupDescription,
-      googleAnalytics,
-      metaPixel,
-      facebook,
-      instagram,
-      youtube,
-      copyright,
-    } = req.body;
-    console.log("SiteAssetsRoutes: Full request body:", req.body);
-    console.log("SiteAssetsRoutes: Update data received:", {
-      hasLogo: !!logo,
-      hasHeroImage: !!heroImage,
-      hasMobileHeroImage: !!mobileHeroImage,
-      hasCountdownDate: !!countdownDate,
-      hasBannerText: bannerText !== undefined,
-      hasContactEmails: contactEmails !== undefined,
-      hasLineupTitle: lineupTitle !== undefined,
-      hasLineupDescription: lineupDescription !== undefined,
-      hasGoogleAnalytics: googleAnalytics !== undefined,
-      hasMetaPixel: metaPixel !== undefined,
-      hasFacebook: facebook !== undefined,
-      hasInstagram: instagram !== undefined,
-      hasYoutube: youtube !== undefined,
-      hasCopyright: copyright !== undefined,
-      logoLength: logo ? logo.length : 0,
-      heroImageLength: heroImage ? heroImage.length : 0,
-      mobileHeroImageLength: mobileHeroImage ? mobileHeroImage.length : 0,
-      countdownDateValue: countdownDate,
-      bannerTextValue: bannerText,
-      contactEmailsValue: contactEmails,
-      lineupTitleValue: lineupTitle,
-      lineupDescriptionValue: lineupDescription,
-    });
-
-    const updateData = {};
-    if (logo !== undefined) updateData.logo = logo;
-    if (heroImage !== undefined) updateData.heroImage = heroImage;
-    if (mobileHeroImage !== undefined)
-      updateData.mobileHeroImage = mobileHeroImage;
-    if (countdownDate !== undefined) updateData.countdownDate = countdownDate;
-    if (bannerText !== undefined) updateData.bannerText = bannerText;
-    if (contactEmails !== undefined) updateData.contactEmails = contactEmails;
-    if (lineupTitle !== undefined) updateData.lineupTitle = lineupTitle;
-    if (lineupDescription !== undefined)
-      updateData.lineupDescription = lineupDescription;
-    if (googleAnalytics !== undefined)
-      updateData.googleAnalytics = googleAnalytics;
-    if (metaPixel !== undefined) updateData.metaPixel = metaPixel;
-    if (facebook !== undefined) updateData.facebook = facebook;
-    if (instagram !== undefined) updateData.instagram = instagram;
-    if (youtube !== undefined) updateData.youtube = youtube;
-    if (copyright !== undefined) updateData.copyright = copyright;
-
-    console.log(
-      "SiteAssetsRoutes: Calling siteAssetsService.updateSiteAssets with:",
-      {
-        hasLogo: "logo" in updateData,
-        hasHeroImage: "heroImage" in updateData,
-        hasMobileHeroImage: "mobileHeroImage" in updateData,
-        hasCountdownDate: "countdownDate" in updateData,
-        hasBannerText: "bannerText" in updateData,
-        hasContactEmails: "contactEmails" in updateData,
-        hasLineupTitle: "lineupTitle" in updateData,
-        hasLineupDescription: "lineupDescription" in updateData,
-        hasGoogleAnalytics: "googleAnalytics" in updateData,
-        hasMetaPixel: "metaPixel" in updateData,
-        hasFacebook: "facebook" in updateData,
-        hasInstagram: "instagram" in updateData,
-        hasYoutube: "youtube" in updateData,
-        hasCopyright: "copyright" in updateData,
-      }
-    );
-
-    const updatedAssets = await siteAssetsService.updateSiteAssets(updateData);
-    console.log("SiteAssetsRoutes: Site assets updated successfully");
-    console.log(
-      "SiteAssetsRoutes: updatedAssets returned from service:",
-      updatedAssets
-    );
-
-    const responsePayload = {
-      success: true,
-      data: {
-        assets: {
-          logo: updatedAssets.logo,
-          heroImage: updatedAssets.heroImage,
-          mobileHeroImage: updatedAssets.mobileHeroImage,
-          countdownDate: updatedAssets.countdownDate,
-          bannerText: updatedAssets.bannerText,
-          contactEmails: updatedAssets.contactEmails,
-          lineupTitle: updatedAssets.lineupTitle,
-          lineupDescription: updatedAssets.lineupDescription,
-          googleAnalytics: updatedAssets.googleAnalytics,
-          metaPixel: updatedAssets.metaPixel,
-          facebook: updatedAssets.facebook,
-          instagram: updatedAssets.instagram,
-          youtube: updatedAssets.youtube,
-          copyright: updatedAssets.copyright,
-        },
-      },
-      message: "Site assets updated successfully",
-    };
-
-    console.log(
-      "SiteAssetsRoutes: Response payload being sent:",
-      responsePayload
-    );
-    res.json(responsePayload);
-  } catch (error) {
-    console.error("SiteAssetsRoutes: Error updating site assets:", error);
-    console.error("SiteAssetsRoutes: Error stack:", error.stack);
-    res.status(500).json({
-      success: false,
-      error: "Failed to update site assets",
-    });
   }
-});
+);
 
 // Update logo only (admin only)
 router.put("/logo", auth, async (req, res) => {

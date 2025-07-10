@@ -1,5 +1,6 @@
 // Load environment variables
 require("dotenv").config();
+require("express-async-errors");
 
 // Disable console logs in production
 if (process.env.NODE_ENV === "production") {
@@ -42,35 +43,18 @@ app.enable("strict routing");
 
 app.use(cors({}));
 
+// Serve uploaded files statically
+app.use("/api/uploads", express.static(path.join(__dirname, "uploads")));
+
+// Standard body-parsing middleware
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
 // Add request logging middleware
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
   console.log("Request headers:", req.headers);
   next();
-});
-
-// Add body parsing with error handling
-app.use((req, res, next) => {
-  let body = "";
-  req.on("data", (chunk) => {
-    body += chunk.toString();
-  });
-  req.on("end", () => {
-    if (body) {
-      console.log("Raw body received:", body);
-      try {
-        req.body = JSON.parse(body);
-        console.log("JSON parsing successful");
-      } catch (e) {
-        console.log("JSON parsing failed:", e.message);
-        req.body = {};
-      }
-    } else {
-      req.body = {};
-    }
-    console.log("Body parsing middleware complete, calling next()");
-    next();
-  });
 });
 
 app.on("error", (error) => {
@@ -171,7 +155,10 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
   console.error(`Unhandled application error: ${err.message}`);
   console.error(err.stack);
-  res.status(500).send("There was an error serving your request.");
+  res.status(500).json({
+    success: false,
+    error: err.message || "There was an error serving your request.",
+  });
 });
 
 const startServer = async () => {

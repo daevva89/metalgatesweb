@@ -30,7 +30,7 @@ export function AdminArchive() {
   const [loading, setLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedArchive, setSelectedArchive] = useState<ArchiveItem | null>(null)
-  const [selectedImage, setSelectedImage] = useState<string | null>(null) 
+  const [selectedImage, setSelectedImage] = useState<File | null>(null) 
   const { register, handleSubmit, reset, setValue } = useForm<ArchiveFormData>()
   const { toast } = useToast()
 
@@ -74,47 +74,29 @@ export function AdminArchive() {
 
   const onSubmit = async (data: ArchiveFormData) => {
     try {
-      console.log("ARCHIVE: Starting form submission")
-      console.log("ARCHIVE: Form data:", data)
-      console.log("ARCHIVE: Selected image (base64):", selectedImage ? {
-        isBase64: selectedImage.startsWith('data:'),
-        length: selectedImage.length
-      } : "No image selected")
-      console.log("ARCHIVE: Selected archive for editing:", selectedArchive ? {
-        year: selectedArchive.year,
-        hasExistingPoster: !!selectedArchive.poster
-      } : "No archive selected (creating new)")
-
-      let posterUrl = ""
+      const formData = new FormData()
+      formData.append("year", data.year)
+      formData.append("lineup", data.lineup)
+      formData.append("description", data.description)
 
       if (selectedImage) {
-        console.log("ARCHIVE: Using uploaded image (already base64), length:", selectedImage.length)
-        posterUrl = selectedImage
+        formData.append("poster", selectedImage)
       } else if (selectedArchive && selectedArchive.poster) {
-        console.log("ARCHIVE: Keeping existing poster for year:", selectedArchive.year)
-        posterUrl = selectedArchive.poster
+        // This indicates we want to keep the existing poster.
+        // The service needs to know not to overwrite it with null.
+        // We can send the existing URL, and the backend can check if it's a new file or an existing path.
+        // Or, we can just not append 'poster' if there's no new image.
+        // The backend logic will handle "no new image" correctly.
       }
-
-      const archiveData = {
-        ...data,
-        ...(posterUrl && { poster: posterUrl })
-      }
-
-      console.log("ARCHIVE: Sending to API:", {
-        ...archiveData,
-        poster: archiveData.poster ? `base64 data (${archiveData.poster.length} chars)` : "no poster"
-      })
-
+      
       if (selectedArchive) {
-        console.log("ARCHIVE: Updating existing archive with ID:", selectedArchive._id)
-        await updateArchive(selectedArchive._id, archiveData)
+        await updateArchive(selectedArchive._id, formData)
         toast({
           title: "Success",
           description: "Archive updated successfully"
         })
       } else {
-        console.log("ARCHIVE: Creating new archive")
-        await createArchive(archiveData)
+        await createArchive(formData)
         toast({
           title: "Success",
           description: "Archive created successfully"
@@ -232,7 +214,7 @@ export function AdminArchive() {
                 Festival Poster
               </Label>
               <FileUpload
-                onFileSelect={setSelectedImage}
+                onFileSelect={(file) => setSelectedImage(file)}
                 description="Upload festival poster"
                 accept="image/*"
                 maxSize={5}

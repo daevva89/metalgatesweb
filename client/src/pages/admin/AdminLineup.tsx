@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react"
 import { FaPlus, FaEdit, FaTrash, FaMusic, FaMapMarkerAlt, FaImage } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
@@ -48,7 +48,7 @@ export function AdminLineup() {
   const [loading, setLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedBand, setSelectedBand] = useState<Band | null>(null)
-  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
   const { register, handleSubmit, reset, setValue } = useForm<BandFormData>()
   const { toast } = useToast()
 
@@ -107,7 +107,7 @@ export function AdminLineup() {
     setValue("tiktok", band.socialLinks.tiktok || "")
     setValue("bandcamp", band.socialLinks.bandcamp || "")
     setValue("website", band.socialLinks.website || "")
-    setSelectedImage(null)
+    setSelectedImageFile(null)
     setIsDialogOpen(true)
   }
 
@@ -115,71 +115,43 @@ export function AdminLineup() {
     console.log("LINEUP: Adding new band")
     setSelectedBand(null)
     reset()
-    setSelectedImage(null)
+    setSelectedImageFile(null)
     setIsDialogOpen(true)
   }
 
   const onSubmit = async (data: BandFormData) => {
     try {
-      console.log("LINEUP: Starting form submission")
-      console.log("LINEUP: Form data:", data)
-      console.log("LINEUP: Selected image (base64):", selectedImage ? {
-        isBase64: selectedImage.startsWith('data:'),
-        length: selectedImage.length
-      } : "No image selected")
-      console.log("LINEUP: Selected band for editing:", selectedBand ? {
-        name: selectedBand.name,
-        hasExistingImage: !!selectedBand.image
-      } : "No band selected (creating new)")
+      const formData = new FormData();
+      Object.keys(data).forEach(key => {
+        formData.append(key, data[key as keyof BandFormData]);
+      });
 
-      let imageUrl = ""
-
-      if (selectedImage) {
-        console.log("LINEUP: Using uploaded image (already base64), length:", selectedImage.length)
-        imageUrl = selectedImage
-      } else if (selectedBand && selectedBand.image && !selectedImage) {
-        imageUrl = selectedBand.image
-        console.log("LINEUP: Keeping existing band image, path:", imageUrl)
-      } else {
-        imageUrl = ""
-        console.log("LINEUP: No image to process")
+      if (selectedImageFile) {
+        formData.append('image', selectedImageFile);
       }
 
-      const bandData = {
-        ...data,
-        ...(imageUrl ? { image: imageUrl } : {})
-      }
-
-      console.log("LINEUP: Final band data to save:", {
-        ...bandData,
-        image: imageUrl ? (imageUrl.startsWith('data:') ? `base64 data (${imageUrl.length} chars)` : `file path: ${imageUrl}`) : "no image"
-      })
-
-      let result
       if (selectedBand) {
-        console.log("LINEUP: Updating existing band with ID:", selectedBand._id)
-        result = await updateBand(selectedBand._id, bandData)
-        console.log("LINEUP: Update result:", result)
+        console.log("LINEUP: Updating existing band with ID:", selectedBand._id);
+        await updateBand(selectedBand._id, formData);
         toast({
           title: "Success",
           description: "Band updated successfully"
-        })
+        });
       } else {
-        console.log("LINEUP: Creating new band")
-        result = await createBand(bandData)
-        console.log("LINEUP: Create result:", result)
+        console.log("LINEUP: Creating new band");
+        await createBand(formData);
         toast({
           title: "Success",
           description: "Band added successfully"
-        })
+        });
       }
 
-      setIsDialogOpen(false)
-      console.log("LINEUP: Refreshing bands list...")
-      await fetchBands()
+      setIsDialogOpen(false);
+      console.log("LINEUP: Refreshing bands list...");
+      await fetchBands();
     } catch (error) {
-      console.error("LINEUP: Error saving band:", error)
-      console.error("LINEUP: Error stack:", (error as Error).stack)
+      console.error("LINEUP: Error saving band:", error);
+      console.error("LINEUP: Error stack:", (error as Error).stack);
       toast({
         title: "Error",
         description: (error as Error).message || "Failed to save band",
@@ -280,20 +252,23 @@ export function AdminLineup() {
             <DialogTitle>
               {selectedBand ? "Edit Band" : "Add New Band"}
             </DialogTitle>
+            <DialogDescription>
+              {selectedBand
+                ? "Update the details for this band."
+                : "Fill in the form to add a new band to the lineup."}
+            </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="image" className="flex items-center gap-2">
-                <FaImage className="h-4 w-4" />
-                Band Image
-              </Label>
+              <Label htmlFor="image">Band Image</Label>
               <FileUpload
-                onFileSelect={setSelectedImage}
-                description="Upload band image"
-                accept="image/*"
-                maxSize={5}
-                currentImage={selectedBand?.image}
+                onFileSelect={setSelectedImageFile}
+                currentImage={
+                  selectedBand?.image
+                    ? selectedBand.image
+                    : null
+                }
               />
             </div>
 
