@@ -35,6 +35,7 @@ interface InfoPageData {
     accommodation: string;
   };
   rules: {
+    importantGuidelines: string;
     allowedItems: string[];
     prohibitedItems: string[];
     securityNote: string;
@@ -126,7 +127,23 @@ export function AdminPages() {
     }
   }
 
-  const handleInfoPageChange = (section: keyof InfoPageData, field: string, value: any) => {
+  const handleRulesChange = (field: keyof InfoPageData['rules'], value: any) => {
+    if (!infoPageData) return;
+
+    setInfoPageData(prev => {
+      if (!prev) return null;
+      
+      return {
+        ...prev,
+        rules: {
+          ...prev.rules,
+          [field]: value,
+        },
+      };
+    });
+  };
+
+  const handleInfoPageChange = (section: keyof Omit<InfoPageData, 'rules'>, field: string, value: any) => {
     if (!infoPageData) return;
     
     setInfoPageData(prev => {
@@ -409,16 +426,20 @@ export function AdminPages() {
                 <div className="space-y-4 border-b pb-4">
                   <h3 className="text-xl font-semibold">Festival Rules</h3>
                   <div className="space-y-2">
+                    <Label htmlFor="importantGuidelines">Important Guidelines</Label>
+                    <Textarea id="importantGuidelines" value={infoPageData.rules.importantGuidelines} onChange={(e) => handleRulesChange('importantGuidelines', e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="allowedItems">Allowed Items (one per line)</Label>
-                    <Textarea id="allowedItems" value={infoPageData.rules.allowedItems.join('\n')} onChange={(e) => handleInfoPageChange('rules', 'allowedItems', e.target.value.split('\n'))} />
+                    <Textarea id="allowedItems" value={infoPageData.rules.allowedItems.join('\n')} onChange={(e) => handleRulesChange('allowedItems', e.target.value.split('\n'))} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="prohibitedItems">Prohibited Items (one per line)</Label>
-                    <Textarea id="prohibitedItems" value={infoPageData.rules.prohibitedItems.join('\n')} onChange={(e) => handleInfoPageChange('rules', 'prohibitedItems', e.target.value.split('\n'))} />
+                    <Textarea id="prohibitedItems" value={infoPageData.rules.prohibitedItems.join('\n')} onChange={(e) => handleRulesChange('prohibitedItems', e.target.value.split('\n'))} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="securityNote">Security Note</Label>
-                    <Input id="securityNote" value={infoPageData.rules.securityNote} onChange={(e) => handleInfoPageChange('rules', 'securityNote', e.target.value)} />
+                    <Input id="securityNote" value={infoPageData.rules.securityNote} onChange={(e) => handleRulesChange('securityNote', e.target.value)} />
                   </div>
                 </div>
 

@@ -22,6 +22,7 @@ interface InfoPageData {
     accommodation: string;
   };
   rules: {
+    importantGuidelines: string;
     allowedItems: string[];
     prohibitedItems: string[];
     securityNote: string;
@@ -151,10 +152,17 @@ export function Info() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FaShieldAlt className="h-5 w-5 text-primary" />
-              Important Guidelines
+              Festival Rules & Guidelines
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
+            {infoPageData.rules.importantGuidelines && (
+              <div className="prose prose-invert max-w-none">
+                <h3 className="text-xl font-semibold text-primary">Important Guidelines</h3>
+                <p>{infoPageData.rules.importantGuidelines}</p>
+              </div>
+            )}
+            
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <h4 className="font-semibold text-green-400 mb-2">✓ Allowed Items</h4>

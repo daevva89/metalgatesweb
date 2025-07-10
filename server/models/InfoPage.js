@@ -21,6 +21,7 @@ const infoPageSchema = new mongoose.Schema(
       accommodation: { type: String, default: "" },
     },
     rules: {
+      importantGuidelines: { type: String, default: "" },
       allowedItems: [{ type: String }],
       prohibitedItems: [{ type: String }],
       securityNote: { type: String, default: "" },
