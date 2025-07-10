@@ -461,7 +461,8 @@ export const getContactSubmission = async (id: string) => {
     const response = await api.get(`/api/contact/${id}`);
     console.log("API: Received response from GET /api/contact/" + id + ":", response.data)
     return response.data.data;
-  } catch (error: any) {
+  } catch (error: any)
+{
     console.error("API: Error in getContactSubmission:", error)
     throw new Error(error?.response?.data?.error || error.message);
   }
@@ -506,13 +507,15 @@ export const getInfoPage = async () => {
     const response = await api.get('/api/infopage');
     return response.data.data;
   } catch (error: any) {
-    console.error("API: Error in getInfoPage:", error)
+    console.error("API: Error in getInfoPage:", error);
     throw new Error(error?.response?.data?.error || error.message);
   }
 };
 
 // Description: Update info page content
 // Endpoint: PUT /api/infopage
+// Request: InfoPageData object
+// Response: { success: boolean, data: object, message: string }
 export const updateInfoPage = async (infoPageData: any) => {
   try {
     const response = await api.put('/api/infopage', infoPageData);
@@ -529,7 +532,7 @@ export const updateInfoPage = async (infoPageData: any) => {
 // Endpoint: POST /api/visits/log
 export const logVisit = async () => {
   try {
-    await api.post('/api/visits/log');
+    await api.post('/api/visits');
   } catch (error: any) {
     // Fail silently so it doesn't impact user experience
     console.error("API: Error logging visit:", error);

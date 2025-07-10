@@ -16,11 +16,7 @@ exports.updateInfoPage = async (updateData) => {
   if (!infoPage) {
     infoPage = new InfoPage(updateData);
   } else {
-    // Be explicit to avoid Mongoose type coercion issues
-    infoPage.location = updateData.location;
-    infoPage.travel = updateData.travel;
-    infoPage.rules = updateData.rules;
-    infoPage.faq = updateData.faq;
+    infoPage.set(updateData);
   }
   await infoPage.save();
   return infoPage;
