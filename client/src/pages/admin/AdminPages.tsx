@@ -238,7 +238,8 @@ export function AdminPages() {
           });
           return;
         }
-        await updateInfoPage(infoPageData);
+        const updatedInfoPage = await updateInfoPage(infoPageData);
+        setInfoPageData(updatedInfoPage.data); // Update state with the new data from the server
         toast({
           title: "Success",
           description: "Info page content updated successfully"
