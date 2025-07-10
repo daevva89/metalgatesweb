@@ -1,47 +1,83 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 const User = require("../models/User");
-const { hashPassword } = require("../utils/password");
-require("dotenv").config();
+const { connectDB } = require("../config/database");
+const inquirer = require("inquirer");
 
-const createAdminUser = async () => {
+const createAdmin = async () => {
   try {
     console.log("Connecting to MongoDB...");
-    await mongoose.connect(process.env.DATABASE_URL);
+    await connectDB();
     console.log("Connected to MongoDB");
 
-    const adminEmail = "mihai.ilie89@gmail.com";
-    const adminPassword = "Alskdj123!ml";
+    const questions = [
+      {
+        type: "input",
+        name: "email",
+        message: "Enter the email for the new admin user:",
+        validate: function (value) {
+          if (value.length && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+            return true;
+          } else {
+            return "Please enter a valid email address.";
+          }
+        },
+      },
+      {
+        type: "password",
+        name: "password",
+        message: "Enter the password for the new admin user:",
+        validate: function (value) {
+          if (value.length >= 8) {
+            return true;
+          } else {
+            return "Password must be at least 8 characters long.";
+          }
+        },
+      },
+    ];
 
-    // Check if admin user already exists
-    // const existingUser = await User.findOne({ email: adminEmail });
-    // if (existingUser) {
-    //   console.log('Admin user already exists with email:', adminEmail);
-    //   console.log('User ID:', existingUser._id);
-    //   console.log('User role:', existingUser.role);
-    //   process.exit(0);
-    // }
+    const answers = await inquirer.prompt(questions);
+    const { email, password } = answers;
 
-    console.log("Creating admin user...");
-    const hashedPassword = await hashPassword(adminPassword);
+    // Check if user already exists
+    const existingUser = await User.findOne({ email: email });
+    if (existingUser) {
+      console.log(`User already exists with email: ${email}`);
+      console.log(`User ID: ${existingUser._id}`);
+      return;
+    }
 
-    const adminUser = new User({
-      email: adminEmail,
+    console.log(`Creating admin user for: ${email}`);
+
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create a new user
+    const newUser = new User({
+      email: email,
       password: hashedPassword,
       role: "admin",
     });
 
-    const savedUser = await adminUser.save();
+    // Save the new user to the database
+    const savedUser = await newUser.save();
+
     console.log("Admin user created successfully!");
     console.log("Email:", savedUser.email);
-    console.log("Role:", savedUser.role);
     console.log("User ID:", savedUser._id);
-
-    process.exit(0);
   } catch (error) {
     console.error("Error creating admin user:", error.message);
-    console.error("Error stack:", error.stack);
-    process.exit(1);
+    if (error.stack) {
+      console.error("Error stack:", error.stack);
+    }
+  } finally {
+    // Close the database connection
+    console.log("Closing MongoDB connection...");
+    await mongoose.connection.close();
+    console.log("Connection closed.");
   }
 };
 
-createAdminUser();
+createAdmin();
