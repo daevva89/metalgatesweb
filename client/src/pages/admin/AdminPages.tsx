@@ -35,7 +35,7 @@ interface InfoPageData {
     accommodation: string;
   };
   rules: {
-    importantGuidelines: string;
+    importantGuidelines: string[];
     allowedItems: string[];
     prohibitedItems: string[];
     securityNote: string;
@@ -426,8 +426,8 @@ export function AdminPages() {
                 <div className="space-y-4 border-b pb-4">
                   <h3 className="text-xl font-semibold">Festival Rules</h3>
                   <div className="space-y-2">
-                    <Label htmlFor="importantGuidelines">Important Guidelines</Label>
-                    <Textarea id="importantGuidelines" value={infoPageData.rules.importantGuidelines} onChange={(e) => handleRulesChange('importantGuidelines', e.target.value)} />
+                    <Label htmlFor="importantGuidelines">Important Guidelines (one per line)</Label>
+                    <Textarea id="importantGuidelines" value={infoPageData.rules.importantGuidelines.join('\n')} onChange={(e) => handleRulesChange('importantGuidelines', e.target.value.split('\n'))} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="allowedItems">Allowed Items (one per line)</Label>

@@ -22,7 +22,7 @@ interface InfoPageData {
     accommodation: string;
   };
   rules: {
-    importantGuidelines: string;
+    importantGuidelines: string[];
     allowedItems: string[];
     prohibitedItems: string[];
     securityNote: string;
@@ -156,10 +156,14 @@ export function Info() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {infoPageData.rules.importantGuidelines && (
+            {infoPageData.rules.importantGuidelines && infoPageData.rules.importantGuidelines.length > 0 && (
               <div className="prose prose-invert max-w-none">
                 <h3 className="text-xl font-semibold text-primary">Important Guidelines</h3>
-                <p>{infoPageData.rules.importantGuidelines}</p>
+                <ul className="space-y-1 text-muted-foreground">
+                  {infoPageData.rules.importantGuidelines.map((item, index) => (
+                    <li key={index}>• {item}</li>
+                  ))}
+                </ul>
               </div>
             )}
             
