@@ -162,12 +162,12 @@ export function AdminArchive() {
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {archives.map((archive) => (
           <Card key={archive._id} className="glass-card">
-            <div className="aspect-[3/4] overflow-hidden rounded-t-lg bg-muted flex items-center justify-center">
+            <div className="aspect-[3/4] overflow-hidden rounded-t-lg bg-black flex items-center justify-center">
               {archive.poster ? (
                 <img
                   src={archive.poster}
                   alt={`Festival ${archive.year}`}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
               ) : (
                 <FaImage className="h-12 w-12 text-muted-foreground" />

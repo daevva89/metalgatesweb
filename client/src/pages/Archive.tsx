@@ -63,11 +63,11 @@ export function Archive() {
             className="glass-card group cursor-pointer hover:scale-105 transition-all duration-300"
             onClick={() => setSelectedArchive(archive)}
           >
-            <div className="aspect-[3/4] overflow-hidden rounded-t-lg">
+            <div className="aspect-[3/4] overflow-hidden rounded-t-lg bg-black flex items-center justify-center">
               <img
                 src={archive.poster}
                 alt={`Metal Gates ${archive.year}`}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300"
               />
             </div>
             <CardContent className="p-6 text-center">
@@ -96,11 +96,11 @@ export function Archive() {
 
               <div className="grid md:grid-cols-2 gap-8">
                 {/* Poster */}
-                <div className="space-y-4">
+                <div className="space-y-4 bg-black rounded-lg flex items-center justify-center">
                   <img
                     src={selectedArchive.poster}
                     alt={`Metal Gates ${selectedArchive.year}`}
-                    className="w-full aspect-[3/4] object-cover rounded-lg"
+                    className="w-full aspect-[3/4] object-contain rounded-lg"
                   />
                 </div>
 
