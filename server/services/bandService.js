@@ -42,7 +42,7 @@ class BandService {
   async getAllBands() {
     try {
       console.log("BandService: Fetching all bands");
-      const bands = await Band.find().sort({ createdAt: -1 });
+      const bands = await Band.find().sort({ createdAt: 1 });
       console.log(`BandService: Found ${bands.length} bands`);
 
       // Convert image paths to URLs
