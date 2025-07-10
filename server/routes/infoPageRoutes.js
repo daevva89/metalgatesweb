@@ -58,12 +58,20 @@ router.get("/fix-guidelines", auth, async (req, res) => {
 // PUT /api/infopage - Update info page content (admin only)
 router.put("/", auth, async (req, res) => {
   try {
+    // --- DIAGNOSTIC: Echo the received body to inspect it ---
+    return res.json({
+      message: "This is a diagnostic response.",
+      receivedBody: req.body,
+    });
+
+    /*
     const infoPage = await infoPageService.updateInfoPage(req.body);
     res.json({
       success: true,
       data: infoPage,
       message: "Info page updated successfully",
     });
+    */
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
