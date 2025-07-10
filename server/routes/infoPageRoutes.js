@@ -16,6 +16,9 @@ router.get("/", async (req, res) => {
 // PUT /api/infopage - Update info page content (admin only)
 router.put("/", auth, async (req, res) => {
   try {
+    console.log("--- DEBUG: Received body for info page update ---");
+    console.log(JSON.stringify(req.body, null, 2));
+    console.log("--- END DEBUG ---");
     const infoPage = await infoPageService.updateInfoPage(req.body);
     res.json({
       success: true,
