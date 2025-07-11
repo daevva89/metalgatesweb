@@ -42,11 +42,7 @@ const siteAssetsSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    googleAnalytics: {
-      type: String,
-      default: "",
-    },
-    metaPixel: {
+    gtmId: {
       type: String,
       default: "",
     },

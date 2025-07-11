@@ -44,8 +44,7 @@ interface SiteAssets {
   bannerText: string;
   contactEmails: ContactEmail[];
   copyright: string;
-  googleAnalytics: string;
-  metaPixel: string;
+  gtmId: string;
   facebook: string;
   instagram: string;
   youtube: string;
@@ -66,8 +65,7 @@ interface Settings {
     copyright: string;
   };
   tracking: {
-    googleAnalytics: string;
-    metaPixel: string;
+    gtmId: string;
   };
   social: {
     facebook: string;
@@ -98,8 +96,7 @@ export function AdminSettings() {
       copyright: ""
     },
     tracking: {
-      googleAnalytics: "",
-      metaPixel: ""
+      gtmId: ""
     },
     social: {
       facebook: "",
@@ -156,8 +153,7 @@ export function AdminSettings() {
             copyright: data.assets.copyright || "© 2024 Metal Gates Festival. All rights reserved."
           },
           tracking: {
-            googleAnalytics: data.assets.googleAnalytics || "",
-            metaPixel: data.assets.metaPixel || ""
+            gtmId: data.assets.gtmId || ""
           },
           social: {
             facebook: data.assets.facebook || "",
@@ -457,34 +453,17 @@ export function AdminSettings() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="googleAnalytics">Google Analytics ID</Label>
-                <Textarea
-                  id="googleAnalytics"
-                  rows={4}
-                  value={settings.tracking.googleAnalytics}
+                <Label htmlFor="gtmId">Google Tag Manager ID</Label>
+                <Input
+                  id="gtmId"
+                  value={settings.tracking.gtmId}
                   onChange={(e) =>
-                    handleInputChange("tracking", "googleAnalytics", e.target.value)
+                    handleInputChange("tracking", "gtmId", e.target.value)
                   }
-                  placeholder="e.g., UA-XXXXX-Y or G-XXXXXXXXXX"
+                  placeholder="e.g., GTM-XXXXXXX"
                 />
                 <p className="text-sm text-muted-foreground">
-                  Enter your Google Analytics Tracking ID.
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="metaPixel">Meta Pixel ID</Label>
-                <Textarea
-                  id="metaPixel"
-                  rows={4}
-                  value={settings.tracking.metaPixel}
-                  onChange={(e) =>
-                    handleInputChange("tracking", "metaPixel", e.target.value)
-                  }
-                  placeholder="e.g., 123456789012345"
-                />
-                <p className="text-sm text-muted-foreground">
-                  Enter your Meta Pixel ID.
+                  Enter your Google Tag Manager ID.
                 </p>
               </div>
             </CardContent>
