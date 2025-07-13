@@ -5,10 +5,11 @@ import { useNavigate } from "react-router-dom"
 import { Helmet } from "react-helmet";
 import { useEffect, useState } from "react";
 import { getSiteAssets } from "@/api/festival";
+import { SiteAssets } from "@/types/SiteAssets";
 
 export function NotFoundPage() {
   const navigate = useNavigate()
-  const [siteAssets, setSiteAssets] = useState<any>({});
+  const [siteAssets, setSiteAssets] = useState<SiteAssets>({});
   useEffect(() => {
     getSiteAssets().then(data => setSiteAssets(data.assets || {}));
   }, []);

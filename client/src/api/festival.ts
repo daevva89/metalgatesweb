@@ -1,18 +1,21 @@
 import api from './api';
+import { ApiResponse, Festival, InfoPageData } from "@/types/api";
+import { SiteAssets } from "@/types/SiteAssets";
 
 // Description: Get festival information and settings
 // Endpoint: GET /api/festivals/active
 // Request: {}
 // Response: { success: boolean, data: { festivalName: string, dates: string, location: string, ticketUrl: string, countdown: { days: number, hours: number, minutes: number, seconds: number } }, message: string }
-export const getFestivalInfo = async () => {
+export const getFestivalInfo = async (): Promise<Festival> => {
   try {
     console.log("API: Making request to GET /api/festivals/active")
     const response = await api.get('/api/festivals/active');
     console.log("API: Received response from GET /api/festivals/active:", response.data)
     return response.data.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in getFestivalInfo:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -20,15 +23,16 @@ export const getFestivalInfo = async () => {
 // Endpoint: GET /api/festivals
 // Request: {}
 // Response: { success: boolean, data: { festivals: Array<{ _id: string, name: string, dates: string, description: string, location: string, ticketUrl: string, isActive: boolean }> }, message: string }
-export const getFestivals = async () => {
+export const getFestivals = async (): Promise<{ festivals: Festival[] }> => {
   try {
     console.log("API: Making request to GET /api/festivals")
     const response = await api.get('/api/festivals');
     console.log("API: Received response from GET /api/festivals:", response.data)
     return response.data.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in getFestivals:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -36,15 +40,16 @@ export const getFestivals = async () => {
 // Endpoint: GET /api/festivals/:id
 // Request: { id: string }
 // Response: { success: boolean, data: { festival: { _id: string, name: string, dates: string, description: string, location: string, ticketUrl: string, isActive: boolean } }, message: string }
-export const getFestival = async (id: string) => {
+export const getFestival = async (id: string): Promise<{ festival: Festival }> => {
   try {
     console.log("API: Making request to GET /api/festivals/" + id)
     const response = await api.get(`/api/festivals/${id}`);
     console.log("API: Received response from GET /api/festivals/" + id + ":", response.data)
     return response.data.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in getFestival:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -52,15 +57,16 @@ export const getFestival = async (id: string) => {
 // Endpoint: POST /api/festivals
 // Request: { name: string, dates: string, description: string, location: string, ticketUrl?: string, isActive?: boolean }
 // Response: { success: boolean, data: { festival: object }, message: string }
-export const createFestival = async (festivalData: { name: string; dates: string; description: string; location: string; ticketUrl?: string; isActive?: boolean }) => {
+export const createFestival = async (festivalData: { name: string; dates: string; description: string; location: string; ticketUrl?: string; isActive?: boolean }): Promise<ApiResponse<{ festival: Festival }>> => {
   try {
     console.log("API: Making request to POST /api/festivals with data:", festivalData)
     const response = await api.post('/api/festivals', festivalData);
     console.log("API: Received response from POST /api/festivals:", response.data)
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in createFestival:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -68,15 +74,16 @@ export const createFestival = async (festivalData: { name: string; dates: string
 // Endpoint: PUT /api/festivals/:id
 // Request: { name: string, dates: string, description: string, location: string, ticketUrl?: string, isActive?: boolean }
 // Response: { success: boolean, data: { festival: object }, message: string }
-export const updateFestival = async (festivalId: string, festivalData: { name: string; dates: string; description: string; location: string; ticketUrl?: string; isActive?: boolean }) => {
+export const updateFestival = async (festivalId: string, festivalData: { name: string; dates: string; description: string; location: string; ticketUrl?: string; isActive?: boolean }): Promise<ApiResponse<{ festival: Festival }>> => {
   try {
     console.log("API: Making request to PUT /api/festivals/" + festivalId + " with data:", festivalData)
     const response = await api.put(`/api/festivals/${festivalId}`, festivalData);
     console.log("API: Received response from PUT /api/festivals/" + festivalId + ":", response.data)
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in updateFestival:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -84,15 +91,16 @@ export const updateFestival = async (festivalId: string, festivalData: { name: s
 // Endpoint: DELETE /api/festivals/:id
 // Request: {}
 // Response: { success: boolean, data: { festival: object }, message: string }
-export const deleteFestival = async (festivalId: string) => {
+export const deleteFestival = async (festivalId: string): Promise<ApiResponse<{ festival: Festival }>> => {
   try {
     console.log("API: Making request to DELETE /api/festivals/" + festivalId)
     const response = await api.delete(`/api/festivals/${festivalId}`);
     console.log("API: Received response from DELETE /api/festivals/" + festivalId + ":", response.data)
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in deleteFestival:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -100,15 +108,16 @@ export const deleteFestival = async (festivalId: string) => {
 // Endpoint: GET /api/site-assets
 // Request: {}
 // Response: { success: boolean, data: { assets: { logo: string | null, heroImage: string | null, mobileHeroImage: string | null } }, message: string }
-export const getSiteAssets = async () => {
+export const getSiteAssets = async (): Promise<{ assets: SiteAssets }> => {
   try {
     console.log("API: Making request to GET /api/site-assets")
     const response = await api.get('/api/site-assets');
     console.log("API: Received response from GET /api/site-assets:", response.data)
     return response.data.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in getSiteAssets:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -129,9 +138,10 @@ export const updateSiteAssets = async (assetsData: FormData | object) => {
     
     console.log("API: Received response from PUT /api/site-assets:", response.data);
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in updateSiteAssets:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -145,9 +155,10 @@ export const updateLogo = async (logo: string) => {
     const response = await api.put('/api/site-assets/logo', { logo });
     console.log("API: Received response from PUT /api/site-assets/logo:", response.data)
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in updateLogo:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -161,9 +172,10 @@ export const updateHeroImage = async (heroImage: string) => {
     const response = await api.put('/api/site-assets/hero', { heroImage });
     console.log("API: Received response from PUT /api-site-assets/hero:", response.data)
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in updateHeroImage:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -177,9 +189,10 @@ export const removeLogo = async () => {
     const response = await api.delete('/api/site-assets/logo');
     console.log("API: Received response from DELETE /api-site-assets/logo:", response.data)
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in removeLogo:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -193,9 +206,10 @@ export const removeHeroImage = async () => {
     const response = await api.delete('/api/site-assets/hero');
     console.log("API: Received response from DELETE /api-site-assets/hero:", response.data)
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in removeHeroImage:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -209,9 +223,10 @@ export const getLineup = async () => {
     const response = await api.get('/api/lineup');
     console.log("API: Received response from GET /api/lineup:", response.data)
     return response.data.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in getLineup:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -227,9 +242,10 @@ export const createBand = async (bandData: FormData) => {
     });
     console.log("API: Received response from POST /api/lineup:", response.data)
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in createBand:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -245,9 +261,10 @@ export const updateBand = async (id: string, bandData: FormData) => {
     });
     console.log(`API: Received response from PUT /api/lineup/${id}:`, response.data)
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in updateBand:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -261,9 +278,10 @@ export const deleteBand = async (bandId: string) => {
     const response = await api.delete(`/api/lineup/${bandId}`);
     console.log("API: Received response from DELETE /api/lineup/" + bandId + ":", response.data)
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in deleteBand:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -277,9 +295,10 @@ export const getNews = async () => {
     const response = await api.get('/api/news');
     console.log("API: Received response from GET /api/news:", response.data)
     return response.data.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in getNews:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -293,9 +312,10 @@ export const getNewsArticle = async (id: string) => {
     const response = await api.get(`/api/news/${id}`);
     console.log("API: Received response from GET /api/news/" + id + ":", response.data)
     return response.data.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in getNewsArticle:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -311,9 +331,10 @@ export const createNewsArticle = async (articleData: FormData) => {
     });
     console.log("API: Received response from POST /api/news:", response.data)
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in createNewsArticle:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -329,9 +350,10 @@ export const updateNewsArticle = async (articleId: string, articleData: FormData
     });
     console.log(`API: Received response from PUT /api/news/${articleId}:`, response.data)
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in updateNewsArticle:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -345,9 +367,10 @@ export const deleteNewsArticle = async (articleId: string) => {
     const response = await api.delete(`/api/news/${articleId}`);
     console.log("API: Received response from DELETE /api/news/" + articleId + ":", response.data)
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in deleteNewsArticle:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -361,9 +384,10 @@ export const getArchive = async () => {
     const response = await api.get('/api/archives');
     console.log("API: Received response from GET /api/archives:", response.data)
     return response.data.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in getArchive:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -379,9 +403,10 @@ export const createArchive = async (archiveData: FormData) => {
     });
     console.log("API: Received response from POST /api/archives:", response.data)
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in createArchive:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -397,9 +422,10 @@ export const updateArchive = async (archiveId: string, archiveData: FormData) =>
     });
     console.log("API: Received response from PUT /api/archives/" + archiveId + ":", response.data)
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in updateArchive:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -413,9 +439,10 @@ export const deleteArchive = async (archiveId: string) => {
     const response = await api.delete(`/api/archives/${archiveId}`);
     console.log("API: Received response from DELETE /api/archives/" + archiveId + ":", response.data)
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in deleteArchive:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -429,9 +456,10 @@ export const submitContactForm = async (data: { name: string; email: string; sub
     const response = await api.post('/api/contact', data);
     console.log("API: Received response from POST /api/contact:", response.data)
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in submitContactForm:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -445,9 +473,10 @@ export const getContactSubmissions = async () => {
     const response = await api.get('/api/contact');
     console.log("API: Received response from GET /api/contact:", response.data)
     return response.data.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in getContactSubmissions:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -461,10 +490,10 @@ export const getContactSubmission = async (id: string) => {
     const response = await api.get(`/api/contact/${id}`);
     console.log("API: Received response from GET /api/contact/" + id + ":", response.data)
     return response.data.data;
-  } catch (error: any)
-{
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in getContactSubmission:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -478,9 +507,10 @@ export const updateContactStatus = async (id: string, status: string) => {
     const response = await api.put(`/api/contact/${id}/status`, { status });
     console.log("API: Received response from PUT /api/contact/" + id + "/status:", response.data)
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in updateContactStatus:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -494,21 +524,23 @@ export const deleteContactSubmission = async (id: string) => {
     const response = await api.delete(`/api/contact/${id}`);
     console.log("API: Received response from DELETE /api/contact/" + id + ":", response.data)
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in deleteContactSubmission:", error)
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
 // Description: Get info page content
 // Endpoint: GET /api/infopage
-export const getInfoPage = async () => {
+export const getInfoPage = async (): Promise<InfoPageData> => {
   try {
     const response = await api.get('/api/infopage');
     return response.data.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in getInfoPage:", error);
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -516,13 +548,14 @@ export const getInfoPage = async () => {
 // Endpoint: PUT /api/infopage
 // Request: InfoPageData object
 // Response: { success: boolean, data: object, message: string }
-export const updateInfoPage = async (infoPageData: any) => {
+export const updateInfoPage = async (infoPageData: InfoPageData): Promise<ApiResponse<InfoPageData>> => {
   try {
     const response = await api.put('/api/infopage', infoPageData);
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in updateInfoPage:", error);
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };
 
@@ -533,7 +566,7 @@ export const updateInfoPage = async (infoPageData: any) => {
 export const logVisit = async () => {
   try {
     await api.post('/api/visits');
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Fail silently so it doesn't impact user experience
     console.error("API: Error logging visit:", error);
   }
@@ -547,8 +580,9 @@ export const getVisitorStats = async () => {
     const response = await api.get('/api/visits/stats');
     console.log("API: Received response from GET /api/visits/stats:", response.data);
     return response.data.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { error?: string } }; message?: string };
     console.error("API: Error in getVisitorStats:", error);
-    throw new Error(error?.response?.data?.error || error.message);
+    throw new Error(err?.response?.data?.error || err.message || "Unknown error");
   }
 };

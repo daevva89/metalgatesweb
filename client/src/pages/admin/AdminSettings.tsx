@@ -2,12 +2,6 @@
 import { useState, useEffect } from "react"
 import {
   FaSave,
-  FaExternalLinkAlt,
-  FaCode,
-  FaGlobe,
-  FaCalendarAlt,
-  FaTimes,
-  FaImage,
   FaPlus,
   FaTrash
 } from "react-icons/fa";
@@ -237,39 +231,42 @@ export function AdminSettings() {
     }
   };
 
-  const handleInputChange = (
-    section: keyof Settings,
-    field: string,
-    value: string | boolean
+  const handleInputChange = <
+    Section extends keyof Settings,
+    Field extends keyof Settings[Section]
+  >(
+    section: Section,
+    field: Field,
+    value: Settings[Section][Field]
   ) => {
     setSettings(prev => ({
       ...prev,
       [section]: {
-        ...(prev[section] as any),
+        ...prev[section],
         [field]: value,
       },
-    }))
-  }
+    }));
+  };
 
   const handleEmailChange = (
     index: number,
     field: "purpose" | "email",
     value: string
   ) => {
-    const updatedEmails = [...settings.general.contactEmails]
-    updatedEmails[index][field] = value
-    handleInputChange("general", "contactEmails", updatedEmails as any)
-  }
+    const updatedEmails = [...settings.general.contactEmails];
+    updatedEmails[index][field] = value;
+    handleInputChange("general", "contactEmails", updatedEmails);
+  };
 
   const addEmail = () => {
-    const updatedEmails = [...settings.general.contactEmails, { purpose: "", email: "" }]
-    handleInputChange("general", "contactEmails", updatedEmails as any)
-  }
+    const updatedEmails = [...settings.general.contactEmails, { purpose: "", email: "" }];
+    handleInputChange("general", "contactEmails", updatedEmails);
+  };
 
   const removeEmail = (index: number) => {
-    const updatedEmails = settings.general.contactEmails.filter((_, i) => i !== index)
-    handleInputChange("general", "contactEmails", updatedEmails as any)
-  }
+    const updatedEmails = settings.general.contactEmails.filter((_, i) => i !== index);
+    handleInputChange("general", "contactEmails", updatedEmails);
+  };
 
   if (loading) {
     return <div>Loading...</div>
@@ -490,7 +487,9 @@ export function AdminSettings() {
               <CardTitle>SEO Titles & Meta Descriptions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {Object.keys(settings.seoTitles || {}).map((page) => (
+              {(Object.keys(settings.seoTitles || {})
+                .filter(page => page.toLowerCase() !== 'newsarticle' && page.toLowerCase() !== 'news-article')
+              ).map((page) => (
                 <div key={page} className="space-y-2 border-b pb-4">
                   <Label htmlFor={`seo-title-${page}`}>{page.charAt(0).toUpperCase() + page.slice(1)} Title</Label>
                   <Input

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { FaSave, FaFileAlt, FaCalendarAlt } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,12 +10,6 @@ import { FileUpload } from "@/components/ui/file-upload"
 import { useToast } from "@/hooks/useToast"
 import { getSiteAssets, updateSiteAssets, getInfoPage, updateInfoPage } from "@/api/festival"
 import { FaPlus, FaTrash } from "react-icons/fa"
-
-interface UpdateData {
-  heroImage?: File
-  mobileHeroImage?: File
-  countdownDate?: string
-}
 
 interface FaqItem {
   question: string;
@@ -68,12 +62,7 @@ export function AdminPages() {
     }
   })
 
-  useEffect(() => {
-    loadHeroImage()
-    loadInfoPageData()
-  }, [])
-
-  const loadInfoPageData = async () => {
+  const loadInfoPageData = useCallback(async () => {
     try {
       const data = await getInfoPage();
       setInfoPageData(data);
@@ -85,7 +74,12 @@ export function AdminPages() {
         variant: "destructive",
       });
     }
-  }
+  }, [toast]);
+
+  useEffect(() => {
+    loadHeroImage();
+    loadInfoPageData();
+  }, [loadInfoPageData]);
 
   const loadHeroImage = async () => {
     try {
@@ -127,12 +121,14 @@ export function AdminPages() {
     }
   }
 
-  const handleRulesChange = (field: keyof InfoPageData['rules'], value: any) => {
+  const handleRulesChange = (
+    field: keyof InfoPageData['rules'],
+    value: string | string[]
+  ) => {
     if (!infoPageData) return;
 
     setInfoPageData(prev => {
       if (!prev) return null;
-      
       return {
         ...prev,
         rules: {
@@ -143,14 +139,20 @@ export function AdminPages() {
     });
   };
 
-  const handleInfoPageChange = (section: keyof Omit<InfoPageData, 'rules'>, field: string, value: any) => {
+  const handleInfoPageChange = <
+    Section extends keyof Omit<InfoPageData, 'rules'>,
+    Field extends keyof InfoPageData[Section]
+  >(
+    section: Section,
+    field: Field,
+    value: InfoPageData[Section][Field]
+  ) => {
     if (!infoPageData) return;
-    
+
     setInfoPageData(prev => {
       if (!prev) return null;
-      
       const newInfoPageData = { ...prev };
-      (newInfoPageData[section] as any)[field] = value;
+      (newInfoPageData[section] as InfoPageData[Section])[field] = value;
       return newInfoPageData;
     });
   };

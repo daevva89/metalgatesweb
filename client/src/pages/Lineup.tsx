@@ -8,6 +8,7 @@ import { getLineup } from "@/api/festival"
 import { useToast } from "@/hooks/useToast"
 import { Helmet } from "react-helmet";
 import { getSiteAssets } from "@/api/festival";
+import { SiteAssets } from "@/types/SiteAssets";
 
 interface Band {
   _id: string
@@ -36,7 +37,7 @@ export function Lineup() {
   const [selectedBand, setSelectedBand] = useState<Band | null>(null)
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
-  const [siteAssets, setSiteAssets] = useState<any>({});
+  const [siteAssets, setSiteAssets] = useState<SiteAssets>({});
 
   useEffect(() => {
     const fetchLineup = async () => {

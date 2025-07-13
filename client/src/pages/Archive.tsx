@@ -6,6 +6,7 @@ import { getArchive } from "@/api/festival"
 import { useToast } from "@/hooks/useToast"
 import { Helmet } from "react-helmet";
 import { getSiteAssets } from "@/api/festival";
+import { SiteAssets } from "@/types/SiteAssets";
 
 interface ArchiveItem {
   _id: string
@@ -24,7 +25,7 @@ export function Archive() {
   const [selectedArchive, setSelectedArchive] = useState<ArchiveItem | null>(null)
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
-  const [siteAssets, setSiteAssets] = useState<any>({});
+  const [siteAssets, setSiteAssets] = useState<SiteAssets>({});
 
   useEffect(() => {
     const fetchArchive = async () => {

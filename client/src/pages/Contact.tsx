@@ -10,6 +10,7 @@ import { submitContactForm, getSiteAssets } from "@/api/festival"
 import { useToast } from "@/hooks/useToast"
 import { useEffect } from "react"
 import { Helmet } from "react-helmet";
+import { SiteAssets } from "@/types/SiteAssets";
 
 interface ContactFormData {
   name: string
@@ -32,7 +33,7 @@ export function Contact() {
   const [contactEmails, setContactEmails] = useState<ContactEmail[]>([])
   const { toast } = useToast()
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ContactFormData>()
-  const [siteAssets, setSiteAssets] = useState<any>({});
+  const [siteAssets, setSiteAssets] = useState<SiteAssets>({});
 
   useEffect(() => {
     loadContactInfo()

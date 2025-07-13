@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { useNavigate, Link } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/useToast"
 import { FaSpinner } from "react-icons/fa"
 import { Helmet } from "react-helmet";
 import { getSiteAssets } from "@/api/festival";
+import { SiteAssets } from "@/types/SiteAssets";
 
 interface LoginFormData {
   email: string
@@ -28,7 +29,7 @@ export function Login() {
   const { login } = useAuth()
   const { toast } = useToast()
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>()
-  const [siteAssets, setSiteAssets] = useState<any>({});
+  const [siteAssets, setSiteAssets] = useState<SiteAssets>({});
 
   useEffect(() => {
     getSiteAssets().then(data => setSiteAssets(data.assets || {}));

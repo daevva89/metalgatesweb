@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { getFestivalInfo, getNews, getSiteAssets } from "@/api/festival"
 import { useToast } from "@/hooks/useToast"
 import { Helmet } from "react-helmet";
+import { SiteAssets } from "@/types/SiteAssets";
 
 interface FestivalInfo {
   ticketUrl: string
@@ -22,7 +23,7 @@ interface NewsArticle {
 export function Home() {
   const [festivalInfo, setFestivalInfo] = useState<FestivalInfo | null>(null)
   const [news, setNews] = useState<NewsArticle[]>([])
-  const [siteAssets, setSiteAssets] = useState<any>({});
+  const [siteAssets, setSiteAssets] = useState<SiteAssets>({});
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()

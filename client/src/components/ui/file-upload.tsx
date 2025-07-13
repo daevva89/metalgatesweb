@@ -1,6 +1,6 @@
 import { useState, useCallback, ReactNode, useEffect } from "react"
 import { useDropzone, FileRejection } from "react-dropzone"
-import { FaUpload, FaTimes, FaImage } from "react-icons/fa"
+import { FaUpload, FaTimes } from "react-icons/fa"
 import { useToast } from "../../hooks/useToast"
 
 interface FileUploadProps {

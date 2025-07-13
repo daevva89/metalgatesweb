@@ -5,6 +5,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { getInfoPage } from "@/api/festival";
 import { getSiteAssets } from "@/api/festival";
 import { Helmet } from "react-helmet";
+import { SiteAssets } from "@/types/SiteAssets";
 
 interface FaqItem {
   question: string;
@@ -35,7 +36,7 @@ interface InfoPageData {
 export function Info() {
   const [infoPageData, setInfoPageData] = useState<InfoPageData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [siteAssets, setSiteAssets] = useState<any>({});
+  const [siteAssets, setSiteAssets] = useState<SiteAssets>({});
 
   useEffect(() => {
     const loadInfoPageData = async () => {

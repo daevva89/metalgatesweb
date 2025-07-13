@@ -7,6 +7,7 @@ import { getNews } from "@/api/festival"
 import { useToast } from "@/hooks/useToast"
 import { Helmet } from "react-helmet";
 import { getSiteAssets } from "@/api/festival";
+import { SiteAssets } from "@/types/SiteAssets";
 
 interface NewsArticle {
   _id: string
@@ -24,7 +25,7 @@ export function News() {
   const [articles, setArticles] = useState<NewsArticle[]>([])
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
-  const [siteAssets, setSiteAssets] = useState<any>({});
+  const [siteAssets, setSiteAssets] = useState<SiteAssets>({});
 
   useEffect(() => {
     const fetchNews = async () => {
