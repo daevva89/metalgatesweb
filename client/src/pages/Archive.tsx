@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { getArchive } from "@/api/festival"
 import { useToast } from "@/hooks/useToast"
+import { Helmet } from "react-helmet";
+import { getSiteAssets } from "@/api/festival";
 
 interface ArchiveItem {
   _id: string
@@ -22,6 +24,7 @@ export function Archive() {
   const [selectedArchive, setSelectedArchive] = useState<ArchiveItem | null>(null)
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
+  const [siteAssets, setSiteAssets] = useState<any>({});
 
   useEffect(() => {
     const fetchArchive = async () => {
@@ -41,9 +44,12 @@ export function Archive() {
         setLoading(false)
       }
     }
-
     fetchArchive()
+    getSiteAssets().then(data => setSiteAssets(data.assets || {}));
   }, [toast])
+
+  const title = siteAssets.seoTitles?.archive || "Archive - Metal Gates Festival";
+  const description = siteAssets.seoDescriptions?.archive || "Explore the archive of past Metal Gates Festival events.";
 
   if (loading) {
     return (
@@ -54,7 +60,12 @@ export function Archive() {
   }
 
   return (
-    <div className="container mx-auto px-4 space-y-12 pt-8">
+    <>
+      <Helmet>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+      </Helmet>
+      <div className="container mx-auto px-4 space-y-12 pt-8">
       {/* Archive Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
         {archives.map((archive) => (
@@ -140,5 +151,6 @@ export function Archive() {
         </DialogContent>
       </Dialog>
     </div>
+    </>
   )
 }

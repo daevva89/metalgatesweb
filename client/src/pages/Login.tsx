@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
@@ -14,6 +14,8 @@ import {
 import { useAuth } from "@/contexts/AuthContext"
 import { useToast } from "@/hooks/useToast"
 import { FaSpinner } from "react-icons/fa"
+import { Helmet } from "react-helmet";
+import { getSiteAssets } from "@/api/festival";
 
 interface LoginFormData {
   email: string
@@ -26,6 +28,14 @@ export function Login() {
   const { login } = useAuth()
   const { toast } = useToast()
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>()
+  const [siteAssets, setSiteAssets] = useState<any>({});
+
+  useEffect(() => {
+    getSiteAssets().then(data => setSiteAssets(data.assets || {}));
+  }, []);
+
+  const title = siteAssets.seoTitles?.login || "Login - Metal Gates Festival";
+  const description = siteAssets.seoDescriptions?.login || "Login to the Metal Gates Festival admin panel.";
 
   const onSubmit = async (data: LoginFormData) => {
     console.log('Login form submitted with:', { email: data.email })
@@ -53,7 +63,12 @@ export function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
+    <>
+      <Helmet>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+      </Helmet>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">Login</CardTitle>
@@ -110,5 +125,6 @@ export function Login() {
         </CardContent>
       </Card>
     </div>
+    </>
   )
 }

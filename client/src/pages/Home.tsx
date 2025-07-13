@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { getFestivalInfo, getNews, getSiteAssets } from "@/api/festival"
 import { useToast } from "@/hooks/useToast"
+import { Helmet } from "react-helmet";
 
 interface FestivalInfo {
   ticketUrl: string
@@ -21,7 +22,7 @@ interface NewsArticle {
 export function Home() {
   const [festivalInfo, setFestivalInfo] = useState<FestivalInfo | null>(null)
   const [news, setNews] = useState<NewsArticle[]>([])
-  const [siteAssets, setSiteAssets] = useState<{ logo: string | null; heroImage: string | null; mobileHeroImage: string | null; countdownDate: string | null }>({ logo: null, heroImage: null, mobileHeroImage: null, countdownDate: null })
+  const [siteAssets, setSiteAssets] = useState<any>({});
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
@@ -50,7 +51,7 @@ export function Home() {
   const loadSiteAssets = useCallback(async () => {
     try {
       const data = await getSiteAssets()
-      setSiteAssets(data.assets || { logo: null, heroImage: null, mobileHeroImage: null, countdownDate: null })
+      setSiteAssets(data.assets || {});
     } catch (error) {
       console.error("Error loading site assets:", error)
     }
@@ -94,8 +95,16 @@ export function Home() {
     )
   }
 
+  const title = siteAssets.seoTitles?.home || "Metal Gates Festival";
+  const description = siteAssets.seoDescriptions?.home || "Official website for Metal Gates Festival. Get the latest news, lineup, tickets, and info.";
+
   return (
-    <div className="min-h-screen w-full overflow-hidden">
+    <>
+      <Helmet>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+      </Helmet>
+      <div className="min-h-screen w-full overflow-hidden">
       {/* Hero Section */}
       <section className="relative w-full aspect-[6580/9212] md:aspect-[1000/524] flex items-center justify-center text-center text-white overflow-hidden">
         {/* Hero Background Image */}
@@ -218,5 +227,6 @@ export function Home() {
         </div>
       </section>
     </div>
+    </>
   )
 }

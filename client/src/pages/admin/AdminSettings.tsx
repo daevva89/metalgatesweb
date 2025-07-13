@@ -72,6 +72,8 @@ interface Settings {
     instagram: string;
     youtube: string;
   };
+  seoTitles: { [key: string]: string };
+  seoDescriptions: { [key: string]: string };
 }
 
 export function AdminSettings() {
@@ -102,7 +104,9 @@ export function AdminSettings() {
       facebook: "",
       instagram: "",
       youtube: ""
-    }
+    },
+    seoTitles: {},
+    seoDescriptions: {}
   })
 
   useEffect(() => {
@@ -159,7 +163,9 @@ export function AdminSettings() {
             facebook: data.assets.facebook || "",
             instagram: data.assets.instagram || "",
             youtube: data.assets.youtube || "",
-          }
+          },
+          seoTitles: data.assets.seoTitles || {},
+          seoDescriptions: data.assets.seoDescriptions || {}
         }))
       }
     } catch (error) {
@@ -184,6 +190,7 @@ export function AdminSettings() {
         if (section === 'general') dataToSave = settings.general
         if (section === 'tracking') dataToSave = settings.tracking
         if (section === 'social') dataToSave = settings.social
+        if (section === 'seo') dataToSave = { seoTitles: settings.seoTitles, seoDescriptions: settings.seoDescriptions }
         
         await updateSiteAssets(dataToSave)
         toast({ title: "Success", description: `${section.charAt(0).toUpperCase() + section.slice(1)} settings updated.` })
@@ -276,6 +283,7 @@ export function AdminSettings() {
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="images">Images</TabsTrigger>
           <TabsTrigger value="tracking">Tracking</TabsTrigger>
+          <TabsTrigger value="seo">SEO</TabsTrigger>
           <TabsTrigger value="social">Social Media</TabsTrigger>
         </TabsList>
 
@@ -471,6 +479,52 @@ export function AdminSettings() {
               <Button onClick={() => handleSave('tracking')} disabled={saving}>
                 <FaSave className="mr-2" />
                 {saving ? "Saving..." : "Save Tracking Settings"}
+              </Button>
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="seo">
+          <Card>
+            <CardHeader>
+              <CardTitle>SEO Titles & Meta Descriptions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {Object.keys(settings.seoTitles || {}).map((page) => (
+                <div key={page} className="space-y-2 border-b pb-4">
+                  <Label htmlFor={`seo-title-${page}`}>{page.charAt(0).toUpperCase() + page.slice(1)} Title</Label>
+                  <Input
+                    id={`seo-title-${page}`}
+                    value={settings.seoTitles?.[page] || ""}
+                    onChange={e => setSettings(prev => ({
+                      ...prev,
+                      seoTitles: {
+                        ...prev.seoTitles,
+                        [page]: e.target.value
+                      }
+                    }))}
+                    placeholder={`Title for ${page} page`}
+                  />
+                  <Label htmlFor={`seo-desc-${page}`}>{page.charAt(0).toUpperCase() + page.slice(1)} Meta Description</Label>
+                  <Textarea
+                    id={`seo-desc-${page}`}
+                    value={settings.seoDescriptions?.[page] || ""}
+                    onChange={e => setSettings(prev => ({
+                      ...prev,
+                      seoDescriptions: {
+                        ...prev.seoDescriptions,
+                        [page]: e.target.value
+                      }
+                    }))}
+                    placeholder={`Meta description for ${page} page`}
+                  />
+                </div>
+              ))}
+            </CardContent>
+            <div className="p-6 pt-0">
+              <Button onClick={() => handleSave('seo')} disabled={saving}>
+                <FaSave className="mr-2" />
+                {saving ? "Saving..." : "Save SEO Settings"}
               </Button>
             </div>
           </Card>

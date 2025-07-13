@@ -4,10 +4,12 @@ import { FaCalendarAlt, FaArrowLeft, FaShareAlt } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 import { getNewsArticle } from "@/api/festival"
 import { useToast } from "@/hooks/useToast"
+import { Helmet } from "react-helmet";
 
 interface Article {
   _id: string
   title: string
+  excerpt: string
   content: string
   image: string
   publishedAt: string
@@ -22,6 +24,7 @@ export function NewsArticle() {
   const [article, setArticle] = useState<Article | null>(null)
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
+  // Remove siteAssets and its fetching
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -88,8 +91,16 @@ export function NewsArticle() {
     )
   }
 
+  const title = article?.title ? `${article.title} - Metal Gates Festival` : "News Article - Metal Gates Festival";
+  const description = article?.excerpt || "Detailed article about Metal Gates Festival.";
+
   return (
-    <div className="container mx-auto px-4 max-w-4xl space-y-8">
+    <>
+      <Helmet>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+      </Helmet>
+      <div className="container mx-auto px-4 max-w-4xl space-y-8">
       {/* Navigation */}
       <div className="flex items-center justify-between">
         <Button asChild variant="ghost">
@@ -148,5 +159,6 @@ export function NewsArticle() {
         </div>
       </div>
     </div>
+    </>
   )
 }

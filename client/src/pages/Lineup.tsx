@@ -6,6 +6,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { getLineup } from "@/api/festival"
 import { useToast } from "@/hooks/useToast"
+import { Helmet } from "react-helmet";
+import { getSiteAssets } from "@/api/festival";
 
 interface Band {
   _id: string
@@ -34,6 +36,7 @@ export function Lineup() {
   const [selectedBand, setSelectedBand] = useState<Band | null>(null)
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
+  const [siteAssets, setSiteAssets] = useState<any>({});
 
   useEffect(() => {
     const fetchLineup = async () => {
@@ -53,9 +56,12 @@ export function Lineup() {
         setLoading(false)
       }
     }
-
     fetchLineup()
+    getSiteAssets().then(data => setSiteAssets(data.assets || {}));
   }, [toast])
+
+  const title = siteAssets.seoTitles?.lineup || "Lineup - Metal Gates Festival";
+  const description = siteAssets.seoDescriptions?.lineup || "See the full lineup for Metal Gates Festival.";
 
   if (loading) {
     return (
@@ -66,7 +72,12 @@ export function Lineup() {
   }
 
   return (
-    <div className="container mx-auto px-4 space-y-8 pt-8">
+    <>
+      <Helmet>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+      </Helmet>
+      <div className="container mx-auto px-4 space-y-8 pt-8">
       {/* Band Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         {bands.map((band) => (
@@ -207,5 +218,6 @@ export function Lineup() {
         </DialogContent>
       </Dialog>
     </div>
+    </>
   )
 }
