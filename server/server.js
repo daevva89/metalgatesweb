@@ -15,6 +15,8 @@ const express = require("express");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const path = require("path");
+const fs = require("fs");
+const { generateOGTags, escapeHtml, isBotRequest } = require("./utils/ogTags");
 const basicRoutes = require("./routes/index");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
@@ -119,6 +121,30 @@ app.use("/api/visits", visitRoutes);
 // Info Page Routes
 app.use("/api/infopage", infoPageRoutes);
 
+// Debug endpoint to test OG tag generation (only in development)
+if (process.env.NODE_ENV !== "production") {
+  app.get("/debug/og-tags", async (req, res) => {
+    const url = req.query.url || "/";
+    const baseUrl = `${req.protocol}://${req.get("host")}`;
+
+    try {
+      const ogTags = await generateOGTags(url, baseUrl);
+      res.json({
+        success: true,
+        url: url,
+        baseUrl: baseUrl,
+        ogTags: ogTags,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error.message,
+        stack: error.stack,
+      });
+    }
+  });
+}
+
 // Serve frontend files in production
 // This should be after all API routes and before the 404 handler
 if (process.env.NODE_ENV === "production") {
@@ -127,12 +153,66 @@ if (process.env.NODE_ENV === "production") {
   console.log(`Serving static files from: ${clientDistPath}`);
   app.use(express.static(clientDistPath));
 
-  // Handles any requests that don't match the ones above by sending the React app
-  app.get("*", (req, res) => {
-    console.log(
-      `Serving index.html for non-API GET request: ${req.originalUrl}`
-    );
-    res.sendFile(path.join(clientDistPath, "index.html"));
+  // Handles any requests that don't match the ones above by sending the React app with dynamic OG tags
+  app.get("*", async (req, res) => {
+    const indexPath = path.join(clientDistPath, "index.html");
+    const userAgent = req.get("User-Agent") || "";
+
+    // Check if this is a bot request that needs OG tags
+    if (isBotRequest(userAgent)) {
+      console.log(
+        `Bot detected (${userAgent.substring(
+          0,
+          50
+        )}...), serving with dynamic OG tags for: ${req.originalUrl}`
+      );
+
+      try {
+        // Read the HTML file
+        let html = fs.readFileSync(indexPath, "utf8");
+
+        // Generate OG tags for this request
+        const baseUrl = `${req.protocol}://${req.get("host")}`;
+        const ogTags = await generateOGTags(req.originalUrl, baseUrl);
+
+        // Create the meta tags HTML
+        const ogMetaTags = `
+    <title>${escapeHtml(ogTags.title)}</title>
+    <meta name="description" content="${escapeHtml(ogTags.description)}" />
+    <meta property="og:title" content="${escapeHtml(ogTags.title)}" />
+    <meta property="og:description" content="${escapeHtml(
+      ogTags.description
+    )}" />
+    <meta property="og:image" content="${escapeHtml(ogTags.image)}" />
+    <meta property="og:url" content="${escapeHtml(ogTags.url)}" />
+    <meta property="og:type" content="${escapeHtml(ogTags.type)}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${escapeHtml(ogTags.title)}" />
+    <meta name="twitter:description" content="${escapeHtml(
+      ogTags.description
+    )}" />
+    <meta name="twitter:image" content="${escapeHtml(ogTags.image)}" />`;
+
+        // Replace existing title and meta tags or inject before </head>
+        // First, remove any existing title and basic meta description
+        html = html.replace(/<title>.*?<\/title>/i, "");
+        html = html.replace(/<meta\s+name=["']description["'][^>]*>/i, "");
+
+        // Inject our tags before the closing head tag
+        html = html.replace("</head>", `${ogMetaTags}\n  </head>`);
+
+        console.log(`OG tags injected for ${req.originalUrl}: ${ogTags.title}`);
+        res.send(html);
+      } catch (error) {
+        console.error("Error serving HTML with OG tags:", error);
+        // Fallback to serving static file if there's an error
+        res.sendFile(indexPath);
+      }
+    } else {
+      // Regular user request - serve static file directly for better performance
+      console.log(`Regular user request for: ${req.originalUrl}`);
+      res.sendFile(indexPath);
+    }
   });
 }
 
