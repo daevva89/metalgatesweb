@@ -99,8 +99,13 @@ export function NewsArticle() {
       <Helmet>
         <title>{title}</title>
         <meta name="description" content={description} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content={article.image || ''} />
+        <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
+        <meta property="og:type" content="article" />
       </Helmet>
-      <div className="container mx-auto px-4 max-w-4xl space-y-8">
+    <div className="container mx-auto px-4 max-w-4xl space-y-8">
       {/* Navigation */}
       <div className="flex items-center justify-between">
         <Button asChild variant="ghost">

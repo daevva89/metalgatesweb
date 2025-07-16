@@ -148,7 +148,7 @@ export function AdminPages() {
     value: InfoPageData[Section][Field]
   ) => {
     if (!infoPageData) return;
-
+    
     setInfoPageData(prev => {
       if (!prev) return null;
       const newInfoPageData = { ...prev };

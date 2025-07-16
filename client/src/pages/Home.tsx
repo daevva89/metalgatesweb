@@ -104,8 +104,13 @@ export function Home() {
       <Helmet>
         <title>{title}</title>
         <meta name="description" content={description} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content={siteAssets.heroImage || siteAssets.logo || ''} />
+        <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
+        <meta property="og:type" content="website" />
       </Helmet>
-      <div className="min-h-screen w-full overflow-hidden">
+    <div className="min-h-screen w-full overflow-hidden">
       {/* Hero Section */}
       <section className="relative w-full aspect-[6580/9212] md:aspect-[1000/524] flex items-center justify-center text-center text-white overflow-hidden">
         {/* Hero Background Image */}

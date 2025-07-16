@@ -77,8 +77,13 @@ export function Lineup() {
       <Helmet>
         <title>{title}</title>
         <meta name="description" content={description} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content={siteAssets.heroImage || siteAssets.logo || ''} />
+        <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
+        <meta property="og:type" content="website" />
       </Helmet>
-      <div className="container mx-auto px-4 space-y-8 pt-8">
+    <div className="container mx-auto px-4 space-y-8 pt-8">
       {/* Band Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         {bands.map((band) => (
