@@ -7,7 +7,6 @@ import { getFestivalInfo, getNews, getSiteAssets } from "@/api/festival"
 import { useToast } from "@/hooks/useToast"
 import { Helmet } from "react-helmet";
 import { SiteAssets } from "@/types/SiteAssets";
-import { getAbsoluteUrl } from "@/lib/utils";
 
 interface FestivalInfo {
   ticketUrl: string
@@ -105,11 +104,6 @@ export function Home() {
       <Helmet>
         <title>{title}</title>
         <meta name="description" content={description} />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={description} />
-        <meta property="og:image" content={getAbsoluteUrl(siteAssets.heroImage || siteAssets.logo)} />
-        <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
-        <meta property="og:type" content="website" />
       </Helmet>
     <div className="min-h-screen w-full overflow-hidden">
       {/* Hero Section */}

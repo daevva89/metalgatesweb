@@ -17,7 +17,6 @@ import { FaSpinner } from "react-icons/fa"
 import { Helmet } from "react-helmet";
 import { getSiteAssets } from "@/api/festival";
 import { SiteAssets } from "@/types/SiteAssets";
-import { getAbsoluteUrl } from "@/lib/utils";
 
 interface LoginFormData {
   email: string
@@ -69,11 +68,6 @@ export function Login() {
       <Helmet>
         <title>{title}</title>
         <meta name="description" content={description} />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={description} />
-        <meta property="og:image" content={getAbsoluteUrl(siteAssets.heroImage || siteAssets.logo)} />
-        <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
-        <meta property="og:type" content="website" />
       </Helmet>
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
       <Card className="w-full max-w-md">

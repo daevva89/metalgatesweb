@@ -11,7 +11,6 @@ import { useToast } from "@/hooks/useToast"
 import { useEffect } from "react"
 import { Helmet } from "react-helmet";
 import { SiteAssets } from "@/types/SiteAssets";
-import { getAbsoluteUrl } from "@/lib/utils";
 
 interface ContactFormData {
   name: string
@@ -81,11 +80,6 @@ export function Contact() {
       <Helmet>
         <title>{title}</title>
         <meta name="description" content={description} />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={description} />
-        <meta property="og:image" content={getAbsoluteUrl(siteAssets.heroImage || siteAssets.logo)} />
-        <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
-        <meta property="og:type" content="website" />
       </Helmet>
     <div className="container mx-auto px-4 space-y-12 pt-8">
       <div className="grid lg:grid-cols-2 gap-12">
