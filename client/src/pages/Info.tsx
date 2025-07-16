@@ -6,6 +6,7 @@ import { getInfoPage } from "@/api/festival";
 import { getSiteAssets } from "@/api/festival";
 import { Helmet } from "react-helmet";
 import { SiteAssets } from "@/types/SiteAssets";
+import { getAbsoluteUrl } from "@/lib/utils";
 
 interface FaqItem {
   question: string;
@@ -71,7 +72,7 @@ export function Info() {
         <meta name="description" content={description} />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
-        <meta property="og:image" content={siteAssets.heroImage || siteAssets.logo || ''} />
+        <meta property="og:image" content={getAbsoluteUrl(siteAssets.heroImage || siteAssets.logo)} />
         <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
         <meta property="og:type" content="website" />
       </Helmet>

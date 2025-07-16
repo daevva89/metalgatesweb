@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { getNewsArticle } from "@/api/festival"
 import { useToast } from "@/hooks/useToast"
 import { Helmet } from "react-helmet";
+import { getAbsoluteUrl } from "@/lib/utils";
 
 interface Article {
   _id: string
@@ -101,7 +102,7 @@ export function NewsArticle() {
         <meta name="description" content={description} />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
-        <meta property="og:image" content={article.image || ''} />
+        <meta property="og:image" content={getAbsoluteUrl(article.image)} />
         <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
         <meta property="og:type" content="article" />
       </Helmet>

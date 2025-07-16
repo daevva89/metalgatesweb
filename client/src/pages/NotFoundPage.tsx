@@ -6,6 +6,7 @@ import { Helmet } from "react-helmet";
 import { useEffect, useState } from "react";
 import { getSiteAssets } from "@/api/festival";
 import { SiteAssets } from "@/types/SiteAssets";
+import { getAbsoluteUrl } from "@/lib/utils";
 
 export function NotFoundPage() {
   const navigate = useNavigate()
@@ -23,7 +24,7 @@ export function NotFoundPage() {
         <meta name="description" content={description} />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
-        <meta property="og:image" content={siteAssets.heroImage || siteAssets.logo || ''} />
+        <meta property="og:image" content={getAbsoluteUrl(siteAssets.heroImage || siteAssets.logo)} />
         <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
         <meta property="og:type" content="website" />
       </Helmet>
