@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { getLineup } from "@/api/festival"
 import { useToast } from "@/hooks/useToast"
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 import { getSiteAssets } from "@/api/festival";
 import { SiteAssets } from "@/types/SiteAssets";
 

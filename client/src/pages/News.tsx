@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { getNews } from "@/api/festival"
 import { useToast } from "@/hooks/useToast"
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 import { getSiteAssets } from "@/api/festival";
 import { SiteAssets } from "@/types/SiteAssets";
 

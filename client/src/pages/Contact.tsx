@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { submitContactForm, getSiteAssets } from "@/api/festival"
 import { useToast } from "@/hooks/useToast"
 import { useEffect } from "react"
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 import { SiteAssets } from "@/types/SiteAssets";
 
 interface ContactFormData {

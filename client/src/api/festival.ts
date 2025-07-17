@@ -471,7 +471,7 @@ export const updateInfoPage = async (infoPageData: InfoPageData): Promise<ApiRes
 // Endpoint: POST /api/visits/log
 export const logVisit = async () => {
   try {
-    await api.post('/api/visits');
+    await api.post('/api/visits/log');
   } catch {
     // Fail silently so it doesn't impact user experience
   }

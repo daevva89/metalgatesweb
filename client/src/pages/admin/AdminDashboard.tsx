@@ -79,7 +79,7 @@ export function AdminDashboard() {
           })
         );
 
-        const bandActivities: Activity[] = (lineupData.bands || []).map(
+        const bandActivities: Activity[] = (lineupData?.bands || []).map(
           (b: Band) => ({
             type: "band",
             date: new Date(b.createdAt),
@@ -96,12 +96,14 @@ export function AdminDashboard() {
         setActivities(allActivities);
         setStats(prev => ({
           ...prev,
-          contactMessages: contactData.contacts?.length || 0,
-          totalVisitors: visitorStats.totalVisitors || 0,
-          visitorChange: visitorStats.percentageChange || 0
+          contactMessages: contactData?.contacts?.length || 0,
+          totalVisitors: visitorStats?.totalVisitors || 0,
+          visitorChange: visitorStats?.percentageChange || 0
         }));
       } catch (error) {
         console.error("Failed to fetch dashboard activities:", error);
+        // Set empty state on error
+        setActivities([]);
       } finally {
         setLoading(false);
       }

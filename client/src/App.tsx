@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import { ThemeProvider } from "./components/ui/theme-provider"
 import { Toaster } from "./components/ui/toaster"
 import { AuthProvider } from "./contexts/AuthContext"
+import { HelmetProvider } from "react-helmet-async"
 import { Login } from "./pages/Login"
 // import { Register } from "./pages/Register"
 import { ProtectedRoute } from "./components/ProtectedRoute"
@@ -93,59 +94,63 @@ function App() {
   // If festival is not active, show coming soon page for all public routes
   if (!festivalActive) {
     return (
-      <AuthProvider>
-        <ThemeProvider defaultTheme="dark" storageKey="ui-theme">
-          <Router>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              {/* <Route path="/register" element={<Register />} /> */}
-              <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
-                <Route index element={<AdminDashboard />} />
-                <Route path="lineup" element={<AdminLineup />} />
-                <Route path="news" element={<AdminNews />} />
-                <Route path="pages" element={<AdminPages />} />
-                <Route path="archive" element={<AdminArchive />} />
-                <Route path="settings" element={<AdminSettings />} />
-              </Route>
-              <Route path="*" element={<ComingSoon />} />
-            </Routes>
-          </Router>
-          <Toaster />
-        </ThemeProvider>
-      </AuthProvider>
+      <HelmetProvider>
+        <AuthProvider>
+          <ThemeProvider defaultTheme="dark" storageKey="ui-theme">
+            <Router>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                {/* <Route path="/register" element={<Register />} /> */}
+                <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="lineup" element={<AdminLineup />} />
+                  <Route path="news" element={<AdminNews />} />
+                  <Route path="pages" element={<AdminPages />} />
+                  <Route path="archive" element={<AdminArchive />} />
+                  <Route path="settings" element={<AdminSettings />} />
+                </Route>
+                <Route path="*" element={<ComingSoon />} />
+              </Routes>
+            </Router>
+            <Toaster />
+          </ThemeProvider>
+        </AuthProvider>
+      </HelmetProvider>
     )
   }
 
   return (
-  <AuthProvider>
-    <ThemeProvider defaultTheme="dark" storageKey="ui-theme">
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          {/* <Route path="/register" element={<Register />} /> */}
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Home />} />
-            <Route path="lineup" element={<Lineup />} />
-            <Route path="news" element={<News />} />
-            <Route path="news/:id" element={<NewsArticle />} />
-            <Route path="info" element={<Info />} />
-            <Route path="archive" element={<Archive />} />
-            <Route path="contact" element={<Contact />} />
-          </Route>
-          <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
-            <Route index element={<AdminDashboard />} />
-            <Route path="lineup" element={<AdminLineup />} />
-            <Route path="news" element={<AdminNews />} />
-            <Route path="pages" element={<AdminPages />} />
-            <Route path="archive" element={<AdminArchive />} />
-            <Route path="settings" element={<AdminSettings />} />
-          </Route>
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </Router>
-      <Toaster />
-    </ThemeProvider>
-  </AuthProvider>
+  <HelmetProvider>
+    <AuthProvider>
+      <ThemeProvider defaultTheme="dark" storageKey="ui-theme">
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            {/* <Route path="/register" element={<Register />} /> */}
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Home />} />
+              <Route path="lineup" element={<Lineup />} />
+              <Route path="news" element={<News />} />
+              <Route path="news/:id" element={<NewsArticle />} />
+              <Route path="info" element={<Info />} />
+              <Route path="archive" element={<Archive />} />
+              <Route path="contact" element={<Contact />} />
+            </Route>
+            <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="lineup" element={<AdminLineup />} />
+              <Route path="news" element={<AdminNews />} />
+              <Route path="pages" element={<AdminPages />} />
+              <Route path="archive" element={<AdminArchive />} />
+              <Route path="settings" element={<AdminSettings />} />
+            </Route>
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Router>
+        <Toaster />
+      </ThemeProvider>
+    </AuthProvider>
+  </HelmetProvider>
   )
 }
 

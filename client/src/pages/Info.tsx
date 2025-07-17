@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { getInfoPage } from "@/api/festival";
 import { getSiteAssets } from "@/api/festival";
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 import { SiteAssets } from "@/types/SiteAssets";
 
 interface FaqItem {

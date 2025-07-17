@@ -4,7 +4,7 @@ import { FaCalendarAlt, FaArrowLeft, FaShareAlt } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 import { getNewsArticle } from "@/api/festival"
 import { useToast } from "@/hooks/useToast"
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 
 interface Article {
   _id: string

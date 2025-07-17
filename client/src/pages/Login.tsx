@@ -14,7 +14,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext"
 import { useToast } from "@/hooks/useToast"
 import { FaSpinner } from "react-icons/fa"
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 import { getSiteAssets } from "@/api/festival";
 import { SiteAssets } from "@/types/SiteAssets";
 
@@ -87,6 +87,7 @@ export function Login() {
               <Input
                 id="email"
                 type="email"
+                autoComplete="email"
                 placeholder="Enter your email"
                 {...register("email", { 
                   required: "Email is required",
@@ -106,6 +107,7 @@ export function Login() {
               <Input
                 id="password"
                 type="password"
+                autoComplete="current-password"
                 placeholder="Enter your password"
                 {...register("password", { 
                   required: "Password is required",
