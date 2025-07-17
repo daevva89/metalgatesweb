@@ -52,49 +52,32 @@ export function AdminLineup() {
   const { register, handleSubmit, reset, setValue } = useForm<BandFormData>()
   const { toast } = useToast()
 
-  const fetchBands = useCallback(async () => {
+  const fetchBands = async () => {
     try {
-      console.log("LINEUP: Fetching bands for admin...")
       const response = await getLineup()
-      console.log("LINEUP: Raw response from getLineup:", response)
-      console.log("LINEUP: Bands array:", response.bands)
       
-      if (response.bands && response.bands.length > 0) {
-        response.bands.forEach((band: Band, index: number) => {
-          console.log(`LINEUP: Band ${index + 1} (${band.name}):`, {
-            _id: band._id,
-            name: band.name,
-            hasImage: !!band.image,
-            imageLength: band.image ? band.image.length : 0,
-            imagePreview: band.image ? band.image.substring(0, 50) + "..." : "no image"
-          })
-        })
+      if (!response.bands || !Array.isArray(response.bands)) {
+        throw new Error('Invalid response format: expected bands array')
       }
-      
+
       setBands(response.bands)
-      console.log("LINEUP: Bands set in state successfully")
     } catch (error) {
       console.error("LINEUP: Error fetching bands:", error)
       toast({
         title: "Error",
-        description: (error as Error).message || "Failed to load bands",
+        description: "Failed to load lineup",
         variant: "destructive"
       })
     } finally {
       setLoading(false)
     }
-  }, [toast])
+  }
 
   useEffect(() => {
     fetchBands()
   }, [fetchBands])
 
   const handleEdit = (band: Band) => {
-    console.log("LINEUP: Editing band:", {
-      name: band.name,
-      hasImage: !!band.image,
-      imageLength: band.image ? band.image.length : 0
-    })
     setSelectedBand(band)
     setValue("name", band.name)
     setValue("country", band.country)
@@ -112,7 +95,6 @@ export function AdminLineup() {
   }
 
   const handleAdd = () => {
-    console.log("LINEUP: Adding new band")
     setSelectedBand(null)
     reset()
     setSelectedImageFile(null)
@@ -131,14 +113,12 @@ export function AdminLineup() {
       }
 
       if (selectedBand) {
-        console.log("LINEUP: Updating existing band with ID:", selectedBand._id);
         await updateBand(selectedBand._id, formData);
         toast({
           title: "Success",
           description: "Band updated successfully"
         });
       } else {
-        console.log("LINEUP: Creating new band");
         await createBand(formData);
         toast({
           title: "Success",
@@ -147,7 +127,6 @@ export function AdminLineup() {
       }
 
       setIsDialogOpen(false);
-      console.log("LINEUP: Refreshing bands list...");
       await fetchBands();
     } catch (error) {
       console.error("LINEUP: Error saving band:", error);
@@ -162,7 +141,6 @@ export function AdminLineup() {
 
   const handleDelete = async (bandId: string) => {
     try {
-      console.log("LINEUP: Deleting band:", bandId)
       await deleteBand(bandId)
       toast({
         title: "Success",

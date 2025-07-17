@@ -6,62 +6,51 @@ const upload = require("../utils/upload");
 
 // GET /api/lineup - Get all bands
 router.get("/", async (req, res) => {
-  console.log("GET /api/lineup - Fetching all bands");
   try {
     const bands = await bandService.getAllBands();
-    console.log(`GET /api/lineup - Successfully fetched ${bands.length} bands`);
-
-    // Log image data for each band
-    bands.forEach((band, index) => {
-      console.log(`GET /api/lineup - Band ${index + 1} (${band.name}):`, {
-        _id: band._id,
-        name: band.name,
-        hasImage: !!band.image,
-        imageLength: band.image ? band.image.length : 0,
-        imagePreview: band.image
-          ? band.image.substring(0, 50) + "..."
-          : "no image",
-      });
-    });
 
     res.json({
       success: true,
-      data: { bands },
-      message: "Bands fetched successfully",
+      bands,
+      message: `Successfully retrieved ${bands.length} bands`,
     });
   } catch (error) {
-    console.error("GET /api/lineup - Error:", error.message);
+    console.error("GET /api/lineup - Error fetching bands:", error);
     res.status(500).json({
       success: false,
-      error: error.message,
+      error: error.message || "There was an error fetching the bands.",
     });
   }
 });
 
 // GET /api/lineup/:id - Get single band
 router.get("/:id", async (req, res) => {
-  console.log("GET /api/lineup/:id - Fetching band with ID:", req.params.id);
   try {
     const band = await bandService.getBandById(req.params.id);
-    console.log("GET /api/lineup/:id - Successfully fetched band:", band.name);
+
+    if (!band) {
+      return res.status(404).json({
+        success: false,
+        error: "Band not found",
+      });
+    }
+
     res.json({
       success: true,
-      data: { band },
-      message: "Band fetched successfully",
+      band,
+      message: "Band retrieved successfully",
     });
   } catch (error) {
-    console.error("GET /api/lineup/:id - Error:", error.message);
-    const statusCode = error.message.includes("not found") ? 404 : 500;
-    res.status(statusCode).json({
+    console.error("GET /api/lineup/:id - Error fetching band:", error);
+    res.status(500).json({
       success: false,
-      error: error.message,
+      error: error.message || "There was an error fetching the band.",
     });
   }
 });
 
 // POST /api/lineup - Create new band (admin only)
 router.post("/", auth, upload.single("image"), async (req, res) => {
-  console.log("POST /api/lineup - Creating new band by user:", req.user.email);
   try {
     const { name, country, biography, ...otherData } = req.body;
 
@@ -109,7 +98,6 @@ router.post("/", auth, upload.single("image"), async (req, res) => {
 
 // PUT /api/lineup/:id - Update band (admin only)
 router.put("/:id", auth, upload.single("image"), async (req, res) => {
-  console.log("PUT /api/lineup/:id - Updating band with ID:", req.params.id);
   try {
     const { ...updateData } = req.body;
 
@@ -135,13 +123,8 @@ router.put("/:id", auth, upload.single("image"), async (req, res) => {
 
 // DELETE /api/lineup/:id - Delete band (admin only)
 router.delete("/:id", auth, async (req, res) => {
-  console.log("DELETE /api/lineup/:id - Deleting band with ID:", req.params.id);
   try {
     const band = await bandService.deleteBand(req.params.id);
-    console.log(
-      "DELETE /api/lineup/:id - Band deleted successfully:",
-      band.name
-    );
     res.json({
       success: true,
       data: { band },

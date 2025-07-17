@@ -42,10 +42,8 @@ export function Lineup() {
   useEffect(() => {
     const fetchLineup = async () => {
       try {
-        console.log("Fetching lineup...")
         const response = await getLineup()
         setBands((response as GetLineupResponse).bands)
-        console.log("Lineup fetched successfully")
       } catch (error) {
         console.error("Error fetching lineup:", error)
         toast({

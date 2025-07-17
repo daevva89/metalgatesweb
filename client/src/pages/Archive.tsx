@@ -30,10 +30,8 @@ export function Archive() {
   useEffect(() => {
     const fetchArchive = async () => {
       try {
-        console.log("Fetching archive...")
         const response = await getArchive()
         setArchives((response as GetArchiveResponse).archives)
-        console.log("Archive fetched successfully")
       } catch (error) {
         console.error("Error fetching archive:", error)
         toast({

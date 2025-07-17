@@ -30,10 +30,8 @@ export function News() {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        console.log("Fetching news articles...")
         const response = await getNews()
         setArticles((response as GetNewsResponse).articles)
-        console.log("News articles fetched successfully")
       } catch (error) {
         console.error("Error fetching news:", error)
         toast({

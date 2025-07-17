@@ -1,75 +1,69 @@
 const SiteAssets = require("../models/SiteAssets");
+const ImageCleanupUtil = require("../utils/ImageCleanupUtil");
 
 class SiteAssetsService {
   async getSiteAssets() {
     try {
-      const assets = await SiteAssets.getSiteAssets();
+      let assets = await SiteAssets.findOne({});
+      if (!assets) {
+        assets = await this.createDefaultAssets();
+      }
       return assets;
     } catch (error) {
-      console.error("SiteAssetsService: Error getting site assets:", error);
+      console.error("SiteAssetsService: Error fetching site assets:", error);
       throw error;
     }
   }
 
-  async updateSiteAssets(updateData) {
+  async createDefaultAssets() {
     try {
-      console.log(
-        "SiteAssetsService: Updating site assets with data:",
-        updateData
-      );
-
-      let assets = await SiteAssets.findOne();
-      if (!assets) {
-        assets = new SiteAssets();
-      }
-
-      // Directly update fields from updateData
-      Object.keys(updateData).forEach((key) => {
-        // Special handling for empty image fields to set them to null
-        if (
-          ["logo", "heroImage", "mobileHeroImage"].includes(key) &&
-          updateData[key] === ""
-        ) {
-          assets[key] = null;
-        } else if (updateData[key] !== undefined) {
-          assets[key] = updateData[key];
-        }
-      });
-
-      if (
-        updateData.contactEmails &&
-        typeof updateData.contactEmails === "string"
-      ) {
-        try {
-          assets.contactEmails = JSON.parse(updateData.contactEmails);
-        } catch (e) {
-          console.error("Error parsing contactEmails", e);
-        }
-      }
-
-      const updatedAssets = await assets.save();
-      console.log("SiteAssetsService: Assets saved successfully");
-      return updatedAssets;
+      const defaultAssets = new SiteAssets({});
+      const savedAssets = await defaultAssets.save();
+      return savedAssets;
     } catch (error) {
-      console.error("SiteAssetsService: Error updating site assets:", error);
+      console.error("SiteAssetsService: Error creating default assets:", error);
       throw error;
     }
   }
 
-  async updateLogo(logoData) {
+  async updateAssets(updateData) {
     try {
-      console.log("SiteAssetsService: Updating logo");
-      return await this.updateSiteAssets({ logo: logoData });
+      let assets = await SiteAssets.findOne({});
+      if (!assets) {
+        assets = await this.createDefaultAssets();
+      }
+
+      Object.assign(assets, updateData);
+      const savedAssets = await assets.save();
+      return savedAssets;
+    } catch (error) {
+      console.error("SiteAssetsService: Error updating assets:", error);
+      throw error;
+    }
+  }
+
+  async updateLogo(logoPath) {
+    try {
+      const assets = await this.getSiteAssets();
+      if (assets.logo) {
+        await ImageCleanupUtil.cleanupSiteAssetImages(assets, "logo");
+      }
+      assets.logo = logoPath;
+      return await assets.save();
     } catch (error) {
       console.error("SiteAssetsService: Error updating logo:", error);
       throw error;
     }
   }
 
-  async updateHeroImage(heroImageData) {
+  async updateHeroImage(heroImagePath) {
     try {
-      console.log("SiteAssetsService: Updating hero image");
-      return await this.updateSiteAssets({ heroImage: heroImageData });
+      const assets = await this.getSiteAssets();
+      if (assets.heroImage) {
+        await ImageCleanupUtil.cleanupSiteAssetImages(assets, "heroImage");
+      }
+      assets.heroImage = heroImagePath;
+      return await assets.save();
     } catch (error) {
       console.error("SiteAssetsService: Error updating hero image:", error);
       throw error;
@@ -78,8 +72,12 @@ class SiteAssetsService {
 
   async removeLogo() {
     try {
-      console.log("SiteAssetsService: Removing logo");
-      return await this.updateSiteAssets({ logo: null });
+      const assets = await this.getSiteAssets();
+      if (assets.logo) {
+        await ImageCleanupUtil.cleanupSiteAssetImages(assets, "logo");
+      }
+      assets.logo = null;
+      return await assets.save();
     } catch (error) {
       console.error("SiteAssetsService: Error removing logo:", error);
       throw error;
@@ -88,8 +86,12 @@ class SiteAssetsService {
 
   async removeHeroImage() {
     try {
-      console.log("SiteAssetsService: Removing hero image");
-      return await this.updateSiteAssets({ heroImage: null });
+      const assets = await this.getSiteAssets();
+      if (assets.heroImage) {
+        await ImageCleanupUtil.cleanupSiteAssetImages(assets, "heroImage");
+      }
+      assets.heroImage = null;
+      return await assets.save();
     } catch (error) {
       console.error("SiteAssetsService: Error removing hero image:", error);
       throw error;

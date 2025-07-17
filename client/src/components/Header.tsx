@@ -25,9 +25,7 @@ export function Header() {
 
   const loadSiteAssets = async () => {
     try {
-      console.log("Header: Loading site assets...")
       const data = await getSiteAssets()
-      console.log("Header: Received site assets:", data.assets)
       setSiteAssets({
         logo: data.assets?.logo || null,
         heroImage: data.assets?.heroImage || null,
@@ -40,9 +38,7 @@ export function Header() {
 
   const loadFestivalInfo = async () => {
     try {
-      console.log("Header: Loading festival info...")
       const data = await getFestivalInfo()
-      console.log("Header: Received festival info:", data)
       setFestivalInfo({
         ticketUrl: data?.ticketUrl || ""
       })

@@ -38,15 +38,13 @@ export function AdminNews() {
 
   const fetchArticles = useCallback(async () => {
     try {
-      console.log("NEWS: Fetching articles...")
       const response = await getNews()
-      console.log("NEWS: Articles fetched:", response.articles.length)
-      setArticles(response.articles)
+      setArticles((response as GetNewsResponse).articles)
     } catch (error) {
       console.error("NEWS: Error fetching articles:", error)
       toast({
         title: "Error",
-        description: (error as Error).message || "Failed to load articles",
+        description: "Failed to load articles",
         variant: "destructive"
       })
     } finally {
@@ -59,11 +57,6 @@ export function AdminNews() {
   }, [fetchArticles])
 
   const handleEdit = (article: NewsArticle) => {
-    console.log("NEWS: Editing article:", {
-      title: article.title,
-      hasImage: !!article.image,
-      imageLength: article.image ? article.image.length : 0
-    })
     setSelectedArticle(article)
     setValue("title", article.title)
     setValue("excerpt", article.excerpt)
@@ -74,7 +67,6 @@ export function AdminNews() {
   }
 
   const handleAdd = () => {
-    console.log("NEWS: Adding new article")
     setSelectedArticle(null)
     reset()
     setSelectedImageFile(null)
@@ -96,14 +88,12 @@ export function AdminNews() {
       }
 
       if (selectedArticle) {
-        console.log("NEWS: Updating existing article with ID:", selectedArticle._id)
         await updateNewsArticle(selectedArticle._id, formData)
         toast({
           title: "Success",
           description: "Article updated successfully"
         })
       } else {
-        console.log("NEWS: Creating new article")
         await createNewsArticle(formData)
         toast({
           title: "Success", 
@@ -127,7 +117,6 @@ export function AdminNews() {
 
   const handleDelete = async (articleId: string) => {
     try {
-      console.log("NEWS: Deleting article:", articleId)
       await deleteNewsArticle(articleId)
       toast({
         title: "Success",

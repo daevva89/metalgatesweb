@@ -10,6 +10,7 @@ import { FileUpload } from "@/components/ui/file-upload"
 import { useForm } from "react-hook-form"
 import { getArchive, createArchive, updateArchive, deleteArchive } from "@/api/festival"
 import { useToast } from "@/hooks/useToast"
+import { GetArchiveResponse } from "@/types/festival"
 
 interface ArchiveItem {
   _id: string
@@ -36,15 +37,13 @@ export function AdminArchive() {
 
   const fetchArchives = useCallback(async () => {
     try {
-      console.log("Fetching archives...")
       const response = await getArchive()
-      console.log("Archives fetched:", response.archives.length)
-      setArchives(response.archives)
+      setArchives((response as GetArchiveResponse).archives)
     } catch (error) {
       console.error("Error fetching archives:", error)
       toast({
         title: "Error",
-        description: (error as Error).message || "Failed to load archives",
+        description: "Failed to load archives",
         variant: "destructive"
       })
     } finally {
@@ -119,18 +118,17 @@ export function AdminArchive() {
 
   const handleDelete = async (archiveId: string) => {
     try {
-      console.log("Deleting archive:", archiveId)
       await deleteArchive(archiveId)
+      await fetchArchives()
       toast({
         title: "Success",
-        description: "Archive deleted successfully"
+        description: "Archive deleted successfully",
       })
-      fetchArchives()
     } catch (error) {
       console.error("Error deleting archive:", error)
       toast({
         title: "Error",
-        description: (error as Error).message || "Failed to delete archive",
+        description: "Failed to delete archive",
         variant: "destructive"
       })
     }

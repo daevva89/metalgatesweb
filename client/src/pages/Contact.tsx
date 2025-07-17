@@ -52,14 +52,12 @@ export function Contact() {
   const onSubmit = async (data: ContactFormData) => {
     setIsSubmitting(true)
     try {
-      console.log("Submitting contact form:", data)
       const response = await submitContactForm(data)
       toast({
         title: "Message sent!",
         description: (response as SubmitContactFormResponse).message,
       })
       reset()
-      console.log("Contact form submitted successfully")
     } catch (error) {
       console.error("Error submitting contact form:", error)
       toast({

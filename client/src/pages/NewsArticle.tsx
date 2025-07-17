@@ -31,10 +31,8 @@ export function NewsArticle() {
       if (!id) return
 
       try {
-        console.log("Fetching news article:", id)
         const response = await getNewsArticle(id)
         setArticle((response as GetNewsArticleResponse).article)
-        console.log("News article fetched successfully")
       } catch (error) {
         console.error("Error fetching news article:", error)
         toast({
@@ -58,7 +56,7 @@ export function NewsArticle() {
           url: window.location.href,
         })
       } catch (error) {
-        console.log("Error sharing:", error)
+        // Silent fail for share cancellation
       }
     } else {
       navigator.clipboard.writeText(window.location.href)

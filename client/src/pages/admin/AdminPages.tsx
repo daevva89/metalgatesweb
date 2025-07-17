@@ -84,11 +84,6 @@ export function AdminPages() {
   const loadHeroImage = async () => {
     try {
       const data = await getSiteAssets()
-      console.log("PAGES: Loaded site assets from API:", {
-        heroImage: data.assets?.heroImage ? "found" : "not found",
-        mobileHeroImage: data.assets?.mobileHeroImage ? "found" : "not found",
-        countdownDate: data.assets?.countdownDate ? "found" : "not found"
-      })
       
       if (data.assets?.heroImage || data.assets?.mobileHeroImage) {
         setPageContent(prev => ({
@@ -108,11 +103,6 @@ export function AdminPages() {
         const romanianTime = new Date(date.getTime() + (3 * 60 * 60 * 1000))
         const localDateTime = romanianTime.toISOString().slice(0, 16)
         setCountdownDate(localDateTime)
-        console.log("PAGES: Loaded countdown date:", {
-          original: data.assets.countdownDate,
-          romanianTime: romanianTime.toISOString(),
-          displayValue: localDateTime
-        })
       }
     } catch (error) {
       console.error("PAGES: Error loading site assets:", error)
@@ -183,34 +173,26 @@ export function AdminPages() {
   const handleSave = async (section: string) => {
     setSaving(true)
     try {
-      console.log("Saving page content:", section)
       
       if (section === 'home') {
         const formData = new FormData()
         
         if (selectedHeroImage) {
-          console.log("PAGES: Uploading new desktop hero image")
           formData.append("heroImage", selectedHeroImage)
         }
         
         if (selectedMobileHeroImage) {
-          console.log("PAGES: Uploading new mobile hero image")
           formData.append("mobileHeroImage", selectedMobileHeroImage)
         }
         
         if (countdownDate) {
           const inputDate = new Date(countdownDate)
           const utcDate = new Date(inputDate.getTime() - (3 * 60 * 60 * 1000))
-          console.log("PAGES: Updating countdown date:", {
-            input: countdownDate,
-            utcDate: utcDate.toISOString()
-          })
           formData.append("countdownDate", utcDate.toISOString())
         }
         
         if (formData.has("heroImage") || formData.has("mobileHeroImage") || formData.has("countdownDate")) {
           const response = await updateSiteAssets(formData)
-          console.log("PAGES: Site assets update response:", response)
           
           setPageContent(prev => ({
             ...prev,

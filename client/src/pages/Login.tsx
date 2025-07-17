@@ -39,17 +39,13 @@ export function Login() {
   const description = siteAssets.seoDescriptions?.login || "Login to the Metal Gates Festival admin panel.";
 
   const onSubmit = async (data: LoginFormData) => {
-    console.log('Login form submitted with:', { email: data.email })
     setLoading(true)
     try {
-      console.log('Calling login function...')
       await login(data.email, data.password)
-      console.log('Login successful, showing success toast')
       toast({
         title: "Success",
         description: "Login successful! Redirecting to admin panel...",
       })
-      console.log('Redirecting to admin dashboard...')
       navigate('/admin')
     } catch (error) {
       console.error('Login error:', error)

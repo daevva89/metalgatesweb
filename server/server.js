@@ -77,13 +77,6 @@ app.use("/api/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// Add request logging middleware
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-  console.log("Request headers:", req.headers);
-  next();
-});
-
 app.on("error", (error) => {
   console.error(`Server error: ${error.message}`);
   console.error(error.stack);
@@ -96,49 +89,17 @@ app.use("/api/auth", authRoutes);
 // User Routes
 app.use("/api/users", userRoutes);
 // Band/Lineup Routes
-console.log("Registering /api/lineup routes with bandRoutes");
-app.use(
-  "/api/lineup",
-  (req, res, next) => {
-    console.log(`Route middleware: ${req.method} /api/lineup${req.url}`);
-    next();
-  },
-  bandRoutes
-);
+app.use("/api/lineup", bandRoutes);
 // News Routes
 app.use("/api/news", newsRoutes);
 // Archive Routes
 app.use("/api/archives", archiveRoutes);
 // Festival Routes
-console.log("Registering /api/festivals routes with festivalRoutes");
-app.use(
-  "/api/festivals",
-  (req, res, next) => {
-    console.log(`Route middleware: ${req.method} /api/festivals${req.url}`);
-    next();
-  },
-  festivalRoutes
-);
+app.use("/api/festivals", festivalRoutes);
 // Contact Routes
-console.log("Registering /api/contact routes with contactRoutes");
-app.use(
-  "/api/contact",
-  (req, res, next) => {
-    console.log(`Route middleware: ${req.method} /api/contact${req.url}`);
-    next();
-  },
-  contactRoutes
-);
+app.use("/api/contact", contactRoutes);
 // Site Assets Routes
-console.log("Registering /api/site-assets routes with siteAssetsRoutes");
-app.use(
-  "/api/site-assets",
-  (req, res, next) => {
-    console.log(`Route middleware: ${req.method} /api/site-assets${req.url}`);
-    next();
-  },
-  siteAssetsRoutes
-);
+app.use("/api/site-assets", siteAssetsRoutes);
 
 // Visitor Routes
 app.use("/api/visits", visitRoutes);
@@ -175,7 +136,6 @@ if (process.env.NODE_ENV !== "production") {
 if (process.env.NODE_ENV === "production") {
   // Serve the static files from the React app
   const clientDistPath = path.join(__dirname, "../client/dist");
-  console.log(`Serving static files from: ${clientDistPath}`);
   app.use(express.static(clientDistPath));
 
   // Handles any requests that don't match the ones above by sending the React app with dynamic OG tags
@@ -185,13 +145,6 @@ if (process.env.NODE_ENV === "production") {
 
     // Check if this is a bot request that needs OG tags
     if (isBotRequest(userAgent)) {
-      console.log(
-        `Bot detected (${userAgent.substring(
-          0,
-          50
-        )}...), serving with dynamic OG tags for: ${req.originalUrl}`
-      );
-
       try {
         // Read the HTML file
         let html = fs.readFileSync(indexPath, "utf8");
@@ -226,7 +179,6 @@ if (process.env.NODE_ENV === "production") {
         // Inject our tags before the closing head tag
         html = html.replace("</head>", `${ogMetaTags}\n  </head>`);
 
-        console.log(`OG tags injected for ${req.originalUrl}: ${ogTags.title}`);
         res.send(html);
       } catch (error) {
         console.error("Error serving HTML with OG tags:", error);
@@ -235,7 +187,6 @@ if (process.env.NODE_ENV === "production") {
       }
     } else {
       // Regular user request - serve static file directly for better performance
-      console.log(`Regular user request for: ${req.originalUrl}`);
       res.sendFile(indexPath);
     }
   });
@@ -252,7 +203,6 @@ if (process.env.NODE_ENV !== "production") {
 
 // If no routes handled the request, it's a 404
 app.use((req, res, next) => {
-  console.log(`404 - Route not found: ${req.method} ${req.url}`);
   res.status(404).send("Page not found.");
 });
 
