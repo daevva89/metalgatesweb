@@ -25,6 +25,13 @@ import { AdminSettings } from "./pages/admin/AdminSettings"
 import { useState, useEffect } from "react"
 import { getFestivalInfo, logVisit, getSiteAssets } from "./api/festival"
 
+// Extend Window interface for Google Tag Manager
+declare global {
+  interface Window {
+    dataLayer: any[];
+  }
+}
+
 function App() {
   const [festivalActive, setFestivalActive] = useState(true)
   const [loading, setLoading] = useState(true)
@@ -34,32 +41,31 @@ function App() {
   }, [])
 
   useEffect(() => {
-    const fetchAssetsAndInjectScripts = async () => {
+    const initializeTracking = async () => {
       try {
         const data = await getSiteAssets();
         const assets = data.assets;
 
-        if (assets.gtmId) {
+        // Initialize Google Tag Manager if gtmId is provided
+        if (assets.gtmId && !window.dataLayer) {
+          window.dataLayer = window.dataLayer || [];
+          window.dataLayer.push({
+            'gtm.start': new Date().getTime(),
+            event: 'gtm.js'
+          });
+          
           const gtmScript = document.createElement('script');
-          gtmScript.innerHTML = `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-          })(window,document,'script','dataLayer','${assets.gtmId}');`;
+          gtmScript.async = true;
+          gtmScript.src = `https://www.googletagmanager.com/gtm.js?id=${assets.gtmId}`;
           document.head.appendChild(gtmScript);
-
-          const gtmNoScript = document.createElement('noscript');
-          gtmNoScript.innerHTML = `<iframe src="https://www.googletagmanager.com/ns.html?id=${assets.gtmId}"
-          height="0" width="0" style="display:none;visibility:hidden"></iframe>`;
-          document.body.insertBefore(gtmNoScript, document.body.firstChild);
         }
 
       } catch (error) {
-        console.error("Error fetching site assets for script injection:", error);
+        console.error("Error initializing tracking:", error);
       }
     };
 
-    fetchAssetsAndInjectScripts();
+    initializeTracking();
     logVisit();
   }, []);
 

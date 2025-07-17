@@ -14,6 +14,7 @@ const mongoose = require("mongoose");
 const express = require("express");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
+const helmet = require("helmet");
 const path = require("path");
 const fs = require("fs");
 const { generateOGTags, escapeHtml, isBotRequest } = require("./utils/ogTags");
@@ -44,6 +45,30 @@ app.enable("json spaces");
 app.enable("strict routing");
 
 app.use(cors({}));
+
+// Security headers
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://www.googletagmanager.com",
+        ],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https:", "blob:"],
+        connectSrc: ["'self'", "https://www.google-analytics.com"],
+        fontSrc: ["'self'", "https:", "data:"],
+        objectSrc: ["'none'"],
+        mediaSrc: ["'self'"],
+        frameSrc: ["'self'", "https://www.googletagmanager.com"],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+  })
+);
 
 // Serve uploaded files statically
 app.use("/api/uploads", express.static(path.join(__dirname, "uploads")));
