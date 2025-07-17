@@ -26,7 +26,7 @@ interface LoginFormData {
 export function Login() {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login, user } = useAuth()
   const { toast } = useToast()
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>()
   const [siteAssets, setSiteAssets] = useState<SiteAssets>({});
@@ -34,6 +34,13 @@ export function Login() {
   useEffect(() => {
     getSiteAssets().then(data => setSiteAssets(data.assets || {}));
   }, []);
+
+  // Redirect if user is already authenticated
+  useEffect(() => {
+    if (user) {
+      navigate('/admin', { replace: true })
+    }
+  }, [user, navigate]);
 
   const title = siteAssets.seoTitles?.login || "Login - Metal Gates Festival";
   const description = siteAssets.seoDescriptions?.login || "Login to the Metal Gates Festival admin panel.";
@@ -46,7 +53,7 @@ export function Login() {
         title: "Success",
         description: "Login successful! Redirecting to admin panel...",
       })
-      navigate('/admin')
+      // Navigation will be handled by useEffect when user state updates
     } catch (error) {
       console.error('Login error:', error)
       toast({

@@ -1,5 +1,22 @@
 import api from './api';
 
+// TypeScript interfaces for API responses
+interface User {
+  _id: string;
+  email: string;
+  role: string;
+}
+
+interface AuthResponse {
+  user: User;
+  accessToken: string;
+  refreshToken: string;
+}
+
+interface UserProfileResponse {
+  user: User;
+}
+
 // Add logs to auth API functions to track authentication calls
 // Description: Login user with email and password
 // Endpoint: POST /api/auth/login
@@ -9,15 +26,16 @@ export const loginUser = async (email: string, password: string): Promise<AuthRe
   try {
     const response = await api.post('/api/auth/login', { email, password });
     
-    // Store tokens in localStorage
-    if (response.data.accessToken) {
-      localStorage.setItem('accessToken', response.data.accessToken);
+    // Store tokens in localStorage - fix the path to access nested data
+    if (response.data.data.accessToken) {
+      localStorage.setItem('accessToken', response.data.data.accessToken);
     }
-    if (response.data.refreshToken) {
-      localStorage.setItem('refreshToken', response.data.refreshToken);
+    if (response.data.data.refreshToken) {
+      localStorage.setItem('refreshToken', response.data.data.refreshToken);
     }
     
-    return response.data;
+    // Return the nested data object that contains user, accessToken, refreshToken
+    return response.data.data;
   } catch (error: unknown) {
     const err = error as { response?: { data?: { error?: string } }; message?: string };
     throw new Error(err?.response?.data?.error || err.message || "Unknown error");
@@ -32,12 +50,16 @@ export const registerUser = async (email: string, password: string): Promise<Aut
   try {
     const response = await api.post('/api/auth/register', { email, password });
     
-    // Store access token in localStorage
-    if (response.data.accessToken) {
-      localStorage.setItem('accessToken', response.data.accessToken);
+    // Store access token in localStorage - fix the path to access nested data
+    if (response.data.data.accessToken) {
+      localStorage.setItem('accessToken', response.data.data.accessToken);
+    }
+    if (response.data.data.refreshToken) {
+      localStorage.setItem('refreshToken', response.data.data.refreshToken);
     }
     
-    return response.data;
+    // Return the nested data object
+    return response.data.data;
   } catch (error: unknown) {
     const err = error as { response?: { data?: { error?: string } }; message?: string };
     throw new Error(err?.response?.data?.error || err.message || "Unknown error");
@@ -51,7 +73,8 @@ export const registerUser = async (email: string, password: string): Promise<Aut
 export const getCurrentUser = async (): Promise<UserProfileResponse> => {
   try {
     const response = await api.get('/api/auth/me');
-    return response.data;
+    // Return the nested data object
+    return response.data.data || response.data;
   } catch (error: unknown) {
     const err = error as { response?: { data?: { error?: string } }; message?: string };
     throw new Error(err?.response?.data?.error || err.message || "Unknown error");
