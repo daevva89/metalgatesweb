@@ -10,9 +10,8 @@ class ContactService {
       // Send email notification
       try {
         await this.sendContactEmail(savedContact);
-        console.log("Contact form email sent successfully");
       } catch (emailError) {
-        console.error("Failed to send contact form email:", emailError);
+        console.warn("Failed to send contact form email:", emailError.message);
         // Continue without failing - contact form submission should still work
       }
 
@@ -23,15 +22,6 @@ class ContactService {
   }
 
   async sendContactEmail(contactData) {
-    // Debug: log environment variables
-    console.log("Email config debug:", {
-      EMAIL_HOST: process.env.EMAIL_HOST,
-      EMAIL_USER: process.env.EMAIL_USER,
-      EMAIL_PASS: process.env.EMAIL_PASS ? "SET" : "NOT SET",
-      EMAIL_FROM: process.env.EMAIL_FROM,
-      CONTACT_FORM_TO_EMAIL: process.env.CONTACT_FORM_TO_EMAIL,
-    });
-
     // Check if email configuration is available
     if (
       !process.env.EMAIL_HOST ||
