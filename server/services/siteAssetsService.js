@@ -1,5 +1,5 @@
 const SiteAssets = require("../models/SiteAssets");
-const ImageCleanupUtil = require("../utils/ImageCleanupUtil");
+const ImageCleanupUtil = require("../utils/imageCleanup");
 
 class SiteAssetsService {
   async getSiteAssets() {
