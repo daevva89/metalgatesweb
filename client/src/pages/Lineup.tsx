@@ -3,7 +3,7 @@ import { FaGlobe, FaMapMarkerAlt } from "react-icons/fa"
 import { SiSpotify, SiFacebook, SiInstagram, SiYoutube, SiTiktok, SiBandcamp } from "react-icons/si"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { getLineup } from "@/api/festival"
 import { useToast } from "@/hooks/useToast"
 import { Helmet } from "react-helmet-async";
@@ -116,6 +116,9 @@ export function Lineup() {
             <>
               <DialogHeader>
                 <DialogTitle className="text-2xl font-bold">{selectedBand.name}</DialogTitle>
+                <DialogDescription>
+                  {selectedBand.genre ? `${selectedBand.genre} band` : 'Band'} from {selectedBand.country}. View their biography, social links, and listen to their music.
+                </DialogDescription>
               </DialogHeader>
               
               <div className="grid md:grid-cols-2 gap-6">
@@ -204,7 +207,8 @@ export function Lineup() {
                           width="100%"
                           height="100%"
                           frameBorder="0"
-                          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                          allow="encrypted-media; autoplay; clipboard-write; fullscreen; picture-in-picture"
+                          referrerPolicy="strict-origin-when-cross-origin"
                           loading="lazy"
                           title={`${selectedBand.name} on Spotify`}
                         />

@@ -9,7 +9,7 @@ import { SiteAssets } from "@/types/SiteAssets";
 export const getFestivalInfo = async (): Promise<Festival> => {
   try {
     const response = await api.get('/api/festivals/active');
-    return response.data.data;
+    return response.data.data.festival;
   } catch (error: unknown) {
     const err = error as { response?: { data?: { error?: string } }; message?: string };
     throw new Error(err?.response?.data?.error || err.message || "Unknown error");
