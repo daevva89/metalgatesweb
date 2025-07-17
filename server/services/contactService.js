@@ -9,7 +9,6 @@ class ContactService {
   // Create a new contact submission
   async createContact(contactData) {
     try {
-      console.log("ContactService: Creating new contact submission:", {
         name: contactData.name,
         email: contactData.email,
         subject: contactData.subject,
@@ -19,7 +18,6 @@ class ContactService {
       const savedContact = await contact.save();
       await this.sendContactEmail(savedContact);
 
-      console.log(
         "ContactService: Contact submission created successfully with ID:",
         savedContact._id
       );
@@ -35,7 +33,6 @@ class ContactService {
 
   async sendContactEmail(contact) {
     try {
-      console.log(`Sending contact form email for ${contact.name}`);
       const mailOptions = {
         from: emailFrom,
         to: contactFormToEmail,
@@ -51,7 +48,6 @@ class ContactService {
                <p>${contact.message}</p>`,
       };
       await transporter.sendMail(mailOptions);
-      console.log("Contact form email sent successfully.");
     } catch (error) {
       console.error("Error sending contact form email:", error);
       // We don't rethrow the error here because the contact form was already successfully submitted.
@@ -62,13 +58,11 @@ class ContactService {
   // Get all contact submissions
   async getAllContacts() {
     try {
-      console.log("ContactService: Fetching all contact submissions");
 
       const contacts = await Contact.find()
         .sort({ createdAt: -1 }) // Newest first
         .lean();
 
-      console.log(
         "ContactService: Retrieved",
         contacts.length,
         "contact submissions"
@@ -86,7 +80,6 @@ class ContactService {
   // Get contact submission by ID
   async getContactById(contactId) {
     try {
-      console.log(
         "ContactService: Fetching contact submission by ID:",
         contactId
       );
@@ -94,14 +87,12 @@ class ContactService {
       const contact = await Contact.findById(contactId).lean();
 
       if (!contact) {
-        console.log(
           "ContactService: Contact submission not found with ID:",
           contactId
         );
         return null;
       }
 
-      console.log("ContactService: Contact submission found:", contact._id);
       return contact;
     } catch (error) {
       console.error(
@@ -115,7 +106,6 @@ class ContactService {
   // Update contact status
   async updateContactStatus(contactId, status) {
     try {
-      console.log(
         "ContactService: Updating contact status:",
         contactId,
         "to",
@@ -129,14 +119,12 @@ class ContactService {
       );
 
       if (!contact) {
-        console.log(
           "ContactService: Contact submission not found for status update:",
           contactId
         );
         return null;
       }
 
-      console.log("ContactService: Contact status updated successfully");
       return contact;
     } catch (error) {
       console.error("ContactService: Error updating contact status:", error);
@@ -147,19 +135,16 @@ class ContactService {
   // Delete contact submission
   async deleteContact(contactId) {
     try {
-      console.log("ContactService: Deleting contact submission:", contactId);
 
       const contact = await Contact.findByIdAndDelete(contactId);
 
       if (!contact) {
-        console.log(
           "ContactService: Contact submission not found for deletion:",
           contactId
         );
         return null;
       }
 
-      console.log("ContactService: Contact submission deleted successfully");
       return contact;
     } catch (error) {
       console.error(

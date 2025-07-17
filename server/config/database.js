@@ -6,7 +6,6 @@ const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.DATABASE_URL);
 
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
 
     // Error handling after initial connection
     mongoose.connection.on("error", (err) => {
@@ -25,7 +24,6 @@ const connectDB = async () => {
     process.on("SIGINT", async () => {
       try {
         await mongoose.connection.close();
-        console.log("MongoDB connection closed through app termination");
         process.exit(0);
       } catch (err) {
         console.error("Error during MongoDB shutdown:", err);
@@ -42,7 +40,6 @@ const ensureActiveFestivalExists = async () => {
   try {
     const activeFestival = await Festival.findOne({ isActive: true });
     if (!activeFestival) {
-      console.log("No active festival found. Creating a default one.");
       const defaultFestival = new Festival({
         name: "Metal Gates Festival 2025",
         dates: "September 26-27, 2025",
@@ -53,7 +50,6 @@ const ensureActiveFestivalExists = async () => {
         isActive: true,
       });
       await defaultFestival.save();
-      console.log("Default active festival created.");
     }
   } catch (error) {
     console.error("Error ensuring active festival exists:", error);

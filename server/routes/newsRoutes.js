@@ -6,10 +6,8 @@ const upload = require("../utils/upload");
 
 // GET /api/news - Get all articles
 router.get("/", async (req, res) => {
-  console.log("GET /api/news - Fetching all articles");
   try {
     const articles = await newsService.getAllArticles();
-    console.log(
       `GET /api/news - Successfully fetched ${articles.length} articles`
     );
     res.json({
@@ -28,10 +26,8 @@ router.get("/", async (req, res) => {
 
 // GET /api/news/:id - Get single article
 router.get("/:id", async (req, res) => {
-  console.log("GET /api/news/:id - Fetching article with ID:", req.params.id);
   try {
     const article = await newsService.getArticleById(req.params.id);
-    console.log(
       "GET /api/news/:id - Successfully fetched article:",
       article.title
     );
@@ -52,13 +48,11 @@ router.get("/:id", async (req, res) => {
 
 // POST /api/news - Create new article (admin only)
 router.post("/", auth, upload.single("image"), async (req, res) => {
-  console.log("POST /api/news - Creating new article by user:", req.user.email);
 
   try {
     const { title, excerpt, content, publishedAt } = req.body;
 
     if (!title || !excerpt || !content) {
-      console.log("POST /api/news - Missing required fields");
       return res.status(400).json({
         success: false,
         error: "Title, excerpt, and content are required",
@@ -77,7 +71,6 @@ router.post("/", auth, upload.single("image"), async (req, res) => {
     }
 
     const article = await newsService.createArticle(articleData);
-    console.log(
       "POST /api/news - Article created successfully:",
       article.title
     );
@@ -98,7 +91,6 @@ router.post("/", auth, upload.single("image"), async (req, res) => {
 
 // PUT /api/news/:id - Update article (admin only)
 router.put("/:id", auth, upload.single("image"), async (req, res) => {
-  console.log("PUT /api/news/:id - Updating article with ID:", req.params.id);
 
   try {
     const { title, excerpt, content, publishedAt } = req.body;
@@ -121,13 +113,11 @@ router.put("/:id", auth, upload.single("image"), async (req, res) => {
       }
     });
 
-    console.log(
       "PUT /api/news/:id - Update data:",
       JSON.stringify(updateData, null, 2)
     );
 
     const article = await newsService.updateArticle(req.params.id, updateData);
-    console.log(
       "PUT /api/news/:id - Article updated successfully:",
       article.title
     );
@@ -149,13 +139,11 @@ router.put("/:id", auth, upload.single("image"), async (req, res) => {
 
 // DELETE /api/news/:id - Delete article (admin only)
 router.delete("/:id", auth, async (req, res) => {
-  console.log(
     "DELETE /api/news/:id - Deleting article with ID:",
     req.params.id
   );
   try {
     const article = await newsService.deleteArticle(req.params.id);
-    console.log(
       "DELETE /api/news/:id - Article deleted successfully:",
       article.title
     );

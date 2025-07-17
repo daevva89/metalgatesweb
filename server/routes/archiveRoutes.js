@@ -6,10 +6,8 @@ const upload = require("../utils/upload");
 
 // GET /api/archives - Get all archives
 router.get("/", async (req, res) => {
-  console.log("GET /api/archives - Fetching all archives");
   try {
     const archives = await archiveService.getAllArchives();
-    console.log(
       `GET /api/archives - Successfully fetched ${archives.length} archives`
     );
     res.json({
@@ -28,13 +26,11 @@ router.get("/", async (req, res) => {
 
 // GET /api/archives/:id - Get single archive
 router.get("/:id", async (req, res) => {
-  console.log(
     "GET /api/archives/:id - Fetching archive with ID:",
     req.params.id
   );
   try {
     const archive = await archiveService.getArchiveById(req.params.id);
-    console.log(
       "GET /api/archives/:id - Successfully fetched archive for year:",
       archive.year
     );
@@ -101,13 +97,11 @@ router.put("/:id", auth, upload.single("poster"), async (req, res) => {
 
 // DELETE /api/archives/:id - Delete archive (admin only)
 router.delete("/:id", auth, async (req, res) => {
-  console.log(
     "DELETE /api/archives/:id - Deleting archive with ID:",
     req.params.id
   );
   try {
     const archive = await archiveService.deleteArchive(req.params.id);
-    console.log(
       "DELETE /api/archives/:id - Archive deleted successfully for year:",
       archive.year
     );

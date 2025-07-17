@@ -84,7 +84,6 @@ async function generateOGTags(url, baseUrl) {
           ogTags.type = "article";
         }
       } catch (error) {
-        console.log("OGTags: Could not fetch article for ID:", articleId);
         // Keep default tags if article not found
       }
     } else if (url.includes("/news")) {

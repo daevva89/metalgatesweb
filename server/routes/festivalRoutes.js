@@ -5,10 +5,8 @@ const auth = require("./middleware/auth");
 
 // GET /api/festivals - Get all festivals
 router.get("/", async (req, res) => {
-  console.log("GET /api/festivals - Fetching all festivals");
   try {
     const festivals = await festivalService.getAllFestivals();
-    console.log(
       `GET /api/festivals - Successfully fetched ${festivals.length} festivals`
     );
     res.json({
@@ -27,10 +25,8 @@ router.get("/", async (req, res) => {
 
 // GET /api/festivals/active - Get active festival info
 router.get("/active", async (req, res) => {
-  console.log("GET /api/festivals/active - Fetching active festival");
   try {
     const festival = await festivalService.getActiveFestival();
-    console.log(
       "GET /api/festivals/active - Successfully fetched active festival:",
       festival.name
     );
@@ -51,7 +47,6 @@ router.get("/active", async (req, res) => {
       countdown: countdown,
     };
 
-    console.log(
       "GET /api/festivals/active - Sending festival info:",
       JSON.stringify(festivalInfo, null, 2)
     );
@@ -72,13 +67,11 @@ router.get("/active", async (req, res) => {
 
 // GET /api/festivals/:id - Get single festival
 router.get("/:id", async (req, res) => {
-  console.log(
     "GET /api/festivals/:id - Fetching festival with ID:",
     req.params.id
   );
   try {
     const festival = await festivalService.getFestivalById(req.params.id);
-    console.log(
       "GET /api/festivals/:id - Successfully fetched festival:",
       festival.name
     );
@@ -99,11 +92,9 @@ router.get("/:id", async (req, res) => {
 
 // POST /api/festivals - Create new festival (admin only)
 router.post("/", auth, async (req, res) => {
-  console.log(
     "POST /api/festivals - Creating new festival by user:",
     req.user.email
   );
-  console.log(
     "POST /api/festivals - Request body received:",
     JSON.stringify(req.body, null, 2)
   );
@@ -112,7 +103,6 @@ router.post("/", auth, async (req, res) => {
     const { name, dates, description, location, ticketUrl, isActive } =
       req.body;
 
-    console.log("POST /api/festivals - Extracted fields:", {
       name: name,
       dates: dates,
       description: description ? "present" : "missing",
@@ -122,7 +112,6 @@ router.post("/", auth, async (req, res) => {
     });
 
     if (!name || !dates || !description || !location) {
-      console.log("POST /api/festivals - Missing required fields");
       return res.status(400).json({
         success: false,
         error: "Name, dates, description, and location are required",
@@ -138,13 +127,11 @@ router.post("/", auth, async (req, res) => {
       isActive: isActive !== undefined ? isActive : true,
     };
 
-    console.log(
       "POST /api/festivals - Festival data to save:",
       JSON.stringify(festivalData, null, 2)
     );
 
     const festival = await festivalService.createFestival(festivalData);
-    console.log(
       "POST /api/festivals - Festival created successfully:",
       festival.name
     );
@@ -165,11 +152,9 @@ router.post("/", auth, async (req, res) => {
 
 // PUT /api/festivals/:id - Update festival (admin only)
 router.put("/:id", auth, async (req, res) => {
-  console.log(
     "PUT /api/festivals/:id - Updating festival with ID:",
     req.params.id
   );
-  console.log(
     "PUT /api/festivals/:id - Request body received:",
     JSON.stringify(req.body, null, 2)
   );
@@ -187,7 +172,6 @@ router.put("/:id", auth, async (req, res) => {
       isActive: isActive !== undefined ? isActive : true,
     };
 
-    console.log(
       "PUT /api/festivals/:id - Update data:",
       JSON.stringify(updateData, null, 2)
     );
@@ -196,7 +180,6 @@ router.put("/:id", auth, async (req, res) => {
       req.params.id,
       updateData
     );
-    console.log(
       "PUT /api/festivals/:id - Festival updated successfully:",
       festival.name
     );
@@ -218,13 +201,11 @@ router.put("/:id", auth, async (req, res) => {
 
 // DELETE /api/festivals/:id - Delete festival (admin only)
 router.delete("/:id", auth, async (req, res) => {
-  console.log(
     "DELETE /api/festivals/:id - Deleting festival with ID:",
     req.params.id
   );
   try {
     const festival = await festivalService.deleteFestival(req.params.id);
-    console.log(
       "DELETE /api/festivals/:id - Festival deleted successfully:",
       festival.name
     );

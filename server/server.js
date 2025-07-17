@@ -4,7 +4,6 @@ require("express-async-errors");
 
 // Disable console logs in production
 if (process.env.NODE_ENV === "production") {
-  console.log = () => {};
   console.info = () => {};
   console.warn = () => {};
   // Keep console.error for critical PM2 logs
@@ -221,7 +220,6 @@ const startServer = async () => {
     await connectDB();
     await ensureActiveFestivalExists();
     app.listen(port, () => {
-      console.log(`Server running at http://localhost:${port}`);
     });
   } catch (error) {
     console.error("Failed to start server:", error);

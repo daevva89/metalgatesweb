@@ -5,14 +5,11 @@ const auth = require('./middleware/auth');
 
 // POST /api/users - Create a new user (admin only)
 router.post('/', auth, async (req, res) => {
-  console.log('POST /api/users - Creating new user by admin:', req.user.email);
-  console.log('POST /api/users - Request body:', JSON.stringify(req.body, null, 2));
 
   try {
     const { email, password, role } = req.body;
 
     if (!email || !password) {
-      console.log('POST /api/users - Missing required fields');
       return res.status(400).json({
         success: false,
         error: 'Email and password are required'
@@ -25,9 +22,7 @@ router.post('/', auth, async (req, res) => {
       role: role || 'user'
     };
 
-    console.log('POST /api/users - Creating user with data:', { email, role: userData.role });
     const user = await userService.createUser(userData);
-    console.log('POST /api/users - User created successfully with ID:', user._id);
 
     res.status(201).json({
       success: true,
@@ -53,19 +48,16 @@ router.post('/', auth, async (req, res) => {
 
 // GET /api/users/me - Get current user profile
 router.get('/me', auth, async (req, res) => {
-  console.log('GET /api/users/me - Getting current user profile for:', req.user.email);
   try {
     const user = await userService.getUserById(req.user._id);
     
     if (!user) {
-      console.log('GET /api/users/me - User not found with ID:', req.user._id);
       return res.status(404).json({
         success: false,
         error: 'User not found'
       });
     }
 
-    console.log('GET /api/users/me - User profile retrieved successfully');
     res.json({
       success: true,
       data: {
@@ -91,11 +83,9 @@ router.get('/me', auth, async (req, res) => {
 
 // GET /api/users - Get all users (admin only)
 router.get('/', auth, async (req, res) => {
-  console.log('GET /api/users - Getting all users by admin:', req.user.email);
   try {
     // Check if user is admin
     if (req.user.role !== 'admin') {
-      console.log('GET /api/users - Access denied, user is not admin');
       return res.status(403).json({
         success: false,
         error: 'Access denied. Admin role required.'
@@ -103,7 +93,6 @@ router.get('/', auth, async (req, res) => {
     }
 
     const users = await userService.getAllUsers();
-    console.log(`GET /api/users - Successfully retrieved ${users.length} users`);
     
     res.json({
       success: true,

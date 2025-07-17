@@ -6,10 +6,8 @@ const upload = require("../utils/upload");
 
 // Get site assets (public endpoint)
 router.get("/", async (req, res) => {
-  console.log("SiteAssetsRoutes: GET / - Getting site assets");
   try {
     const assets = await siteAssetsService.getSiteAssets();
-    console.log("SiteAssetsRoutes: Site assets retrieved successfully");
     res.json({
       success: true,
       data: {
@@ -52,7 +50,6 @@ router.put(
     { name: "mobileHeroImage", maxCount: 1 },
   ]),
   async (req, res) => {
-    console.log("SiteAssetsRoutes: PUT / - Updating site assets");
 
     try {
       if (req.user.role !== "admin") {
@@ -79,7 +76,6 @@ router.put(
       const updatedAssets = await siteAssetsService.updateSiteAssets(
         updateData
       );
-      console.log("SiteAssetsRoutes: Site assets updated successfully");
 
       res.json({
         success: true,
@@ -116,11 +112,9 @@ router.put(
 
 // Update logo only (admin only)
 router.put("/logo", auth, async (req, res) => {
-  console.log("SiteAssetsRoutes: PUT /logo - Updating logo");
   try {
     // Check if user is admin
     if (req.user.role !== "admin") {
-      console.log("SiteAssetsRoutes: Access denied - user is not admin");
       return res.status(403).json({
         success: false,
         error: "Access denied. Admin role required.",
@@ -128,10 +122,8 @@ router.put("/logo", auth, async (req, res) => {
     }
 
     const { logo } = req.body;
-    console.log("SiteAssetsRoutes: Logo data received:", !!logo);
 
     const updatedAssets = await siteAssetsService.updateLogo(logo);
-    console.log("SiteAssetsRoutes: Logo updated successfully");
 
     res.json({
       success: true,
@@ -167,11 +159,9 @@ router.put("/logo", auth, async (req, res) => {
 
 // Update hero image only (admin only)
 router.put("/hero", auth, async (req, res) => {
-  console.log("SiteAssetsRoutes: PUT /hero - Updating hero image");
   try {
     // Check if user is admin
     if (req.user.role !== "admin") {
-      console.log("SiteAssetsRoutes: Access denied - user is not admin");
       return res.status(403).json({
         success: false,
         error: "Access denied. Admin role required.",
@@ -179,10 +169,8 @@ router.put("/hero", auth, async (req, res) => {
     }
 
     const { heroImage } = req.body;
-    console.log("SiteAssetsRoutes: Hero image data received:", !!heroImage);
 
     const updatedAssets = await siteAssetsService.updateHeroImage(heroImage);
-    console.log("SiteAssetsRoutes: Hero image updated successfully");
 
     res.json({
       success: true,
@@ -218,11 +206,9 @@ router.put("/hero", auth, async (req, res) => {
 
 // Remove logo (admin only)
 router.delete("/logo", auth, async (req, res) => {
-  console.log("SiteAssetsRoutes: DELETE /logo - Removing logo");
   try {
     // Check if user is admin
     if (req.user.role !== "admin") {
-      console.log("SiteAssetsRoutes: Access denied - user is not admin");
       return res.status(403).json({
         success: false,
         error: "Access denied. Admin role required.",
@@ -230,7 +216,6 @@ router.delete("/logo", auth, async (req, res) => {
     }
 
     const updatedAssets = await siteAssetsService.removeLogo();
-    console.log("SiteAssetsRoutes: Logo removed successfully");
 
     res.json({
       success: true,
@@ -266,11 +251,9 @@ router.delete("/logo", auth, async (req, res) => {
 
 // Remove hero image (admin only)
 router.delete("/hero", auth, async (req, res) => {
-  console.log("SiteAssetsRoutes: DELETE /hero - Removing hero image");
   try {
     // Check if user is admin
     if (req.user.role !== "admin") {
-      console.log("SiteAssetsRoutes: Access denied - user is not admin");
       return res.status(403).json({
         success: false,
         error: "Access denied. Admin role required.",
@@ -278,7 +261,6 @@ router.delete("/hero", auth, async (req, res) => {
     }
 
     const updatedAssets = await siteAssetsService.removeHeroImage();
-    console.log("SiteAssetsRoutes: Hero image removed successfully");
 
     res.json({
       success: true,

@@ -14,8 +14,6 @@ const createAdmin = async () => {
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      console.log(`User already exists with email: ${email}`);
-      console.log(`User ID: ${existingUser._id}`);
       return;
     }
 
@@ -32,11 +30,6 @@ const createAdmin = async () => {
 
     const savedUser = await adminUser.save();
 
-    console.log("Admin user created successfully!");
-    console.log("Email:", savedUser.email);
-    console.log("User ID:", savedUser._id);
-    console.log("Password:", password);
-    console.log("\nPlease change the password after first login!");
   } catch (error) {
     console.error("Error creating admin user:", error);
   } finally {
