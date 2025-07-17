@@ -52,7 +52,7 @@ export function AdminLineup() {
   const { register, handleSubmit, reset, setValue } = useForm<BandFormData>()
   const { toast } = useToast()
 
-  const fetchBands = async () => {
+  const fetchBands = useCallback(async () => {
     try {
       const response = await getLineup()
       
@@ -71,7 +71,7 @@ export function AdminLineup() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [toast])
 
   useEffect(() => {
     fetchBands()

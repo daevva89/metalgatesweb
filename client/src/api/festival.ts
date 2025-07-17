@@ -472,7 +472,7 @@ export const updateInfoPage = async (infoPageData: InfoPageData): Promise<ApiRes
 export const logVisit = async () => {
   try {
     await api.post('/api/visits');
-  } catch (error: unknown) {
+  } catch {
     // Fail silently so it doesn't impact user experience
   }
 };

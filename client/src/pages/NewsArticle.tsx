@@ -55,7 +55,7 @@ export function NewsArticle() {
           title: article?.title,
           url: window.location.href,
         })
-      } catch (error) {
+      } catch {
         // Silent fail for share cancellation
       }
     } else {

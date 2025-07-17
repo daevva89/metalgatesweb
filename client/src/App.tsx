@@ -28,7 +28,7 @@ import { getFestivalInfo, logVisit, getSiteAssets } from "./api/festival"
 // Extend Window interface for Google Tag Manager
 declare global {
   interface Window {
-    dataLayer: any[];
+    dataLayer: Record<string, unknown>[];
   }
 }
 
