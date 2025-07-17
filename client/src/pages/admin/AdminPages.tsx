@@ -279,7 +279,7 @@ export function AdminPages() {
                 <Label htmlFor="heroImage">Hero Background Image (Desktop)</Label>
                 <FileUpload
                   onFileSelect={setSelectedHeroImage}
-                  currentImage={pageContent.home.heroImage}
+                  currentImage={pageContent.home.heroImage ? (pageContent.home.heroImage.startsWith('/api/') ? pageContent.home.heroImage : `/api/${pageContent.home.heroImage}`) : undefined}
                   description="Upload desktop hero image"
                   accept="image/*"
                   maxSize={10}
@@ -290,7 +290,7 @@ export function AdminPages() {
                 <Label htmlFor="mobileHeroImage">Hero Background Image (Mobile)</Label>
                 <FileUpload
                   onFileSelect={setSelectedMobileHeroImage}
-                  currentImage={pageContent.home.mobileHeroImage}
+                  currentImage={pageContent.home.mobileHeroImage ? (pageContent.home.mobileHeroImage.startsWith('/api/') ? pageContent.home.mobileHeroImage : `/api/${pageContent.home.mobileHeroImage}`) : undefined}
                   description="Upload mobile hero image"
                   accept="image/*"
                   maxSize={10}

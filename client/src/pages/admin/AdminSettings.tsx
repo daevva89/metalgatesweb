@@ -427,7 +427,7 @@ export function AdminSettings() {
                 <Label>Logo</Label>
                 <FileUpload
                   onFileSelect={(file) => handleFileUpdate("logo", file)}
-                  currentImage={siteAssets.logo}
+                  currentImage={siteAssets.logo ? (siteAssets.logo.startsWith('/api/') ? siteAssets.logo : `/api/${siteAssets.logo}`) : undefined}
                   description="Upload Logo"
                 />
               </div>
@@ -435,7 +435,7 @@ export function AdminSettings() {
                 <Label>Hero Image</Label>
                 <FileUpload
                   onFileSelect={(file) => handleFileUpdate("heroImage", file)}
-                  currentImage={siteAssets.heroImage}
+                  currentImage={siteAssets.heroImage ? (siteAssets.heroImage.startsWith('/api/') ? siteAssets.heroImage : `/api/${siteAssets.heroImage}`) : undefined}
                   description="Upload Hero Image"
                 />
               </div>
@@ -443,7 +443,7 @@ export function AdminSettings() {
                 <Label>Mobile Hero Image</Label>
                 <FileUpload
                   onFileSelect={(file) => handleFileUpdate("mobileHeroImage", file)}
-                  currentImage={siteAssets.mobileHeroImage}
+                  currentImage={siteAssets.mobileHeroImage ? (siteAssets.mobileHeroImage.startsWith('/api/') ? siteAssets.mobileHeroImage : `/api/${siteAssets.mobileHeroImage}`) : undefined}
                   description="Upload Mobile Hero"
                 />
               </div>

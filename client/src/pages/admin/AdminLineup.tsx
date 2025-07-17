@@ -245,7 +245,7 @@ export function AdminLineup() {
                 onFileSelect={setSelectedImageFile}
                 currentImage={
                   selectedBand?.image
-                    ? selectedBand.image
+                    ? (selectedBand.image.startsWith('/api/') ? selectedBand.image : `/api/${selectedBand.image}`)
                     : null
                 }
               />
