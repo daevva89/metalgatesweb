@@ -7,17 +7,15 @@ class FestivalService {
       const savedFestival = await festival.save();
       return savedFestival;
     } catch (error) {
-      console.error("FestivalService: Error creating festival:", error);
       throw error;
     }
   }
 
   async getAllFestivals() {
     try {
-      const festivals = await Festival.find().sort({ createdAt: -1 });
+      const festivals = await Festival.find().sort({ year: -1 });
       return festivals;
     } catch (error) {
-      console.error("FestivalService: Error fetching festivals:", error);
       throw error;
     }
   }
@@ -30,7 +28,6 @@ class FestivalService {
       }
       return festival;
     } catch (error) {
-      console.error("FestivalService: Error fetching active festival:", error);
       throw error;
     }
   }
@@ -43,7 +40,6 @@ class FestivalService {
       }
       return festival;
     } catch (error) {
-      console.error("FestivalService: Error fetching festival by ID:", error);
       throw error;
     }
   }
@@ -60,7 +56,6 @@ class FestivalService {
       }
       return festival;
     } catch (error) {
-      console.error("FestivalService: Error updating festival:", error);
       throw error;
     }
   }
@@ -73,7 +68,27 @@ class FestivalService {
       }
       return festival;
     } catch (error) {
-      console.error("FestivalService: Error deleting festival:", error);
+      throw error;
+    }
+  }
+
+  async setActiveFestival(festivalId) {
+    try {
+      // First, set all festivals to inactive
+      await Festival.updateMany({}, { isActive: false });
+
+      // Then set the specified festival to active
+      const festival = await Festival.findByIdAndUpdate(
+        festivalId,
+        { isActive: true },
+        { new: true, runValidators: true }
+      );
+
+      if (!festival) {
+        throw new Error("Festival not found");
+      }
+      return festival;
+    } catch (error) {
       throw error;
     }
   }

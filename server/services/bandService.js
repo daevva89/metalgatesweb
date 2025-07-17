@@ -9,17 +9,15 @@ class BandService {
       const savedBand = await band.save();
       return savedBand;
     } catch (error) {
-      console.error("BandService: Error creating band:", error);
       throw error;
     }
   }
 
   async getAllBands() {
     try {
-      const bands = await Band.find().sort({ order: 1, name: 1 });
+      const bands = await Band.find().sort({ createdAt: -1 });
       return bands;
     } catch (error) {
-      console.error("BandService: Error fetching bands:", error);
       throw error;
     }
   }
@@ -32,30 +30,15 @@ class BandService {
       }
       return band;
     } catch (error) {
-      console.error("BandService: Error fetching band:", error);
       throw error;
     }
   }
 
   async updateBand(bandId, updateData) {
     try {
-      const existingBand = await Band.findById(bandId);
-      if (!existingBand) {
-        throw new Error("Band not found");
-      }
-
-      let imagePath = existingBand.image;
-
-      if (updateData.hasOwnProperty("image")) {
-        if (updateData.image && updateData.image.trim() !== "") {
-          if (updateData.image.startsWith("/api/")) {
-            imagePath = updateData.image.replace("/api/", "");
-          } else {
-            imagePath = updateData.image;
-          }
-        } else {
-          imagePath = null;
-        }
+      let imagePath = updateData.image;
+      if (updateData.image && !updateData.image.startsWith("/")) {
+        imagePath = updateData.image;
       }
 
       const updatedBand = await Band.findByIdAndUpdate(
@@ -70,10 +53,8 @@ class BandService {
       if (!updatedBand) {
         throw new Error("Band not found");
       }
-
       return updatedBand;
     } catch (error) {
-      console.error("BandService: Error updating band:", error);
       throw error;
     }
   }
@@ -86,7 +67,6 @@ class BandService {
       }
       return band;
     } catch (error) {
-      console.error("BandService: Error deleting band:", error);
       throw error;
     }
   }

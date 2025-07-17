@@ -22,7 +22,7 @@ router.get("/stats", auth, async (req, res) => {
     if (req.user.role !== "admin") {
       return res.status(403).json({ success: false, error: "Access denied." });
     }
-    const stats = await visitService.getVisitorStats();
+    const stats = await visitService.getVisitStats();
     res.json({ success: true, data: stats });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });

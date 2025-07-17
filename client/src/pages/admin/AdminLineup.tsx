@@ -56,8 +56,9 @@ export function AdminLineup() {
     try {
       const response = await getLineup()
       
-      if (!response.bands || !Array.isArray(response.bands)) {
-        throw new Error('Invalid response format: expected bands array')
+      if (!Array.isArray(response?.bands)) {
+        setBands([])
+        return
       }
 
       setBands(response.bands)
@@ -187,7 +188,7 @@ export function AdminLineup() {
               <div className="aspect-square overflow-hidden rounded-t-lg bg-muted flex items-center justify-center">
                 {band.image ? (
                   <img
-                    src={band.image}
+                    src={band.image?.startsWith('/api/') ? band.image : `/api/${band.image}`}
                     alt={band.name}
                     className="w-full h-full object-cover"
                   />

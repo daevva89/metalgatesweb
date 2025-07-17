@@ -27,6 +27,10 @@ interface ArticleFormData {
   publishedAt?: string
 }
 
+interface GetNewsResponse {
+  articles: NewsArticle[]
+}
+
 export function AdminNews() {
   const [articles, setArticles] = useState<NewsArticle[]>([])
   const [loading, setLoading] = useState(true)
@@ -165,7 +169,7 @@ export function AdminNews() {
                   {article.image && (
                     <div className="w-24 h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
                       <img
-                        src={article.image}
+                        src={article.image?.startsWith('/api/') ? article.image : `/api/${article.image}`}
                         alt={article.title}
                         className="w-full h-full object-cover"
                       />
@@ -219,7 +223,7 @@ export function AdminNews() {
                 description="Upload featured image for article"
                 currentImage={
                   selectedArticle?.image
-                    ? selectedArticle.image
+                    ? (selectedArticle.image.startsWith('/api/') ? selectedArticle.image : `/api/${selectedArticle.image}`)
                     : null
                 }
               />

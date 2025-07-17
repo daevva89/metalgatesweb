@@ -163,7 +163,7 @@ export function AdminArchive() {
             <div className="aspect-[3/4] overflow-hidden rounded-t-lg bg-black flex items-center justify-center">
               {archive.poster ? (
                 <img
-                  src={archive.poster}
+                  src={archive.poster?.startsWith('/api/') ? archive.poster : `/api/${archive.poster}`}
                   alt={`Festival ${archive.year}`}
                   className="w-full h-full object-contain"
                 />
@@ -216,7 +216,7 @@ export function AdminArchive() {
                 description="Upload festival poster"
                 accept="image/*"
                 maxSize={5}
-                currentImage={selectedArchive?.poster} // Show existing image when editing
+                currentImage={selectedArchive?.poster ? (selectedArchive.poster.startsWith('/api/') ? selectedArchive.poster : `/api/${selectedArchive.poster}`) : undefined} // Show existing image when editing
               />
             </div>
 

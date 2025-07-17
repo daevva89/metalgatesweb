@@ -131,7 +131,7 @@ export function NewsArticle() {
       {/* Featured Image */}
       <div className="aspect-video overflow-hidden rounded-lg">
         <img
-          src={article.image}
+          src={article.image?.startsWith('/api/') ? article.image : `/api/${article.image}`}
           alt={article.title}
           className="w-full h-full object-cover"
         />

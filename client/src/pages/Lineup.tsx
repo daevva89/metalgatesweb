@@ -43,7 +43,8 @@ export function Lineup() {
     const fetchLineup = async () => {
       try {
         const response = await getLineup()
-        setBands((response as GetLineupResponse).bands)
+        const lineupData = response as GetLineupResponse
+        setBands(Array.isArray(lineupData?.bands) ? lineupData.bands : [])
       } catch (error) {
         console.error("Error fetching lineup:", error)
         toast({
@@ -87,7 +88,7 @@ export function Lineup() {
           >
             <div className="aspect-square overflow-hidden rounded-t-lg">
               <img
-                src={band.image}
+                src={band.image?.startsWith('/api/') ? band.image : `/api/${band.image}`}
                 alt={band.name}
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
               />
@@ -121,7 +122,7 @@ export function Lineup() {
                 {/* Band Image */}
                 <div className="space-y-4">
                   <img
-                    src={selectedBand.image}
+                    src={selectedBand.image?.startsWith('/api/') ? selectedBand.image : `/api/${selectedBand.image}`}
                     alt={selectedBand.name}
                     className="w-full aspect-square object-cover rounded-lg"
                   />

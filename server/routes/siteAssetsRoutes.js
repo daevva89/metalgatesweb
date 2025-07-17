@@ -32,7 +32,6 @@ router.get("/", async (req, res) => {
       message: "Site assets retrieved successfully",
     });
   } catch (error) {
-    console.error("SiteAssetsRoutes: Error getting site assets:", error);
     res.status(500).json({
       success: false,
       error: "Failed to retrieve site assets",
@@ -50,7 +49,6 @@ router.put(
     { name: "mobileHeroImage", maxCount: 1 },
   ]),
   async (req, res) => {
-
     try {
       if (req.user.role !== "admin") {
         return res.status(403).json({
@@ -101,7 +99,6 @@ router.put(
         message: "Site assets updated successfully",
       });
     } catch (error) {
-      console.error("SiteAssetsRoutes: Error updating site assets:", error);
       res.status(500).json({
         success: false,
         error: "Failed to update site assets",
@@ -149,7 +146,6 @@ router.put("/logo", auth, async (req, res) => {
       message: "Logo updated successfully",
     });
   } catch (error) {
-    console.error("SiteAssetsRoutes: Error updating logo:", error);
     res.status(500).json({
       success: false,
       error: "Failed to update logo",
@@ -196,7 +192,6 @@ router.put("/hero", auth, async (req, res) => {
       message: "Hero image updated successfully",
     });
   } catch (error) {
-    console.error("SiteAssetsRoutes: Error updating hero image:", error);
     res.status(500).json({
       success: false,
       error: "Failed to update hero image",
@@ -241,7 +236,6 @@ router.delete("/logo", auth, async (req, res) => {
       message: "Logo removed successfully",
     });
   } catch (error) {
-    console.error("SiteAssetsRoutes: Error removing logo:", error);
     res.status(500).json({
       success: false,
       error: "Failed to remove logo",
@@ -286,7 +280,6 @@ router.delete("/hero", auth, async (req, res) => {
       message: "Hero image removed successfully",
     });
   } catch (error) {
-    console.error("SiteAssetsRoutes: Error removing hero image:", error);
     res.status(500).json({
       success: false,
       error: "Failed to remove hero image",

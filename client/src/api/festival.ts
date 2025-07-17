@@ -182,7 +182,7 @@ export const removeHeroImage = async () => {
 export const getLineup = async () => {
   try {
     const response = await api.get('/api/lineup');
-    return response.data.data;
+    return response.data;
   } catch (error: unknown) {
     const err = error as { response?: { data?: { error?: string } }; message?: string };
     throw new Error(err?.response?.data?.error || err.message || "Unknown error");

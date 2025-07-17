@@ -1,22 +1,12 @@
 const NewsArticle = require("../models/NewsArticle");
-const FileUploadUtil = require("../utils/fileUpload");
-const ImageCleanupUtil = require("../utils/imageCleanup");
 
 class NewsService {
   async createArticle(articleData) {
     try {
-      const article = new NewsArticle({
-        title: articleData.title,
-        excerpt: articleData.excerpt,
-        content: articleData.content,
-        image: articleData.image,
-        publishedAt: articleData.publishedAt || new Date(),
-      });
-
+      const article = new NewsArticle(articleData);
       const savedArticle = await article.save();
       return savedArticle;
     } catch (error) {
-      console.error("NewsService: Error creating article:", error);
       throw error;
     }
   }
@@ -25,94 +15,104 @@ class NewsService {
     try {
       const articles = await NewsArticle.find()
         .sort({ publishedAt: -1 })
-        .select({
-          title: 1,
-          excerpt: 1,
-          content: 1,
-          image: 1,
-          publishedAt: 1,
-          updatedAt: 1,
-        });
+        .lean();
       return articles;
     } catch (error) {
-      console.error("NewsService: Error fetching articles:", error);
       throw error;
     }
   }
 
   async getArticleById(articleId) {
     try {
-      const article = await NewsArticle.findById(articleId);
+      const article = await NewsArticle.findById(articleId).lean();
       if (!article) {
         throw new Error("Article not found");
       }
       return article;
     } catch (error) {
-      console.error("NewsService: Error fetching article:", error);
+      throw error;
+    }
+  }
+
+  async getPublishedArticles(limit = 10) {
+    try {
+      const articles = await NewsArticle.find({
+        publishedAt: { $lte: new Date() },
+      })
+        .sort({ publishedAt: -1 })
+        .limit(limit)
+        .lean();
+      return articles;
+    } catch (error) {
       throw error;
     }
   }
 
   async updateArticle(articleId, updateData) {
     try {
-      const existingArticle = await NewsArticle.findById(articleId);
-      if (!existingArticle) {
-        throw new Error("Article not found");
-      }
-
-      let imagePath = existingArticle.image;
-      if (updateData.image !== undefined) {
-        // A new image is being uploaded or the existing one is removed.
-        // Clean up the old image first.
-        if (existingArticle.image) {
-          await ImageCleanupUtil.cleanupNewsImages(existingArticle);
-        }
-
-        if (updateData.image) {
-          // New image provided. Store its relative path.
-          imagePath = updateData.image.replace("/api/", "");
-        } else {
-          // Image is being removed.
-          imagePath = null;
-        }
-      }
-
-      const updatedArticle = await NewsArticle.findByIdAndUpdate(
+      const article = await NewsArticle.findByIdAndUpdate(
         articleId,
         {
-          title: updateData.title,
-          excerpt: updateData.excerpt,
-          content: updateData.content,
-          image: imagePath,
-          publishedAt: updateData.publishedAt || existingArticle.publishedAt,
+          ...updateData,
+          updatedAt: new Date(),
         },
-        { new: true }
+        { new: true, runValidators: true }
       );
 
-      if (!updatedArticle) {
+      if (!article) {
         throw new Error("Article not found");
       }
-      return updatedArticle;
+      return article;
     } catch (error) {
-      console.error("NewsService: Error updating article:", error);
       throw error;
     }
   }
 
   async deleteArticle(articleId) {
     try {
-      const article = await NewsArticle.findById(articleId);
+      const article = await NewsArticle.findByIdAndDelete(articleId);
       if (!article) {
         throw new Error("Article not found");
       }
-
-      // Clean up associated images
-      await ImageCleanupUtil.cleanupNewsImages(article);
-
-      await NewsArticle.findByIdAndDelete(articleId);
       return article;
     } catch (error) {
-      console.error("NewsService: Error deleting article:", error);
+      throw error;
+    }
+  }
+
+  async getArticlesByTag(tag) {
+    try {
+      const articles = await NewsArticle.find({
+        tags: { $in: [tag] },
+        publishedAt: { $lte: new Date() },
+      })
+        .sort({ publishedAt: -1 })
+        .lean();
+      return articles;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async searchArticles(searchTerm) {
+    try {
+      const articles = await NewsArticle.find({
+        $and: [
+          { publishedAt: { $lte: new Date() } },
+          {
+            $or: [
+              { title: { $regex: searchTerm, $options: "i" } },
+              { excerpt: { $regex: searchTerm, $options: "i" } },
+              { content: { $regex: searchTerm, $options: "i" } },
+              { tags: { $in: [new RegExp(searchTerm, "i")] } },
+            ],
+          },
+        ],
+      })
+        .sort({ publishedAt: -1 })
+        .lean();
+      return articles;
+    } catch (error) {
       throw error;
     }
   }

@@ -63,29 +63,29 @@ export function AdminDashboard() {
           getVisitorStats()
         ]);
 
-        const contactActivities: Activity[] = (contactData.contacts || []).map(
-          (c: ContactSubmission) => ({
-            type: "contact",
-            date: new Date(c.createdAt),
-            content: `New message from ${c.name}: "${c.subject}"`
-          })
-        );
+        const contactActivities: Activity[] = Array.isArray(contactData?.contacts) 
+          ? contactData.contacts.map((c: ContactSubmission) => ({
+              type: "contact",
+              date: new Date(c.createdAt),
+              content: `New message from ${c.name}: "${c.subject}"`
+            }))
+          : [];
 
-        const newsActivities: Activity[] = (newsData.articles || []).map(
-          (a: NewsArticle) => ({
-            type: "news",
-            date: new Date(a.publishedAt),
-            content: `News article published: "${a.title}"`
-          })
-        );
+        const newsActivities: Activity[] = Array.isArray(newsData?.articles)
+          ? newsData.articles.map((a: NewsArticle) => ({
+              type: "news",
+              date: new Date(a.publishedAt),
+              content: `News article published: "${a.title}"`
+            }))
+          : [];
 
-        const bandActivities: Activity[] = (lineupData?.bands || []).map(
-          (b: Band) => ({
-            type: "band",
-            date: new Date(b.createdAt),
-            content: `New band added to lineup: ${b.name}`
-          })
-        );
+        const bandActivities: Activity[] = Array.isArray(lineupData?.bands)
+          ? lineupData.bands.map((b: Band) => ({
+              type: "band",
+              date: new Date(b.createdAt),
+              content: `New band added to lineup: ${b.name}`
+            }))
+          : [];
 
         const allActivities = [
           ...contactActivities,

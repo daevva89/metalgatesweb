@@ -30,11 +30,6 @@ async function sendRequestToOpenAI(model, message) {
       });
       return response.choices[0].message.content;
     } catch (error) {
-      console.error(
-        `Error sending request to OpenAI (attempt ${i + 1}):`,
-        error.message,
-        error.stack
-      );
       if (i === MAX_RETRIES - 1) throw error;
       await sleep(RETRY_DELAY);
     }
@@ -51,11 +46,6 @@ async function sendRequestToAnthropic(model, message) {
       });
       return response.content[0].text;
     } catch (error) {
-      console.error(
-        `Error sending request to Anthropic (attempt ${i + 1}):`,
-        error.message,
-        error.stack
-      );
       if (i === MAX_RETRIES - 1) throw error;
       await sleep(RETRY_DELAY);
     }
@@ -73,34 +63,88 @@ async function sendLLMRequest(provider, model, message) {
   }
 }
 
-const generateBandBio = async (
-  bandName,
-  genre,
-  model = "claude-3-haiku-20240307"
-) => {
-  const message = `Generate a short band biography for "${bandName}", a ${genre} band. Keep it to 2-3 sentences, professional but engaging. Focus on their musical style and impact.`;
-
-  try {
-    const response = await openai.chat.completions.create({
-      model: model,
-      messages: [
-        {
-          role: "system",
-          content: "You are a music journalist writing band biographies.",
-        },
-        { role: "user", content: message },
-      ],
-      max_tokens: 150,
-      temperature: 0.7,
+class LLMService {
+  constructor() {
+    this.openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
     });
 
-    return response.choices[0].message.content.trim();
-  } catch (error) {
-    console.error(`Error generating band bio: ${error.message}`);
-    throw new Error("Failed to generate band biography");
+    this.anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
   }
-};
 
-module.exports = {
-  sendLLMRequest,
-};
+  async generateWithOpenAI(prompt, model = "gpt-3.5-turbo") {
+    try {
+      const completion = await this.openai.chat.completions.create({
+        model: model,
+        messages: [
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+        max_tokens: 1000,
+        temperature: 0.7,
+      });
+
+      return completion.choices[0].message.content.trim();
+    } catch (error) {
+      throw new Error(`OpenAI API error: ${error.message}`);
+    }
+  }
+
+  async generateWithAnthropic(prompt, model = "claude-3-sonnet-20240229") {
+    try {
+      const message = await this.anthropic.messages.create({
+        model: model,
+        max_tokens: 1000,
+        messages: [
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+      });
+
+      return message.content[0].text.trim();
+    } catch (error) {
+      throw new Error(`Anthropic API error: ${error.message}`);
+    }
+  }
+
+  async generateBandBio(bandName, genre, keyInfo = "") {
+    const prompt = `Generate a compelling festival biography for the metal band "${bandName}" in the ${genre} genre. ${
+      keyInfo ? `Additional info: ${keyInfo}` : ""
+    } 
+
+The bio should be:
+- 2-3 paragraphs long
+- Professional and engaging
+- Suitable for a metal festival lineup
+- Highlight their musical style and achievements
+- End with excitement about their upcoming performance
+
+Write in third person and make it festival-ready.`;
+
+    try {
+      // Try OpenAI first, fallback to Anthropic
+      if (process.env.OPENAI_API_KEY) {
+        return await this.generateWithOpenAI(prompt);
+      } else if (process.env.ANTHROPIC_API_KEY) {
+        return await this.generateWithAnthropic(prompt);
+      } else {
+        throw new Error("No LLM API keys configured");
+      }
+    } catch (error) {
+      // Return a fallback bio if LLM services fail
+      return `${bandName} is a powerful ${genre} band that brings intense energy and musical prowess to the metal scene. Known for their dynamic performances and compelling sound, they have established themselves as a formidable presence in the metal community. Get ready for an unforgettable performance that showcases the very best of ${genre} metal.`;
+    }
+  }
+
+  async isConfigured() {
+    return !!(process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY);
+  }
+}
+
+module.exports = new LLMService();

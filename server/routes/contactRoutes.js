@@ -6,7 +6,6 @@ const auth = require("./middleware/auth");
 // POST /api/contact - Submit contact form
 router.post("/", async (req, res) => {
   try {
-
     const { name, email, subject, message } = req.body;
 
     // Validate required fields
@@ -25,7 +24,6 @@ router.post("/", async (req, res) => {
       message: message.trim(),
     });
 
-
     res.status(201).json({
       success: true,
       data: {
@@ -43,8 +41,6 @@ router.post("/", async (req, res) => {
         "Your message has been sent successfully. Thank you for contacting us.",
     });
   } catch (error) {
-    console.error("Error in POST /api/contact:", error);
-
     // Handle validation errors
     if (error.name === "ValidationError") {
       const validationErrors = Object.values(error.errors).map(
@@ -66,7 +62,6 @@ router.post("/", async (req, res) => {
 // GET /api/contact - Get all contact submissions (admin only)
 router.get("/", auth, async (req, res) => {
   try {
-
     // Check if user is admin
     if (req.user.role !== "admin") {
       return res.status(403).json({
@@ -77,7 +72,6 @@ router.get("/", auth, async (req, res) => {
 
     const contacts = await contactService.getAllContacts();
 
-
     res.json({
       success: true,
       data: {
@@ -86,7 +80,6 @@ router.get("/", auth, async (req, res) => {
       message: "Contact submissions retrieved successfully",
     });
   } catch (error) {
-    console.error("Error in GET /api/contact:", error);
     res.status(500).json({
       success: false,
       error: "Failed to retrieve contact submissions",
@@ -97,10 +90,6 @@ router.get("/", auth, async (req, res) => {
 // GET /api/contact/:id - Get specific contact submission (admin only)
 router.get("/:id", auth, async (req, res) => {
   try {
-      "GET /api/contact/:id - Fetching contact submission:",
-      req.params.id
-    );
-
     // Check if user is admin
     if (req.user.role !== "admin") {
       return res.status(403).json({
@@ -118,7 +107,6 @@ router.get("/:id", auth, async (req, res) => {
       });
     }
 
-
     res.json({
       success: true,
       data: {
@@ -127,7 +115,6 @@ router.get("/:id", auth, async (req, res) => {
       message: "Contact submission retrieved successfully",
     });
   } catch (error) {
-    console.error("Error in GET /api/contact/:id:", error);
     res.status(500).json({
       success: false,
       error: "Failed to retrieve contact submission",
@@ -138,10 +125,6 @@ router.get("/:id", auth, async (req, res) => {
 // PUT /api/contact/:id/status - Update contact status (admin only)
 router.put("/:id/status", auth, async (req, res) => {
   try {
-      "PUT /api/contact/:id/status - Updating contact status:",
-      req.params.id
-    );
-
     // Check if user is admin
     if (req.user.role !== "admin") {
       return res.status(403).json({
@@ -165,15 +148,11 @@ router.put("/:id/status", auth, async (req, res) => {
     );
 
     if (!contact) {
-        "Contact submission not found for status update:",
-        req.params.id
-      );
       return res.status(404).json({
         success: false,
         error: "Contact submission not found",
       });
     }
-
 
     res.json({
       success: true,
@@ -183,7 +162,6 @@ router.put("/:id/status", auth, async (req, res) => {
       message: "Contact status updated successfully",
     });
   } catch (error) {
-    console.error("Error in PUT /api/contact/:id/status:", error);
     res.status(500).json({
       success: false,
       error: "Failed to update contact status",
@@ -194,10 +172,6 @@ router.put("/:id/status", auth, async (req, res) => {
 // DELETE /api/contact/:id - Delete contact submission (admin only)
 router.delete("/:id", auth, async (req, res) => {
   try {
-      "DELETE /api/contact/:id - Deleting contact submission:",
-      req.params.id
-    );
-
     // Check if user is admin
     if (req.user.role !== "admin") {
       return res.status(403).json({
@@ -215,16 +189,19 @@ router.delete("/:id", auth, async (req, res) => {
       });
     }
 
-
     res.json({
       success: true,
       data: {
-        contact: contact,
+        contact: {
+          _id: contact._id,
+          name: contact.name,
+          email: contact.email,
+          subject: contact.subject,
+        },
       },
       message: "Contact submission deleted successfully",
     });
   } catch (error) {
-    console.error("Error in DELETE /api/contact/:id:", error);
     res.status(500).json({
       success: false,
       error: "Failed to delete contact submission",

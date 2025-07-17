@@ -1,41 +1,43 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 const generateTokens = (user) => {
-
-  if (!process.env.JWT_ACCESS_SECRET && !process.env.JWT_SECRET) {
-    console.error('generateTokens: JWT_ACCESS_SECRET and JWT_SECRET environment variables are not set');
-    throw new Error('JWT_ACCESS_SECRET and JWT_SECRET are not configured');
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET is not configured");
   }
-  
+
   if (!process.env.JWT_REFRESH_SECRET) {
-    console.error('generateTokens: JWT_REFRESH_SECRET environment variable is not set');
-    throw new Error('JWT_REFRESH_SECRET is not configured');
+    throw new Error("JWT_REFRESH_SECRET is not configured");
   }
 
   try {
     const payload = {
-      userId: user._id,
+      id: user.id || user._id,
       email: user.email,
-      role: user.role
+      role: user.role,
     };
 
-    const accessToken = jwt.sign(
-      payload,
-      process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET,
-      { expiresIn: '15m' }
-    );
+    console.log("TOKEN DEBUG: Generating tokens with payload:", payload);
 
-    const refreshToken = jwt.sign(
-      payload,
-      process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
-      { expiresIn: '7d' }
-    );
+    const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "15m",
+    });
 
-    return { accessToken, refreshToken };
+    const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
+      expiresIn: "7d",
+    });
+
+    console.log("TOKEN DEBUG: Tokens generated successfully");
+
+    return {
+      accessToken,
+      refreshToken,
+    };
   } catch (error) {
-    console.error('generateTokens: Error generating tokens:', error.message);
-    throw error;
+    console.log("TOKEN DEBUG: Error generating tokens:", error.message);
+    throw new Error("Failed to generate tokens");
   }
 };
 
-module.exports = { generateTokens };
+module.exports = {
+  generateTokens,
+};

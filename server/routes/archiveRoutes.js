@@ -4,19 +4,16 @@ const archiveService = require("../services/archiveService");
 const auth = require("./middleware/auth");
 const upload = require("../utils/upload");
 
-// GET /api/archives - Get all archives
+// Get all archive entries
 router.get("/", async (req, res) => {
   try {
     const archives = await archiveService.getAllArchives();
-      `GET /api/archives - Successfully fetched ${archives.length} archives`
-    );
     res.json({
       success: true,
       data: { archives },
       message: "Archives fetched successfully",
     });
   } catch (error) {
-    console.error("GET /api/archives - Error:", error.message);
     res.status(500).json({
       success: false,
       error: error.message,
@@ -24,97 +21,110 @@ router.get("/", async (req, res) => {
   }
 });
 
-// GET /api/archives/:id - Get single archive
+// Get a specific archive entry by ID
 router.get("/:id", async (req, res) => {
-    "GET /api/archives/:id - Fetching archive with ID:",
-    req.params.id
-  );
   try {
     const archive = await archiveService.getArchiveById(req.params.id);
-      "GET /api/archives/:id - Successfully fetched archive for year:",
-      archive.year
-    );
     res.json({
       success: true,
       data: { archive },
       message: "Archive fetched successfully",
     });
   } catch (error) {
-    console.error("GET /api/archives/:id - Error:", error.message);
-    const statusCode = error.message.includes("not found") ? 404 : 500;
-    res.status(statusCode).json({
+    res.status(500).json({
       success: false,
       error: error.message,
     });
   }
 });
 
-// POST /api/archives - Create new archive (admin only)
+// Create a new archive entry
 router.post("/", auth, upload.single("poster"), async (req, res) => {
   try {
-    const archiveData = { ...req.body };
+    const { year, title, description, imageUrl, lineup, dates } = req.body;
 
-    if (req.file) {
-      archiveData.poster = `/api/uploads/${req.file.filename}`;
+    if (!year || !title) {
+      return res.status(400).json({
+        success: false,
+        error: "Year and title are required",
+      });
     }
 
-    const archive = await archiveService.createArchive(archiveData);
+    const newArchive = await archiveService.createArchive({
+      year,
+      title,
+      description,
+      imageUrl,
+      lineup,
+      dates,
+    });
+
     res.status(201).json({
       success: true,
-      data: { archive },
+      data: { archive: newArchive },
       message: "Archive created successfully",
     });
   } catch (error) {
-    console.error("POST /api/archives - Error:", error.message);
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 });
 
-// PUT /api/archives/:id - Update archive (admin only)
+// Update an archive entry
 router.put("/:id", auth, upload.single("poster"), async (req, res) => {
   try {
-    const updateData = { ...req.body };
+    const { year, title, description, imageUrl, lineup, dates } = req.body;
 
-    if (req.file) {
-      updateData.poster = `/api/uploads/${req.file.filename}`;
+    const updatedArchive = await archiveService.updateArchive(req.params.id, {
+      year,
+      title,
+      description,
+      imageUrl,
+      lineup,
+      dates,
+    });
+
+    if (!updatedArchive) {
+      return res.status(404).json({
+        success: false,
+        error: "Archive not found",
+      });
     }
 
-    const archive = await archiveService.updateArchive(
-      req.params.id,
-      updateData
-    );
     res.json({
       success: true,
-      data: { archive },
+      data: { archive: updatedArchive },
       message: "Archive updated successfully",
     });
   } catch (error) {
-    console.error("PUT /api/archives/:id - Error:", error.message);
-    const statusCode = error.message.includes("not found") ? 404 : 500;
-    res.status(statusCode).json({ success: false, error: error.message });
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 });
 
-// DELETE /api/archives/:id - Delete archive (admin only)
+// Delete an archive entry
 router.delete("/:id", auth, async (req, res) => {
-    "DELETE /api/archives/:id - Deleting archive with ID:",
-    req.params.id
-  );
   try {
-    const archive = await archiveService.deleteArchive(req.params.id);
-      "DELETE /api/archives/:id - Archive deleted successfully for year:",
-      archive.year
-    );
+    const deletedArchive = await archiveService.deleteArchive(req.params.id);
+
+    if (!deletedArchive) {
+      return res.status(404).json({
+        success: false,
+        error: "Archive not found",
+      });
+    }
+
     res.json({
       success: true,
-      data: { archive },
+      data: { archive: deletedArchive },
       message: "Archive deleted successfully",
     });
   } catch (error) {
-    console.error("DELETE /api/archives/:id - Error:", error.message);
-    console.error("DELETE /api/archives/:id - Error stack:", error.stack);
-    const statusCode = error.message.includes("not found") ? 404 : 500;
-    res.status(statusCode).json({
+    res.status(500).json({
       success: false,
       error: error.message,
     });

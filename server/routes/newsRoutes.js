@@ -1,22 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const newsService = require("../services/newsService");
-const auth = require("./middleware/auth");
-const upload = require("../utils/upload");
 
-// GET /api/news - Get all articles
+// Get all news articles
 router.get("/", async (req, res) => {
   try {
     const articles = await newsService.getAllArticles();
-      `GET /api/news - Successfully fetched ${articles.length} articles`
-    );
     res.json({
       success: true,
       data: { articles },
       message: "Articles fetched successfully",
     });
   } catch (error) {
-    console.error("GET /api/news - Error:", error.message);
     res.status(500).json({
       success: false,
       error: error.message,
@@ -24,64 +19,16 @@ router.get("/", async (req, res) => {
   }
 });
 
-// GET /api/news/:id - Get single article
+// Get a specific news article by ID
 router.get("/:id", async (req, res) => {
   try {
     const article = await newsService.getArticleById(req.params.id);
-      "GET /api/news/:id - Successfully fetched article:",
-      article.title
-    );
     res.json({
       success: true,
       data: { article },
       message: "Article fetched successfully",
     });
   } catch (error) {
-    console.error("GET /api/news/:id - Error:", error.message);
-    const statusCode = error.message.includes("not found") ? 404 : 500;
-    res.status(statusCode).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
-
-// POST /api/news - Create new article (admin only)
-router.post("/", auth, upload.single("image"), async (req, res) => {
-
-  try {
-    const { title, excerpt, content, publishedAt } = req.body;
-
-    if (!title || !excerpt || !content) {
-      return res.status(400).json({
-        success: false,
-        error: "Title, excerpt, and content are required",
-      });
-    }
-
-    const articleData = {
-      title,
-      excerpt,
-      content,
-      publishedAt: publishedAt ? new Date(publishedAt) : new Date(),
-    };
-
-    if (req.file) {
-      articleData.image = `/api/uploads/${req.file.filename}`;
-    }
-
-    const article = await newsService.createArticle(articleData);
-      "POST /api/news - Article created successfully:",
-      article.title
-    );
-    res.status(201).json({
-      success: true,
-      data: { article },
-      message: "Article created successfully",
-    });
-  } catch (error) {
-    console.error("POST /api/news - Error:", error.message);
-    console.error("POST /api/news - Error stack:", error.stack);
     res.status(500).json({
       success: false,
       error: error.message,
@@ -89,74 +36,93 @@ router.post("/", auth, upload.single("image"), async (req, res) => {
   }
 });
 
-// PUT /api/news/:id - Update article (admin only)
-router.put("/:id", auth, upload.single("image"), async (req, res) => {
-
+// Create a new news article
+router.post("/", async (req, res) => {
   try {
-    const { title, excerpt, content, publishedAt } = req.body;
+    const { title, content, excerpt, author, tags, imageUrl } = req.body;
 
-    const updateData = {
-      title,
-      excerpt,
-      content,
-      publishedAt: publishedAt ? new Date(publishedAt) : undefined,
-    };
-
-    if (req.file) {
-      updateData.image = `/api/uploads/${req.file.filename}`;
+    if (!title || !content) {
+      return res.status(400).json({
+        success: false,
+        error: "Title and content are required",
+      });
     }
 
-    // Remove undefined values
-    Object.keys(updateData).forEach((key) => {
-      if (updateData[key] === undefined) {
-        delete updateData[key];
-      }
+    const newArticle = await newsService.createArticle({
+      title,
+      content,
+      excerpt,
+      author,
+      tags,
+      imageUrl,
     });
 
-      "PUT /api/news/:id - Update data:",
-      JSON.stringify(updateData, null, 2)
-    );
-
-    const article = await newsService.updateArticle(req.params.id, updateData);
-      "PUT /api/news/:id - Article updated successfully:",
-      article.title
-    );
-    res.json({
+    res.status(201).json({
       success: true,
-      data: { article },
-      message: "Article updated successfully",
+      data: { article: newArticle },
+      message: "Article created successfully",
     });
   } catch (error) {
-    console.error("PUT /api/news/:id - Error:", error.message);
-    console.error("PUT /api/news/:id - Error stack:", error.stack);
-    const statusCode = error.message.includes("not found") ? 404 : 500;
-    res.status(statusCode).json({
+    res.status(500).json({
       success: false,
       error: error.message,
     });
   }
 });
 
-// DELETE /api/news/:id - Delete article (admin only)
-router.delete("/:id", auth, async (req, res) => {
-    "DELETE /api/news/:id - Deleting article with ID:",
-    req.params.id
-  );
+// Update a news article
+router.put("/:id", async (req, res) => {
   try {
-    const article = await newsService.deleteArticle(req.params.id);
-      "DELETE /api/news/:id - Article deleted successfully:",
-      article.title
-    );
+    const { title, content, excerpt, author, tags, imageUrl } = req.body;
+
+    const updatedArticle = await newsService.updateArticle(req.params.id, {
+      title,
+      content,
+      excerpt,
+      author,
+      tags,
+      imageUrl,
+    });
+
+    if (!updatedArticle) {
+      return res.status(404).json({
+        success: false,
+        error: "Article not found",
+      });
+    }
+
     res.json({
       success: true,
-      data: { article },
+      data: { article: updatedArticle },
+      message: "Article updated successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// Delete a news article
+router.delete("/:id", async (req, res) => {
+  try {
+    const deletedArticle = await newsService.deleteArticle(req.params.id);
+
+    if (!deletedArticle) {
+      return res.status(404).json({
+        success: false,
+        error: "Article not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      data: { article: deletedArticle },
       message: "Article deleted successfully",
     });
   } catch (error) {
-    console.error("DELETE /api/news/:id - Error:", error.message);
-    console.error("DELETE /api/news/:id - Error stack:", error.stack);
-    const statusCode = error.message.includes("not found") ? 404 : 500;
-    res.status(statusCode).json({
+    res.status(500).json({
       success: false,
       error: error.message,
     });

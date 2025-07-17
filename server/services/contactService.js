@@ -1,156 +1,176 @@
 const Contact = require("../models/Contact");
-const {
-  transporter,
-  contactFormToEmail,
-  emailFrom,
-} = require("../config/emailConfig");
+const nodemailer = require("nodemailer");
 
 class ContactService {
-  // Create a new contact submission
   async createContact(contactData) {
     try {
-        name: contactData.name,
-        email: contactData.email,
-        subject: contactData.subject,
-      });
-
       const contact = new Contact(contactData);
       const savedContact = await contact.save();
-      await this.sendContactEmail(savedContact);
 
-        "ContactService: Contact submission created successfully with ID:",
-        savedContact._id
-      );
+      // Send email notification
+      try {
+        await this.sendContactEmail(savedContact);
+        console.log("Contact form email sent successfully");
+      } catch (emailError) {
+        console.error("Failed to send contact form email:", emailError);
+        // Continue without failing - contact form submission should still work
+      }
+
       return savedContact;
     } catch (error) {
-      console.error(
-        "ContactService: Error creating contact submission:",
-        error
-      );
       throw error;
     }
   }
 
-  async sendContactEmail(contact) {
+  async sendContactEmail(contactData) {
+    // Debug: log environment variables
+    console.log("Email config debug:", {
+      EMAIL_HOST: process.env.EMAIL_HOST,
+      EMAIL_USER: process.env.EMAIL_USER,
+      EMAIL_PASS: process.env.EMAIL_PASS ? "SET" : "NOT SET",
+      EMAIL_FROM: process.env.EMAIL_FROM,
+      CONTACT_FORM_TO_EMAIL: process.env.CONTACT_FORM_TO_EMAIL,
+    });
+
+    // Check if email configuration is available
+    if (
+      !process.env.EMAIL_HOST ||
+      !process.env.EMAIL_USER ||
+      !process.env.EMAIL_PASS
+    ) {
+      throw new Error("Email configuration not found - email sending disabled");
+    }
+
     try {
+      const emailFrom =
+        process.env.EMAIL_FROM || "noreply@metalgatesfestival.com";
+      const contactFormToEmail =
+        process.env.CONTACT_FORM_TO_EMAIL || "info@metalgatesfestival.com";
+
+      const transporter = nodemailer.createTransport({
+        host: process.env.EMAIL_HOST,
+        port: process.env.EMAIL_PORT || 587,
+        secure: process.env.EMAIL_SECURE === "true",
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
+
       const mailOptions = {
         from: emailFrom,
         to: contactFormToEmail,
-        subject: `New Contact Form Submission: ${contact.subject}`,
-        text: `You have a new contact form submission from:\n\nName: ${contact.name}\nEmail: ${contact.email}\nSubject: ${contact.subject}\nMessage: ${contact.message}`,
-        html: `<p>You have a new contact form submission from:</p>
-               <ul>
-                 <li><strong>Name:</strong> ${contact.name}</li>
-                 <li><strong>Email:</strong> ${contact.email}</li>
-                 <li><strong>Subject:</strong> ${contact.subject}</li>
-               </ul>
-               <p><strong>Message:</strong></p>
-               <p>${contact.message}</p>`,
+        subject: `Contact Form: ${contactData.subject}`,
+        html: `
+          <h2>New Contact Form Submission</h2>
+          <p><strong>Name:</strong> ${contactData.name}</p>
+          <p><strong>Email:</strong> ${contactData.email}</p>
+          <p><strong>Subject:</strong> ${contactData.subject}</p>
+          <p><strong>Message:</strong></p>
+          <p>${contactData.message}</p>
+          <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
+        `,
       };
+
       await transporter.sendMail(mailOptions);
     } catch (error) {
-      console.error("Error sending contact form email:", error);
-      // We don't rethrow the error here because the contact form was already successfully submitted.
-      // We should probably log this to a more persistent error logging service.
-    }
-  }
-
-  // Get all contact submissions
-  async getAllContacts() {
-    try {
-
-      const contacts = await Contact.find()
-        .sort({ createdAt: -1 }) // Newest first
-        .lean();
-
-        "ContactService: Retrieved",
-        contacts.length,
-        "contact submissions"
-      );
-      return contacts;
-    } catch (error) {
-      console.error(
-        "ContactService: Error fetching contact submissions:",
-        error
-      );
       throw error;
     }
   }
 
-  // Get contact submission by ID
-  async getContactById(contactId) {
+  async getAllContacts(query = {}, options = {}) {
     try {
-        "ContactService: Fetching contact submission by ID:",
-        contactId
-      );
+      const {
+        page = 1,
+        limit = 10,
+        sortBy = "createdAt",
+        sortOrder = "desc",
+        status,
+      } = options;
 
-      const contact = await Contact.findById(contactId).lean();
-
-      if (!contact) {
-          "ContactService: Contact submission not found with ID:",
-          contactId
-        );
-        return null;
+      const filter = {};
+      if (status) {
+        filter.status = status;
       }
 
-      return contact;
+      const contacts = await Contact.find(filter)
+        .sort({ [sortBy]: sortOrder === "desc" ? -1 : 1 })
+        .limit(limit * 1)
+        .skip((page - 1) * limit)
+        .exec();
+
+      const total = await Contact.countDocuments(filter);
+
+      return {
+        contacts,
+        totalPages: Math.ceil(total / limit),
+        currentPage: page,
+        totalContacts: total,
+      };
     } catch (error) {
-      console.error(
-        "ContactService: Error fetching contact submission by ID:",
-        error
-      );
       throw error;
     }
   }
 
-  // Update contact status
+  async getContactById(contactId) {
+    try {
+      const contact = await Contact.findById(contactId);
+      if (!contact) {
+        throw new Error("Contact not found");
+      }
+      return contact;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async updateContactStatus(contactId, status) {
     try {
-        "ContactService: Updating contact status:",
-        contactId,
-        "to",
-        status
-      );
-
       const contact = await Contact.findByIdAndUpdate(
         contactId,
         { status, updatedAt: new Date() },
-        { new: true, runValidators: true }
+        { new: true }
       );
 
       if (!contact) {
-          "ContactService: Contact submission not found for status update:",
-          contactId
-        );
-        return null;
+        throw new Error("Contact not found");
       }
-
       return contact;
     } catch (error) {
-      console.error("ContactService: Error updating contact status:", error);
       throw error;
     }
   }
 
-  // Delete contact submission
   async deleteContact(contactId) {
     try {
-
       const contact = await Contact.findByIdAndDelete(contactId);
-
       if (!contact) {
-          "ContactService: Contact submission not found for deletion:",
-          contactId
-        );
-        return null;
+        throw new Error("Contact not found");
       }
-
       return contact;
     } catch (error) {
-      console.error(
-        "ContactService: Error deleting contact submission:",
-        error
-      );
+      throw error;
+    }
+  }
+
+  async getContactStats() {
+    try {
+      const totalContacts = await Contact.countDocuments({});
+      const newContacts = await Contact.countDocuments({ status: "new" });
+      const inProgressContacts = await Contact.countDocuments({
+        status: "in-progress",
+      });
+      const resolvedContacts = await Contact.countDocuments({
+        status: "resolved",
+      });
+
+      return {
+        total: totalContacts,
+        new: newContacts,
+        inProgress: inProgressContacts,
+        resolved: resolvedContacts,
+      };
+    } catch (error) {
       throw error;
     }
   }

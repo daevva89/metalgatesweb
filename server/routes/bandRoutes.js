@@ -15,7 +15,6 @@ router.get("/", async (req, res) => {
       message: `Successfully retrieved ${bands.length} bands`,
     });
   } catch (error) {
-    console.error("GET /api/lineup - Error fetching bands:", error);
     res.status(500).json({
       success: false,
       error: error.message || "There was an error fetching the bands.",
@@ -41,7 +40,6 @@ router.get("/:id", async (req, res) => {
       message: "Band retrieved successfully",
     });
   } catch (error) {
-    console.error("GET /api/lineup/:id - Error fetching band:", error);
     res.status(500).json({
       success: false,
       error: error.message || "There was an error fetching the band.",
@@ -88,7 +86,6 @@ router.post("/", auth, upload.single("image"), async (req, res) => {
       message: "Band created successfully",
     });
   } catch (error) {
-    console.error("POST /api/lineup - Error:", error.message);
     res.status(500).json({
       success: false,
       error: error.message,
@@ -112,7 +109,6 @@ router.put("/:id", auth, upload.single("image"), async (req, res) => {
       message: "Band updated successfully",
     });
   } catch (error) {
-    console.error("PUT /api/lineup/:id - Error:", error.message);
     const statusCode = error.message.includes("not found") ? 404 : 500;
     res.status(statusCode).json({
       success: false,
@@ -131,8 +127,6 @@ router.delete("/:id", auth, async (req, res) => {
       message: "Band deleted successfully",
     });
   } catch (error) {
-    console.error("DELETE /api/lineup/:id - Error:", error.message);
-    console.error("DELETE /api/lineup/:id - Error stack:", error.stack);
     const statusCode = error.message.includes("not found") ? 404 : 500;
     res.status(statusCode).json({
       success: false,

@@ -90,7 +90,7 @@ export function News() {
               {/* Image */}
               <div className={`${index % 2 === 1 ? 'md:order-2' : ''} aspect-video overflow-hidden rounded-lg`}>
                 <img
-                  src={article.image}
+                  src={article.image?.startsWith('/api/') ? article.image : `/api/${article.image}`}
                   alt={article.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                 />

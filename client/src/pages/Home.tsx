@@ -196,7 +196,7 @@ export function Home() {
             <Card key={article._id} className="glass-card group hover:scale-105 transition-transform duration-300">
               <div className="aspect-video overflow-hidden rounded-t-lg">
                 <img
-                  src={article.image}
+                  src={article.image?.startsWith('/api/') ? article.image : `/api/${article.image}`}
                   alt={article.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                 />
