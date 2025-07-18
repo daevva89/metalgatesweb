@@ -14,6 +14,7 @@ const express = require("express");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 const path = require("path");
 const fs = require("fs");
 const { generateOGTags, escapeHtml, isBotRequest } = require("./utils/ogTags");
@@ -38,6 +39,18 @@ if (!process.env.DATABASE_URL) {
 
 const app = express();
 const port = process.env.PORT || 4444;
+
+// Force HTTPS in production
+if (process.env.NODE_ENV === "production") {
+  app.use((req, res, next) => {
+    if (req.header("x-forwarded-proto") !== "https") {
+      res.redirect(`https://${req.header("host")}${req.url}`);
+    } else {
+      next();
+    }
+  });
+}
+
 // Pretty-print JSON responses
 app.enable("json spaces");
 // We want to be consistent with URL paths, so we enable strict routing
@@ -53,21 +66,60 @@ app.use(
         defaultSrc: ["'self'"],
         scriptSrc: [
           "'self'",
-          "'unsafe-inline'",
+          "https://www.googletagmanager.com",
+          "https://www.google-analytics.com",
+          "'sha256-...", // Will be generated for inline scripts if needed
+        ],
+        styleSrc: ["'self'", "https://fonts.googleapis.com"],
+        imgSrc: ["'self'", "data:", "https:", "blob:"],
+        connectSrc: [
+          "'self'",
+          "https://www.google-analytics.com",
           "https://www.googletagmanager.com",
         ],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", "data:", "https:", "blob:"],
-        connectSrc: ["'self'", "https://www.google-analytics.com"],
-        fontSrc: ["'self'", "https:", "data:"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
         objectSrc: ["'none'"],
         mediaSrc: ["'self'"],
-        frameSrc: ["'self'", "https://www.googletagmanager.com"],
+        frameSrc: ["'self'", "https://open.spotify.com"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
       },
     },
     crossOriginEmbedderPolicy: false,
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
   })
 );
+
+// Rate limiting to prevent abuse
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: process.env.NODE_ENV === "production" ? 1000 : 10000, // More lenient in development
+  message: {
+    error: "Too many requests from this IP, please try again later.",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use(limiter);
+
+// Stricter rate limiting for auth endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: process.env.NODE_ENV === "production" ? 10 : 100, // More lenient in development
+  message: {
+    error: "Too many authentication attempts, please try again later.",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// CORS configuration
+app.use(cors());
 
 // Serve uploaded files statically
 app.use("/api/uploads", express.static(path.join(__dirname, "uploads")));
@@ -83,8 +135,8 @@ app.on("error", (error) => {
 
 // Basic Routes
 app.use(basicRoutes);
-// Authentication Routes
-app.use("/api/auth", authRoutes);
+// Authentication Routes (with stricter rate limiting)
+app.use("/api/auth", authLimiter, authRoutes);
 // User Routes
 app.use("/api/users", userRoutes);
 // Band/Lineup Routes
@@ -152,6 +204,10 @@ if (process.env.NODE_ENV === "production") {
         const baseUrl = `${req.protocol}://${req.get("host")}`;
         const ogTags = await generateOGTags(req.originalUrl, baseUrl);
 
+        // Get site assets for GTM ID
+        const siteAssetsService = require("./services/siteAssetsService");
+        const siteAssets = await siteAssetsService.getSiteAssets();
+
         // Create the meta tags HTML
         const ogMetaTags = `
     <title>${escapeHtml(ogTags.title)}</title>
@@ -170,13 +226,26 @@ if (process.env.NODE_ENV === "production") {
     )}" />
     <meta name="twitter:image" content="${escapeHtml(ogTags.image)}" />`;
 
+        // Add GTM script for production (static loading to avoid Google Ads violations)
+        // Use GTM ID from admin panel (database) instead of environment variable
+        const gtmScript = siteAssets.gtmId
+          ? `
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','${siteAssets.gtmId}');</script>
+    <!-- End Google Tag Manager -->`
+          : "";
+
         // Replace existing title and meta tags or inject before </head>
         // First, remove any existing title and basic meta description
         html = html.replace(/<title>.*?<\/title>/i, "");
         html = html.replace(/<meta\s+name=["']description["'][^>]*>/i, "");
 
         // Inject our tags before the closing head tag
-        html = html.replace("</head>", `${ogMetaTags}\n  </head>`);
+        html = html.replace("</head>", `${ogMetaTags}${gtmScript}\n  </head>`);
 
         res.send(html);
       } catch (error) {
@@ -219,8 +288,7 @@ const startServer = async () => {
   try {
     await connectDB();
     await ensureActiveFestivalExists();
-    app.listen(port, () => {
-    });
+    app.listen(port, () => {});
   } catch (error) {
     console.error("Failed to start server:", error);
     process.exit(1);

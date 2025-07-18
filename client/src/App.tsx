@@ -52,17 +52,24 @@ function App() {
           window.dataLayer = window.dataLayer || [];
           window.dataLayer.push({
             'gtm.start': new Date().getTime(),
-            event: 'gtm.js'
+            event: 'gtm.js',
+            'gtm.id': assets.gtmId
           });
           
-          const gtmScript = document.createElement('script');
-          gtmScript.async = true;
-          gtmScript.src = `https://www.googletagmanager.com/gtm.js?id=${assets.gtmId}`;
-          document.head.appendChild(gtmScript);
+          // In development, load GTM script dynamically for testing
+          // In production, this is handled server-side for better security
+          if (process.env.NODE_ENV !== "production") {
+            const gtmScript = document.createElement('script');
+            gtmScript.async = true;
+            gtmScript.src = `https://www.googletagmanager.com/gtm.js?id=${assets.gtmId}`;
+            document.head.appendChild(gtmScript);
+            
+            console.log(`🏷️ GTM Loaded: ${assets.gtmId}`);
+          }
         }
 
       } catch (error) {
-        console.error("Error initializing tracking:", error);
+        // Silent fail - tracking initialization failed
       }
     };
 

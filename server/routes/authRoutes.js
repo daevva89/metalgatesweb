@@ -64,27 +64,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    console.log("LOGIN DEBUG: User validated:", {
-      id: user._id,
-      email: user.email,
-      role: user.role,
-    });
-
-    const { accessToken, refreshToken } = generateTokens({
-      id: user._id,
-      email: user.email,
-      role: user.role,
-    });
-
-    console.log("LOGIN DEBUG: Tokens generated");
-    console.log(
-      "LOGIN DEBUG: Access token (first 20 chars):",
-      accessToken.substring(0, 20) + "..."
-    );
-    console.log("LOGIN DEBUG: User object being sent:", {
-      id: user._id,
-      email: user.email,
-    });
+    const { accessToken, refreshToken } = generateTokens(user);
 
     res.json({
       success: true,
@@ -92,17 +72,16 @@ router.post("/login", async (req, res) => {
         user: {
           id: user._id,
           email: user.email,
+          role: user.role,
         },
         accessToken,
         refreshToken,
       },
-      message: "Login successful",
     });
   } catch (error) {
-    console.log("LOGIN DEBUG: Error during login:", error.message);
     res.status(500).json({
       success: false,
-      error: error.message,
+      error: "Login failed",
     });
   }
 });

@@ -25,17 +25,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      const accessToken = localStorage.getItem('accessToken')
-      
-      if (accessToken) {
-        try {
+      try {
+        const accessToken = localStorage.getItem('accessToken')
+        if (accessToken) {
           const userData = await getCurrentUser()
           setUser(userData.user)
-        } catch (error) {
-          console.error('AuthContext: Failed to get current user:', error)
-          localStorage.removeItem('accessToken')
-          localStorage.removeItem('refreshToken')
         }
+      } catch (error) {
+        // Silent fail - clear tokens if they're invalid
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('refreshToken')
       }
       
       setLoading(false)
@@ -53,12 +52,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: "Logged in successfully"
       })
     } catch (error) {
-      console.error('AuthContext: Login failed:', error)
-      toast({
-        title: "Error",
-        description: (error as Error).message,
-        variant: "destructive"
-      })
       throw error
     }
   }
@@ -72,12 +65,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: "Account created successfully"
       })
     } catch (error) {
-      console.error('AuthContext: Registration failed:', error)
-      toast({
-        title: "Error",
-        description: (error as Error).message,
-        variant: "destructive"
-      })
       throw error
     }
   }
