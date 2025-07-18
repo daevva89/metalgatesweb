@@ -68,9 +68,13 @@ app.use(
           "'self'",
           "https://www.googletagmanager.com",
           "https://www.google-analytics.com",
-          "'sha256-...", // Will be generated for inline scripts if needed
+          // Remove 'unsafe-inline' - use nonces instead for inline scripts
         ],
-        styleSrc: ["'self'", "https://fonts.googleapis.com"],
+        styleSrc: [
+          "'self'",
+          "https://fonts.googleapis.com",
+          // Secure CSP - no unsafe-inline allowed
+        ],
         imgSrc: ["'self'", "data:", "https:", "blob:"],
         connectSrc: [
           "'self'",
@@ -83,7 +87,10 @@ app.use(
         frameSrc: ["'self'", "https://open.spotify.com"],
         baseUri: ["'self'"],
         formAction: ["'self'"],
+        upgradeInsecureRequests: [],
       },
+      // Ensure CSP is enforced, not just reported
+      reportOnly: false,
     },
     crossOriginEmbedderPolicy: false,
     hsts: {
