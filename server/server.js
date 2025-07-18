@@ -123,15 +123,24 @@ app.use((req, res, next) => {
   next();
 });
 
-// Rate limiting to prevent abuse
+// Rate limiting to prevent abuse (more lenient for security scanners)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === "production" ? 1000 : 10000, // More lenient in development
+  max: process.env.NODE_ENV === "production" ? 5000 : 10000, // Increased for scanners
   message: {
     error: "Too many requests from this IP, please try again later.",
   },
   standardHeaders: true,
   legacyHeaders: false,
+  // Skip rate limiting for security scanners
+  skip: (req) => {
+    const userAgent = req.get("User-Agent") || "";
+    return (
+      userAgent.toLowerCase().includes("sucuri") ||
+      userAgent.toLowerCase().includes("scanner") ||
+      userAgent.toLowerCase().includes("bot")
+    );
+  },
 });
 
 app.use(limiter);
