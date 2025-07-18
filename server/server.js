@@ -94,6 +94,35 @@ app.use(
   })
 );
 
+// Additional explicit security headers as backup
+app.use((req, res, next) => {
+  // Strict Transport Security
+  res.setHeader(
+    "Strict-Transport-Security",
+    "max-age=31536000; includeSubDomains; preload"
+  );
+
+  // X-Frame-Options
+  res.setHeader("X-Frame-Options", "SAMEORIGIN");
+
+  // X-Content-Type-Options
+  res.setHeader("X-Content-Type-Options", "nosniff");
+
+  // Referrer Policy
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+
+  // Permissions Policy
+  res.setHeader(
+    "Permissions-Policy",
+    "geolocation=(), microphone=(), camera=()"
+  );
+
+  // X-XSS-Protection (legacy but still useful)
+  res.setHeader("X-XSS-Protection", "1; mode=block");
+
+  next();
+});
+
 // Rate limiting to prevent abuse
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
