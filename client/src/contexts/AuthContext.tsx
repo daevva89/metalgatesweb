@@ -26,15 +26,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const accessToken = localStorage.getItem('accessToken')
-        if (accessToken) {
+      const accessToken = localStorage.getItem('accessToken')
+      if (accessToken) {
           const userData = await getCurrentUser()
           setUser(userData.user)
         }
-      } catch (error) {
+        } catch (error) {
         // Silent fail - clear tokens if they're invalid
-        localStorage.removeItem('accessToken')
-        localStorage.removeItem('refreshToken')
+          localStorage.removeItem('accessToken')
+          localStorage.removeItem('refreshToken')
       }
       
       setLoading(false)

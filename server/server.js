@@ -2,8 +2,12 @@
 require("dotenv").config();
 require("express-async-errors");
 
+// Production domain configuration to prevent localhost redirects
+const PRODUCTION_DOMAIN = "metalgatesfestival.com";
+const isProduction = process.env.NODE_ENV === "production";
+
 // Disable console logs in production
-if (process.env.NODE_ENV === "production") {
+if (isProduction) {
   console.info = () => {};
   console.warn = () => {};
   // Keep console.error for critical PM2 logs
@@ -41,7 +45,7 @@ const app = express();
 const port = process.env.PORT || 4444;
 
 // Force HTTPS in production
-if (process.env.NODE_ENV === "production") {
+if (isProduction) {
   app.use((req, res, next) => {
     if (req.header("x-forwarded-proto") !== "https") {
       res.redirect(`https://${req.header("host")}${req.url}`);
@@ -49,6 +53,9 @@ if (process.env.NODE_ENV === "production") {
       next();
     }
   });
+
+  // Trust proxy headers for production deployment
+  app.set("trust proxy", true);
 }
 
 // Pretty-print JSON responses
@@ -133,7 +140,7 @@ app.use((req, res, next) => {
 // Rate limiting to prevent abuse (more lenient for security scanners)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === "production" ? 5000 : 10000, // Increased for scanners
+  max: isProduction ? 5000 : 10000, // Increased for scanners
   message: {
     error: "Too many requests from this IP, please try again later.",
   },
@@ -155,7 +162,7 @@ app.use(limiter);
 // Stricter rate limiting for auth endpoints
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === "production" ? 10 : 100, // More lenient in development
+  max: isProduction ? 10 : 100, // More lenient in development
   message: {
     error: "Too many authentication attempts, please try again later.",
   },
@@ -204,7 +211,7 @@ app.use("/api/visits", visitRoutes);
 app.use("/api/infopage", infoPageRoutes);
 
 // Debug endpoint to test OG tag generation (only in development)
-if (process.env.NODE_ENV !== "production") {
+if (!isProduction) {
   app.get("/debug/og-tags", async (req, res) => {
     const url = req.query.url || "/";
     const baseUrl = `${req.protocol}://${req.get("host")}`;
@@ -229,7 +236,7 @@ if (process.env.NODE_ENV !== "production") {
 
 // Serve frontend files in production
 // This should be after all API routes and before the 404 handler
-if (process.env.NODE_ENV === "production") {
+if (isProduction) {
   // Serve the static files from the React app
   const clientDistPath = path.join(__dirname, "../client/dist");
   app.use(express.static(clientDistPath));
@@ -246,7 +253,14 @@ if (process.env.NODE_ENV === "production") {
         let html = fs.readFileSync(indexPath, "utf8");
 
         // Generate OG tags for this request
-        const baseUrl = `${req.protocol}://${req.get("host")}`;
+        // Fix baseUrl to prevent localhost:4444 redirects (Google Ads violation)
+        const host = req.get("host");
+        const baseUrl = isProduction
+          ? `https://${PRODUCTION_DOMAIN}`
+          : host && host.includes("localhost")
+          ? "https://metalgatesfestival.com"
+          : `${req.protocol}://${host}`;
+
         const ogTags = await generateOGTags(req.originalUrl, baseUrl);
 
         // Get site assets for GTM ID
@@ -307,7 +321,7 @@ if (process.env.NODE_ENV === "production") {
 
 // The "catchall" handler: for any request that doesn't match one above, send back React's index.html file.
 // This is disabled in development to allow for the Vite dev server to handle frontend requests.
-if (process.env.NODE_ENV !== "production") {
+if (!isProduction) {
   // Default route for API testing
   app.get("/", (req, res) => {
     res.json({ message: "Metal Gates Festival API" });

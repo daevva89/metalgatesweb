@@ -47,7 +47,8 @@ function App() {
         const data = await getSiteAssets();
         const assets = data.assets;
 
-        // Initialize Google Tag Manager if gtmId is provided
+        // Initialize Google Tag Manager dataLayer only
+        // Script loading is handled server-side to avoid policy violations
         if (assets.gtmId && !window.dataLayer) {
           window.dataLayer = window.dataLayer || [];
           window.dataLayer.push({
@@ -56,16 +57,8 @@ function App() {
             'gtm.id': assets.gtmId
           });
           
-          // In development, load GTM script dynamically for testing
-          // In production, this is handled server-side for better security
-          if (process.env.NODE_ENV !== "production") {
-            const gtmScript = document.createElement('script');
-            gtmScript.async = true;
-            gtmScript.src = `https://www.googletagmanager.com/gtm.js?id=${assets.gtmId}`;
-            document.head.appendChild(gtmScript);
-            
-            console.log(`🏷️ GTM Loaded: ${assets.gtmId}`);
-          }
+          // Dynamic script loading removed to prevent Google Ads policy violations
+          // GTM script should be loaded via server-side rendering for security compliance
         }
 
       } catch (error) {
