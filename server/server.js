@@ -47,6 +47,20 @@ const port = process.env.PORT || 4444;
 // Force HTTPS in production
 if (isProduction) {
   app.use((req, res, next) => {
+    // Special handling for bot requests that come through nginx proxy without proper headers
+    const userAgent = req.get("User-Agent") || "";
+    const isBotRequest = require("./utils/ogTags").isBotRequest(userAgent);
+
+    // If it's a bot request and we detect it's coming from localhost (nginx proxy)
+    if (
+      isBotRequest &&
+      req.get("host") &&
+      req.get("host").includes("localhost")
+    ) {
+      // Don't redirect, treat as if it's properly proxied from production domain
+      return next();
+    }
+
     if (req.header("x-forwarded-proto") !== "https") {
       res.redirect(`https://${req.header("host")}${req.url}`);
     } else {
@@ -255,11 +269,19 @@ if (isProduction) {
         // Generate OG tags for this request
         // Fix baseUrl to prevent localhost:4444 redirects (Google Ads violation)
         const host = req.get("host");
-        const baseUrl = isProduction
-          ? `https://${PRODUCTION_DOMAIN}`
-          : host && host.includes("localhost")
-          ? "https://metalgatesfestival.com"
-          : `${req.protocol}://${host}`;
+
+        // Enhanced logic for baseUrl generation
+        let baseUrl;
+        if (isProduction) {
+          // Always use production domain for bots in production
+          baseUrl = `https://${PRODUCTION_DOMAIN}`;
+        } else if (host && host.includes("localhost")) {
+          // Development or nginx proxy without proper headers
+          baseUrl = "https://metalgatesfestival.com";
+        } else {
+          // Fallback to request headers
+          baseUrl = `${req.protocol}://${host}`;
+        }
 
         const ogTags = await generateOGTags(req.originalUrl, baseUrl);
 
