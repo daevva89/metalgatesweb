@@ -1,4 +1,3 @@
-// Load environment variables
 require("dotenv").config();
 require("express-async-errors");
 
@@ -199,8 +198,6 @@ app.on("error", (error) => {
   console.error(error.stack);
 });
 
-// Basic Routes
-app.use(basicRoutes);
 // Authentication Routes (with stricter rate limiting)
 app.use("/api/auth", authLimiter, authRoutes);
 // User Routes
@@ -340,6 +337,9 @@ if (isProduction) {
     }
   });
 }
+
+// Basic Routes (moved after production handling to avoid conflicts)
+app.use(basicRoutes);
 
 // The "catchall" handler: for any request that doesn't match one above, send back React's index.html file.
 // This is disabled in development to allow for the Vite dev server to handle frontend requests.
