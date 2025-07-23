@@ -6,7 +6,6 @@ const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.DATABASE_URL);
 
-
     // Error handling after initial connection
     mongoose.connection.on("error", (err) => {
       console.error(`MongoDB connection error: ${err}`);
@@ -43,7 +42,8 @@ const ensureActiveFestivalExists = async () => {
       const defaultFestival = new Festival({
         name: "Metal Gates Festival 2025",
         dates: "September 26-27, 2025",
-        description: "This is a test description",
+        description:
+          "The ultimate metal festival experience featuring international and local metal bands in Bucharest, Romania.",
         location: "Quantic, Bucharest",
         ticketUrl:
           "https://www.iabilet.ro/bilete-metal-gates-festival-2024-89803",
