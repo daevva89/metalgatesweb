@@ -87,10 +87,10 @@ app.use(
         defaultSrc: ["'self'"],
         scriptSrc: [
           "'self'",
+          "'unsafe-inline'", // Allow GTM to inject dynamic Meta pixel code
           "https://www.googletagmanager.com",
           "https://www.google-analytics.com",
           "https://connect.facebook.net", // Meta pixel
-          // Remove 'unsafe-inline' - use nonces instead for inline scripts
         ],
         styleSrc: [
           "'self'",
