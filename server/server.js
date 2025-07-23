@@ -105,6 +105,7 @@ app.use(
         connectSrc: [
           "'self'",
           "https://www.google-analytics.com",
+          "https://region1.google-analytics.com", // New regional GA domain
           "https://www.googletagmanager.com",
           "https://www.facebook.com", // Meta pixel tracking
           "https://connect.facebook.net", // Meta pixel requests
