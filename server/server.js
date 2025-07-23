@@ -248,9 +248,13 @@ if (!isProduction) {
 // Serve frontend files in production
 // This should be after all API routes and before the 404 handler
 if (isProduction) {
-  // Serve the static files from the React app
+  // Serve the static files from the React app (exclude index.html for dynamic OG tags)
   const clientDistPath = path.join(__dirname, "../client/dist");
-  app.use(express.static(clientDistPath));
+  app.use(
+    express.static(clientDistPath, {
+      index: false, // Don't serve index.html automatically - let our dynamic handler do it
+    })
+  );
 
   // Handles any requests that don't match the ones above by sending the React app with dynamic OG tags
   app.get("*", async (req, res) => {
