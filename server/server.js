@@ -89,6 +89,7 @@ app.use(
           "'self'",
           "https://www.googletagmanager.com",
           "https://www.google-analytics.com",
+          "https://connect.facebook.net", // Meta pixel
           // Remove 'unsafe-inline' - use nonces instead for inline scripts
         ],
         styleSrc: [
@@ -101,6 +102,8 @@ app.use(
           "'self'",
           "https://www.google-analytics.com",
           "https://www.googletagmanager.com",
+          "https://www.facebook.com", // Meta pixel tracking
+          "https://connect.facebook.net", // Meta pixel requests
         ],
         fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
         objectSrc: ["'none'"],
@@ -288,10 +291,6 @@ if (isProduction()) {
 
         const ogTags = await generateOGTags(req.originalUrl, baseUrl);
 
-        // Get site assets for GTM ID
-        const siteAssetsService = require("./services/siteAssetsService");
-        const siteAssets = await siteAssetsService.getSiteAssets();
-
         // Create the meta tags HTML
         const ogMetaTags = `
     <title>${escapeHtml(ogTags.title)}</title>
@@ -310,26 +309,13 @@ if (isProduction()) {
     )}" />
     <meta name="twitter:image" content="${escapeHtml(ogTags.image)}" />`;
 
-        // Add GTM script for production (static loading to avoid Google Ads violations)
-        // Use GTM ID from admin panel (database) instead of environment variable
-        const gtmScript = siteAssets.gtmId
-          ? `
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','${siteAssets.gtmId}');</script>
-    <!-- End Google Tag Manager -->`
-          : "";
-
         // Replace existing title and meta tags or inject before </head>
         // First, remove any existing title and basic meta description
         html = html.replace(/<title>.*?<\/title>/i, "");
         html = html.replace(/<meta\s+name=["']description["'][^>]*>/i, "");
 
         // Inject our tags before the closing head tag
-        html = html.replace("</head>", `${ogMetaTags}${gtmScript}\n  </head>`);
+        html = html.replace("</head>", `${ogMetaTags}\n  </head>`);
 
         res.send(html);
       } catch (error) {
