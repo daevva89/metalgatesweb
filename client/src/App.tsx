@@ -30,6 +30,7 @@ import { getFestivalInfo, logVisit, getSiteAssets } from "./api/festival"
 declare global {
   interface Window {
     dataLayer: Record<string, unknown>[];
+    gtag: (...args: any[]) => void;
   }
 }
 
@@ -44,24 +45,58 @@ function App() {
   useEffect(() => {
     const initializeTracking = async () => {
       try {
+        // Check if GTM is already loaded (server-side injection in production)
+        const existingGTMScript = document.querySelector('script[src*="googletagmanager.com/gtm.js"]');
+        if (existingGTMScript) {
+          console.log('GTM already loaded via server-side injection');
+          return;
+        }
+
         const data = await getSiteAssets();
         const assets = data.assets;
 
-        // Initialize Google Tag Manager dataLayer only
-        // Script loading is handled server-side to avoid policy violations
-        if (assets.gtmId && !window.dataLayer) {
+        // Only initialize GTM if we have a GTM ID from database
+        if (assets.gtmId && assets.gtmId.trim() !== '') {
+          // Initialize dataLayer first
           window.dataLayer = window.dataLayer || [];
+          
+          // GTM initialization function
           window.dataLayer.push({
             'gtm.start': new Date().getTime(),
-            event: 'gtm.js',
-            'gtm.id': assets.gtmId
+            event: 'gtm.js'
           });
+
+          // Dynamically load GTM script
+          const script = document.createElement('script');
+          script.async = true;
+          script.src = `https://www.googletagmanager.com/gtm.js?id=${assets.gtmId}`;
           
-          // Dynamic script loading removed to prevent Google Ads policy violations
-          // GTM script should be loaded via server-side rendering for security compliance
+          // Insert script in head
+          const firstScript = document.getElementsByTagName('script')[0];
+          if (firstScript && firstScript.parentNode) {
+            firstScript.parentNode.insertBefore(script, firstScript);
+          } else {
+            document.head.appendChild(script);
+          }
+
+          // Add noscript fallback for GTM
+          const noscript = document.createElement('noscript');
+          const iframe = document.createElement('iframe');
+          iframe.src = `https://www.googletagmanager.com/ns.html?id=${assets.gtmId}`;
+          iframe.height = '0';
+          iframe.width = '0';
+          iframe.style.display = 'none';
+          iframe.style.visibility = 'hidden';
+          noscript.appendChild(iframe);
+          document.body.insertBefore(noscript, document.body.firstChild);
+
+          console.log('GTM loaded dynamically with ID:', assets.gtmId);
+        } else {
+          console.log('No GTM ID found in database - tracking not initialized');
         }
 
       } catch (error) {
+        console.error('Failed to initialize tracking:', error);
         // Silent fail - tracking initialization failed
       }
     };

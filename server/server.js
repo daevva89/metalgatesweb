@@ -326,8 +326,45 @@ if (isProduction()) {
       }
     } else {
       // Regular user request - serve GTM-enabled HTML for tracking
-      const indexPath = path.join(clientDistPath, "index.html");
-      res.sendFile(indexPath);
+      try {
+        const indexPath = path.join(clientDistPath, "index.html");
+        let html = fs.readFileSync(indexPath, "utf8");
+
+        // Get GTM ID from database for dynamic injection
+        const siteAssetsService = require("./services/siteAssetsService");
+        const assets = await siteAssetsService.getSiteAssets();
+
+        if (assets.gtmId && assets.gtmId.trim() !== "") {
+          // Inject GTM scripts dynamically
+          const gtmScript = `
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','${assets.gtmId}');</script>
+    <!-- End Google Tag Manager -->`;
+
+          const gtmNoscript = `
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=${assets.gtmId}"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->`;
+
+          // Inject GTM script in head
+          html = html.replace("</head>", `${gtmScript}\n  </head>`);
+
+          // Inject GTM noscript after body tag
+          html = html.replace("<body>", `<body>${gtmNoscript}`);
+        }
+
+        res.send(html);
+      } catch (error) {
+        console.error("Error serving HTML with dynamic GTM:", error);
+        // Fallback to serving static HTML
+        const indexPath = path.join(clientDistPath, "index.html");
+        res.sendFile(indexPath);
+      }
     }
   });
 }
