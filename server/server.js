@@ -263,14 +263,14 @@ if (isProduction()) {
 
   // Handles any requests that don't match the ones above by sending the React app with dynamic OG tags
   app.get("*", async (req, res) => {
-    const indexPath = path.join(clientDistPath, "index.html");
     const userAgent = req.get("User-Agent") || "";
 
     // Check if this is a bot request that needs OG tags
     if (isBotRequest(userAgent)) {
       try {
-        // Read the HTML file
-        let html = fs.readFileSync(indexPath, "utf8");
+        // Use clean HTML template for bots (no tracking/GTM to avoid polluting analytics)
+        const botIndexPath = path.join(clientDistPath, "index-bot.html");
+        let html = fs.readFileSync(botIndexPath, "utf8");
 
         // Generate OG tags for this request
         // Fix baseUrl to prevent localhost:4444 redirects (Google Ads violation)
@@ -320,11 +320,13 @@ if (isProduction()) {
         res.send(html);
       } catch (error) {
         console.error("Error serving HTML with OG tags:", error);
-        // Fallback to serving static file if there's an error
-        res.sendFile(indexPath);
+        // Fallback to serving clean bot HTML if there's an error
+        const botIndexPath = path.join(clientDistPath, "index-bot.html");
+        res.sendFile(botIndexPath);
       }
     } else {
-      // Regular user request - serve static file directly for better performance
+      // Regular user request - serve GTM-enabled HTML for tracking
+      const indexPath = path.join(clientDistPath, "index.html");
       res.sendFile(indexPath);
     }
   });
