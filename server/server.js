@@ -163,7 +163,8 @@ const limiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  trustProxy: true, // Fix for trust proxy validation error
+  // Configure trust proxy more securely for nginx reverse proxy
+  trustProxy: isProduction() ? 1 : false, // Only trust first proxy in production
   // Skip rate limiting for security scanners
   skip: (req) => {
     const userAgent = req.get("User-Agent") || "";
@@ -186,7 +187,7 @@ const authLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  trustProxy: true, // Fix for trust proxy validation error
+  trustProxy: isProduction() ? 1 : false, // Only trust first proxy in production
 });
 
 // CORS configuration
