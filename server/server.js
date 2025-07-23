@@ -6,6 +6,10 @@ const PRODUCTION_DOMAIN = "metalgatesfestival.com";
 // Use a function to ensure NODE_ENV is evaluated after dotenv loads
 const isProduction = () => process.env.NODE_ENV === "production";
 
+// Debug logging
+console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("isProduction():", isProduction());
+
 // Disable console logs in production
 if (isProduction()) {
   console.info = () => {};
