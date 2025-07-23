@@ -163,6 +163,7 @@ const limiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  trustProxy: true, // Fix for trust proxy validation error
   // Skip rate limiting for security scanners
   skip: (req) => {
     const userAgent = req.get("User-Agent") || "";
@@ -185,6 +186,7 @@ const authLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  trustProxy: true, // Fix for trust proxy validation error
 });
 
 // CORS configuration
