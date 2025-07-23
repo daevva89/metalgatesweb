@@ -3,10 +3,11 @@ require("express-async-errors");
 
 // Production domain configuration to prevent localhost redirects
 const PRODUCTION_DOMAIN = "metalgatesfestival.com";
-const isProduction = process.env.NODE_ENV === "production";
+// Use a function to ensure NODE_ENV is evaluated after dotenv loads
+const isProduction = () => process.env.NODE_ENV === "production";
 
 // Disable console logs in production
-if (isProduction) {
+if (isProduction()) {
   console.info = () => {};
   console.warn = () => {};
   // Keep console.error for critical PM2 logs
@@ -44,7 +45,7 @@ const app = express();
 const port = process.env.PORT || 4444;
 
 // Force HTTPS in production
-if (isProduction) {
+if (isProduction()) {
   app.use((req, res, next) => {
     // Special handling for bot requests that come through nginx proxy without proper headers
     const userAgent = req.get("User-Agent") || "";
@@ -153,7 +154,7 @@ app.use((req, res, next) => {
 // Rate limiting to prevent abuse (more lenient for security scanners)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: isProduction ? 5000 : 10000, // Increased for scanners
+  max: isProduction() ? 5000 : 10000, // Increased for scanners
   message: {
     error: "Too many requests from this IP, please try again later.",
   },
@@ -175,7 +176,7 @@ app.use(limiter);
 // Stricter rate limiting for auth endpoints
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: isProduction ? 10 : 100, // More lenient in development
+  max: isProduction() ? 10 : 100, // More lenient in development
   message: {
     error: "Too many authentication attempts, please try again later.",
   },
@@ -222,7 +223,7 @@ app.use("/api/visits", visitRoutes);
 app.use("/api/infopage", infoPageRoutes);
 
 // Debug endpoint to test OG tag generation (only in development)
-if (!isProduction) {
+if (!isProduction()) {
   app.get("/debug/og-tags", async (req, res) => {
     const url = req.query.url || "/";
     const baseUrl = `${req.protocol}://${req.get("host")}`;
@@ -247,7 +248,7 @@ if (!isProduction) {
 
 // Serve frontend files in production
 // This should be after all API routes and before the 404 handler
-if (isProduction) {
+if (isProduction()) {
   const clientDistPath = path.join(__dirname, "../client/dist");
 
   // Serve static assets only (not HTML files) - this prevents conflicts with dynamic routing
@@ -274,7 +275,7 @@ if (isProduction) {
 
         // Enhanced logic for baseUrl generation
         let baseUrl;
-        if (isProduction) {
+        if (isProduction()) {
           // Always use production domain for bots in production
           baseUrl = `https://${PRODUCTION_DOMAIN}`;
         } else if (host && host.includes("localhost")) {
@@ -348,7 +349,7 @@ app.use(basicRoutes);
 
 // The "catchall" handler: for any request that doesn't match one above, send back React's index.html file.
 // This is disabled in development to allow for the Vite dev server to handle frontend requests.
-if (!isProduction) {
+if (!isProduction()) {
   // Default route for API testing
   app.get("/", (req, res) => {
     res.json({ message: "Metal Gates Festival API" });
