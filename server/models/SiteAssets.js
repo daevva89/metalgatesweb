@@ -46,6 +46,10 @@ const siteAssetsSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    cookiebotId: {
+      type: String,
+      default: "",
+    },
     facebook: {
       type: String,
       default: "",

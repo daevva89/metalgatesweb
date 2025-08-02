@@ -60,6 +60,7 @@ interface Settings {
   };
   tracking: {
     gtmId: string;
+    cookiebotId: string;
   };
   social: {
     facebook: string;
@@ -92,7 +93,8 @@ export function AdminSettings() {
       copyright: ""
     },
     tracking: {
-      gtmId: ""
+      gtmId: "",
+      cookiebotId: ""
     },
     social: {
       facebook: "",
@@ -151,7 +153,8 @@ export function AdminSettings() {
             copyright: data.assets.copyright || "© 2024 Metal Gates Festival. All rights reserved."
           },
           tracking: {
-            gtmId: data.assets.gtmId || ""
+            gtmId: data.assets.gtmId || "",
+            cookiebotId: data.assets.cookiebotId || ""
           },
           social: {
             facebook: data.assets.facebook || "",
@@ -469,6 +472,20 @@ export function AdminSettings() {
                 />
                 <p className="text-sm text-muted-foreground">
                   Enter your Google Tag Manager ID.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="cookiebotId">Cookiebot ID</Label>
+                <Input
+                  id="cookiebotId"
+                  value={settings.tracking.cookiebotId}
+                  onChange={(e) =>
+                    handleInputChange("tracking", "cookiebotId", e.target.value)
+                  }
+                  placeholder="e.g., 12345678901234567890123456789012"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Enter your Cookiebot ID.
                 </p>
               </div>
             </CardContent>

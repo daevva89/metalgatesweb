@@ -95,6 +95,7 @@ app.use(
           "https://www.googletagmanager.com",
           "https://www.google-analytics.com",
           "https://connect.facebook.net", // Meta pixel
+          "https://consent.cookiebot.com", // Cookiebot CMP
         ],
         styleSrc: [
           "'self'",
@@ -109,6 +110,8 @@ app.use(
           "https://www.googletagmanager.com",
           "https://www.facebook.com", // Meta pixel tracking
           "https://connect.facebook.net", // Meta pixel requests
+          "https://consent.cookiebot.com", // Cookiebot API
+          "https://mj1hvhynhx-dsn.algolia.net", // Cookiebot search
         ],
         fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
         objectSrc: ["'none'"],
@@ -343,6 +346,31 @@ if (isProduction()) {
         const assets = await siteAssetsService.getSiteAssets();
 
         if (assets.gtmId && assets.gtmId.trim() !== "") {
+          // Inject Cookiebot CMP first (before GTM) for consent management
+          const cookiebotScript = `
+    <!-- Cookiebot CMP for GDPR Compliance -->
+    <script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="${
+      assets.cookiebotId || "demo-cookiebot-id"
+    }" data-blockingmode="auto" type="text/javascript"></script>
+    
+    <!-- Google Consent Mode (default denied, Cookiebot will update) -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      
+      // Set default consent state (denied until user consents)
+      gtag('consent', 'default', {
+        'analytics_storage': 'denied',
+        'ad_storage': 'denied',
+        'functionality_storage': 'denied',
+        'personalization_storage': 'denied',
+        'security_storage': 'granted',
+        'wait_for_update': 500,
+        'region': ['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE','GB','IS','LI','NO','CH']
+      });
+    </script>
+    <!-- End Consent Mode Setup -->`;
+
           // Inject GTM scripts dynamically
           const gtmScript = `
     <!-- Google Tag Manager -->
@@ -359,8 +387,11 @@ if (isProduction()) {
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->`;
 
-          // Inject GTM script in head
-          html = html.replace("</head>", `${gtmScript}\n  </head>`);
+          // Inject Cookiebot + Consent Mode + GTM script in head
+          html = html.replace(
+            "</head>",
+            `${cookiebotScript}${gtmScript}\n  </head>`
+          );
 
           // Inject GTM noscript after body tag
           html = html.replace("<body>", `<body>${gtmNoscript}`);
