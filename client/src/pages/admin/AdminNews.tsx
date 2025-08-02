@@ -80,12 +80,16 @@ export function AdminNews() {
   const onSubmit = async (data: ArticleFormData) => {
     try {
       const formData = new FormData();
-      Object.keys(data).forEach(key => {
-        const value = data[key as keyof ArticleFormData];
-        if (value) {
-          formData.append(key, value);
-        }
-      });
+      
+      // Always append required fields, even if empty (let server validate)
+      formData.append('title', data.title || '');
+      formData.append('content', data.content || '');
+      formData.append('excerpt', data.excerpt || '');
+      formData.append('publishedAt', data.publishedAt || '');
+      
+      // Optional fields - only append if they have values
+      if (data.author) formData.append('author', data.author);
+      if (data.tags) formData.append('tags', data.tags);
       
       if (selectedImageFile) {
         formData.append('image', selectedImageFile);
