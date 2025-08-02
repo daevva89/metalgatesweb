@@ -6,7 +6,6 @@ export interface SiteAssets {
   contactEmails?: { purpose: string; email: string }[];
   copyright?: string;
   gtmId?: string;
-  cookiebotId?: string;
   facebook?: string;
   instagram?: string;
   youtube?: string;
