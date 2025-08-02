@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const newsService = require("../services/newsService");
+const auth = require("./middleware/auth");
+const upload = require("../utils/upload");
 
 // Get all news articles
 router.get("/", async (req, res) => {
@@ -37,9 +39,9 @@ router.get("/:id", async (req, res) => {
 });
 
 // Create a new news article
-router.post("/", async (req, res) => {
+router.post("/", auth, upload.single("image"), async (req, res) => {
   try {
-    const { title, content, excerpt, author, tags, imageUrl } = req.body;
+    const { title, content, excerpt, author, tags } = req.body;
 
     if (!title || !content) {
       return res.status(400).json({
@@ -48,14 +50,20 @@ router.post("/", async (req, res) => {
       });
     }
 
-    const newArticle = await newsService.createArticle({
+    const articleData = {
       title,
       content,
       excerpt,
       author,
       tags,
-      imageUrl,
-    });
+    };
+
+    // Add image URL if file was uploaded
+    if (req.file) {
+      articleData.imageUrl = `/api/uploads/${req.file.filename}`;
+    }
+
+    const newArticle = await newsService.createArticle(articleData);
 
     res.status(201).json({
       success: true,
@@ -71,25 +79,25 @@ router.post("/", async (req, res) => {
 });
 
 // Update a news article
-router.put("/:id", async (req, res) => {
+router.put("/:id", auth, upload.single("image"), async (req, res) => {
   try {
-    const { title, content, excerpt, author, tags, imageUrl } = req.body;
+    const { id } = req.params;
+    const { title, content, excerpt, author, tags } = req.body;
 
-    const updatedArticle = await newsService.updateArticle(req.params.id, {
+    const updateData = {
       title,
       content,
       excerpt,
       author,
       tags,
-      imageUrl,
-    });
+    };
 
-    if (!updatedArticle) {
-      return res.status(404).json({
-        success: false,
-        error: "Article not found",
-      });
+    // Add image URL if file was uploaded
+    if (req.file) {
+      updateData.imageUrl = `/api/uploads/${req.file.filename}`;
     }
+
+    const updatedArticle = await newsService.updateArticle(id, updateData);
 
     res.json({
       success: true,
@@ -105,7 +113,7 @@ router.put("/:id", async (req, res) => {
 });
 
 // Delete a news article
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", auth, async (req, res) => {
   try {
     const deletedArticle = await newsService.deleteArticle(req.params.id);
 
