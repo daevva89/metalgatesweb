@@ -96,6 +96,7 @@ app.use(
           "https://www.google-analytics.com",
           "https://connect.facebook.net", // Meta pixel
           "https://consent.cookiebot.com", // Cookiebot consent scripts via GTM
+          "https://consentcdn.cookiebot.com", // Cookiebot configuration scripts
         ],
         styleSrc: [
           "'self'",
@@ -111,6 +112,7 @@ app.use(
           "https://www.facebook.com", // Meta pixel tracking
           "https://connect.facebook.net", // Meta pixel requests
           "https://consent.cookiebot.com", // Cookiebot consent API
+          "https://consentcdn.cookiebot.com", // Cookiebot configuration API
           "https://mpc-prod-1-1053047382554.us-central1.run.app", // Meta Pixel cloud functions
         ],
         fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
