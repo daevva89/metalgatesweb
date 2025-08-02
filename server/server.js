@@ -95,6 +95,7 @@ app.use(
           "https://www.googletagmanager.com",
           "https://www.google-analytics.com",
           "https://connect.facebook.net", // Meta pixel
+          "https://consent.cookiebot.com", // Cookiebot consent scripts via GTM
         ],
         styleSrc: [
           "'self'",
@@ -105,10 +106,11 @@ app.use(
         connectSrc: [
           "'self'",
           "https://www.google-analytics.com",
-          "https://region1.google-analytics.com", // New regional GA domain
+          "https://region1.google-analytics.com", // Regional GA endpoint
           "https://www.googletagmanager.com",
           "https://www.facebook.com", // Meta pixel tracking
           "https://connect.facebook.net", // Meta pixel requests
+          "https://consent.cookiebot.com", // Cookiebot consent API
         ],
         fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
         objectSrc: ["'none'"],
