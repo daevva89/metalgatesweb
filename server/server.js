@@ -99,8 +99,8 @@ app.use(
         ],
         styleSrc: [
           "'self'",
+          "'unsafe-inline'", // Required for Cookiebot consent banner styling
           "https://fonts.googleapis.com",
-          // Secure CSP - no unsafe-inline allowed
         ],
         imgSrc: ["'self'", "data:", "https:", "blob:"],
         connectSrc: [
@@ -111,11 +111,16 @@ app.use(
           "https://www.facebook.com", // Meta pixel tracking
           "https://connect.facebook.net", // Meta pixel requests
           "https://consent.cookiebot.com", // Cookiebot consent API
+          "https://mpc-prod-1-1053047382554.us-central1.run.app", // Meta Pixel cloud functions
         ],
         fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
         objectSrc: ["'none'"],
         mediaSrc: ["'self'"],
-        frameSrc: ["'self'", "https://open.spotify.com"],
+        frameSrc: [
+          "'self'",
+          "https://open.spotify.com",
+          "https://consentcdn.cookiebot.com", // Cookiebot consent management iframe
+        ],
         baseUri: ["'self'"],
         formAction: ["'self'"],
         upgradeInsecureRequests: [],
