@@ -60,7 +60,7 @@ router.post("/", auth, upload.single("image"), async (req, res) => {
 
     // Add image URL if file was uploaded
     if (req.file) {
-      articleData.imageUrl = `/api/uploads/${req.file.filename}`;
+      articleData.image = `/api/uploads/${req.file.filename}`;
     }
 
     const newArticle = await newsService.createArticle(articleData);
@@ -94,7 +94,7 @@ router.put("/:id", auth, upload.single("image"), async (req, res) => {
 
     // Add image URL if file was uploaded
     if (req.file) {
-      updateData.imageUrl = `/api/uploads/${req.file.filename}`;
+      updateData.image = `/api/uploads/${req.file.filename}`;
     }
 
     const updatedArticle = await newsService.updateArticle(id, updateData);
