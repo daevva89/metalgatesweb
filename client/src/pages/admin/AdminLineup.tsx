@@ -21,6 +21,7 @@ interface Band {
   biography: string
   spotifyEmbed: string
   performanceDay?: string
+  order?: number
   socialLinks: {
     facebook?: string
     instagram?: string
@@ -38,6 +39,7 @@ interface BandFormData {
   biography: string
   spotifyEmbed: string
   performanceDay: string
+  order: string
   facebook: string
   instagram: string
   youtube: string
@@ -90,6 +92,7 @@ export function AdminLineup() {
     setValue("biography", band.biography)
     setValue("spotifyEmbed", band.spotifyEmbed)
     setValue("performanceDay", band.performanceDay || "25 September - WARMUP")
+    setValue("order", String(band.order || 999))
     setValue("facebook", band.socialLinks.facebook || "")
     setValue("instagram", band.socialLinks.instagram || "")
     setValue("youtube", band.socialLinks.youtube || "")
@@ -104,6 +107,7 @@ export function AdminLineup() {
     setSelectedBand(null)
     reset()
     setValue("performanceDay", "25 September - WARMUP")
+    setValue("order", "999")
     setSelectedImageFile(null)
     setIsDialogOpen(true)
   }
@@ -217,6 +221,9 @@ export function AdminLineup() {
                   <div className="text-sm text-primary font-medium">
                     {band.performanceDay || "25 September - WARMUP"}
                   </div>
+                  <div className="text-xs text-muted-foreground">
+                    Order: {band.order || 999}
+                  </div>
                 </div>
               </CardContent>
               <div className="flex items-center gap-2 p-4 border-t border-muted">
@@ -296,6 +303,18 @@ export function AdminLineup() {
                   </Select>
                 )}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="order">Order Priority (1 = most important, appears first)</Label>
+              <Input 
+                id="order" 
+                type="number" 
+                min="1" 
+                placeholder="999"
+                {...register("order")} 
+              />
+              <p className="text-xs text-muted-foreground">Lower numbers appear first within each day. Default is 999.</p>
             </div>
 
             <div className="space-y-2">

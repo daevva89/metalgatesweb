@@ -19,6 +19,7 @@ interface Band {
   biography: string
   spotifyEmbed: string
   performanceDay?: string
+  order?: number
   socialLinks: {
     facebook?: string
     instagram?: string
@@ -40,7 +41,7 @@ export function Lineup() {
   const { toast } = useToast()
   const [siteAssets, setSiteAssets] = useState<SiteAssets>({});
 
-  // Group bands by performance day
+  // Group bands by performance day and sort by order within each day
   const groupedBands = bands.reduce((acc, band) => {
     const day = band.performanceDay || "25 September - WARMUP"
     if (!acc[day]) {
@@ -49,6 +50,15 @@ export function Lineup() {
     acc[day].push(band)
     return acc
   }, {} as Record<string, Band[]>)
+
+  // Sort bands within each day by order (lower numbers first)
+  Object.keys(groupedBands).forEach(day => {
+    groupedBands[day].sort((a, b) => {
+      const orderA = a.order || 999
+      const orderB = b.order || 999
+      return orderA - orderB
+    })
+  })
 
   const days = ["25 September - WARMUP", "26 September - DAY 1", "27 September - DAY 2"]
 

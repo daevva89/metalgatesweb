@@ -64,6 +64,11 @@ const bandSchema = new mongoose.Schema({
     ],
     default: "25 September - WARMUP",
   },
+  order: {
+    type: Number,
+    default: 999,
+    min: 1,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
