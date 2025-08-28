@@ -65,6 +65,7 @@ router.post("/", auth, upload.single("image"), async (req, res) => {
       biography,
       genre: otherData.genre,
       spotifyEmbed: otherData.spotifyEmbed,
+      performanceDay: otherData.performanceDay || "25 September - WARMUP",
       socialLinks: {
         facebook: otherData.facebook,
         instagram: otherData.instagram,

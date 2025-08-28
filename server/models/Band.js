@@ -55,6 +55,15 @@ const bandSchema = new mongoose.Schema({
       default: "",
     },
   },
+  performanceDay: {
+    type: String,
+    enum: [
+      "25 September - WARMUP",
+      "26 September - DAY 1",
+      "27 September - DAY 2",
+    ],
+    default: "25 September - WARMUP",
+  },
   createdAt: {
     type: Date,
     default: Date.now,

@@ -18,6 +18,7 @@ interface Band {
   image: string
   biography: string
   spotifyEmbed: string
+  performanceDay?: string
   socialLinks: {
     facebook?: string
     instagram?: string
@@ -38,6 +39,18 @@ export function Lineup() {
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
   const [siteAssets, setSiteAssets] = useState<SiteAssets>({});
+
+  // Group bands by performance day
+  const groupedBands = bands.reduce((acc, band) => {
+    const day = band.performanceDay || "25 September - WARMUP"
+    if (!acc[day]) {
+      acc[day] = []
+    }
+    acc[day].push(band)
+    return acc
+  }, {} as Record<string, Band[]>)
+
+  const days = ["25 September - WARMUP", "26 September - DAY 1", "27 September - DAY 2"]
 
   useEffect(() => {
     const fetchLineup = async () => {
@@ -78,34 +91,54 @@ export function Lineup() {
         <meta name="description" content={description} />
       </Helmet>
     <div className="container mx-auto px-4 space-y-8 pt-8">
-      {/* Band Grid */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {bands.map((band) => (
-          <Card
-            key={band._id}
-            className="glass-card group cursor-pointer hover:scale-105 transition-all duration-300"
-            onClick={() => setSelectedBand(band)}
-          >
-            <div className="aspect-square overflow-hidden rounded-t-lg">
-              <img
-                src={band.image?.startsWith('/api/') ? band.image : `/api/${band.image}`}
-                alt={band.name}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-              />
+      {/* Three Day Columns */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {days.map((day, index) => (
+          <div key={day} className="space-y-4">
+            {/* Day Header */}
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-primary mb-2">{day}</h2>
+              <div className="h-1 bg-gradient-to-r from-transparent via-primary to-transparent rounded-full"></div>
             </div>
-            <CardContent className="p-4 text-center">
-              <h3 className="text-lg font-semibold mb-1">{band.name}</h3>
-              <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground mb-1">
-                <FaMapMarkerAlt className="h-3 w-3" />
-                {band.country}
-              </div>
-              {band.genre && (
-                <div className="text-sm text-muted-foreground italic">
-                  {band.genre}
+            
+            {/* Bands for this day - 2 per row */}
+            <div className="grid grid-cols-2 gap-4">
+              {(groupedBands[day] || []).map((band) => (
+                <Card
+                  key={band._id}
+                  className="glass-card group cursor-pointer hover:scale-105 transition-all duration-300"
+                  onClick={() => setSelectedBand(band)}
+                >
+                  <div className="aspect-square overflow-hidden rounded-t-lg">
+                    <img
+                      src={band.image?.startsWith('/api/') ? band.image : `/api/${band.image}`}
+                      alt={band.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                  </div>
+                  <CardContent className="p-4 text-center">
+                    <h3 className="text-lg font-semibold mb-1">{band.name}</h3>
+                    <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground mb-1">
+                      <FaMapMarkerAlt className="h-3 w-3" />
+                      {band.country}
+                    </div>
+                    {band.genre && (
+                      <div className="text-sm text-muted-foreground italic">
+                        {band.genre}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+              
+              {/* Empty state for days with no bands */}
+              {(!groupedBands[day] || groupedBands[day].length === 0) && (
+                <div className="col-span-2 text-center py-8 text-muted-foreground">
+                  <p>No bands scheduled for this day yet</p>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ))}
       </div>
 
@@ -117,7 +150,7 @@ export function Lineup() {
               <DialogHeader>
                 <DialogTitle className="text-2xl font-bold">{selectedBand.name}</DialogTitle>
                 <DialogDescription>
-                  {selectedBand.genre ? `${selectedBand.genre} band` : 'Band'} from {selectedBand.country}. View their biography, social links, and listen to their music.
+                  {selectedBand.genre ? `${selectedBand.genre} band` : 'Band'} from {selectedBand.country}. Performing on <span className="text-primary font-semibold">{selectedBand.performanceDay || "25 September - WARMUP"}</span>. View their biography, social links, and listen to their music.
                 </DialogDescription>
               </DialogHeader>
               

@@ -6,8 +6,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { FileUpload } from "@/components/ui/file-upload"
-import { useForm } from "react-hook-form"
+import { useForm, Controller } from "react-hook-form"
 import { getLineup, createBand, updateBand, deleteBand } from "@/api/festival"
 import { useToast } from "@/hooks/useToast"
 
@@ -19,6 +20,7 @@ interface Band {
   image: string
   biography: string
   spotifyEmbed: string
+  performanceDay?: string
   socialLinks: {
     facebook?: string
     instagram?: string
@@ -35,6 +37,7 @@ interface BandFormData {
   genre: string
   biography: string
   spotifyEmbed: string
+  performanceDay: string
   facebook: string
   instagram: string
   youtube: string
@@ -49,7 +52,8 @@ export function AdminLineup() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedBand, setSelectedBand] = useState<Band | null>(null)
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
-  const { register, handleSubmit, reset, setValue } = useForm<BandFormData>()
+
+  const { register, handleSubmit, reset, setValue, control } = useForm<BandFormData>()
   const { toast } = useToast()
 
   const fetchBands = useCallback(async () => {
@@ -85,6 +89,7 @@ export function AdminLineup() {
     setValue("genre", band.genre || "")
     setValue("biography", band.biography)
     setValue("spotifyEmbed", band.spotifyEmbed)
+    setValue("performanceDay", band.performanceDay || "25 September - WARMUP")
     setValue("facebook", band.socialLinks.facebook || "")
     setValue("instagram", band.socialLinks.instagram || "")
     setValue("youtube", band.socialLinks.youtube || "")
@@ -98,12 +103,14 @@ export function AdminLineup() {
   const handleAdd = () => {
     setSelectedBand(null)
     reset()
+    setValue("performanceDay", "25 September - WARMUP")
     setSelectedImageFile(null)
     setIsDialogOpen(true)
   }
 
   const onSubmit = async (data: BandFormData) => {
     try {
+      console.log("Form data being submitted:", data);
       const formData = new FormData();
       Object.keys(data).forEach(key => {
         formData.append(key, data[key as keyof BandFormData]);
@@ -207,6 +214,9 @@ export function AdminLineup() {
                     <FaMapMarkerAlt className="h-4 w-4" />
                     {band.country}
                   </div>
+                  <div className="text-sm text-primary font-medium">
+                    {band.performanceDay || "25 September - WARMUP"}
+                  </div>
                 </div>
               </CardContent>
               <div className="flex items-center gap-2 p-4 border-t border-muted">
@@ -265,6 +275,27 @@ export function AdminLineup() {
             <div className="space-y-2">
               <Label htmlFor="genre">Genre</Label>
               <Input id="genre" {...register("genre")} placeholder="e.g. Black Metal, Death Metal, Thrash Metal" />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="performanceDay">Performance Day</Label>
+              <Controller
+                name="performanceDay"
+                control={control}
+                defaultValue="25 September - WARMUP"
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select performance day" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="25 September - WARMUP">25 September - WARMUP</SelectItem>
+                      <SelectItem value="26 September - DAY 1">26 September - DAY 1</SelectItem>
+                      <SelectItem value="27 September - DAY 2">27 September - DAY 2</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
 
             <div className="space-y-2">

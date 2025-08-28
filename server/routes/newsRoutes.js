@@ -41,6 +41,9 @@ router.get("/:id", async (req, res) => {
 // Create a new news article
 router.post("/", auth, upload.single("image"), async (req, res) => {
   try {
+    console.log("NEWS CREATE: req.body:", req.body);
+    console.log("NEWS CREATE: req.file:", req.file);
+
     const { title, content, excerpt, author, tags } = req.body;
 
     if (!title || !content) {
@@ -61,9 +64,14 @@ router.post("/", auth, upload.single("image"), async (req, res) => {
     // Add image URL if file was uploaded
     if (req.file) {
       articleData.image = `/api/uploads/${req.file.filename}`;
+      console.log("NEWS CREATE: Setting image path:", articleData.image);
     }
 
     const newArticle = await newsService.createArticle(articleData);
+    console.log("NEWS CREATE: Saved article:", {
+      id: newArticle._id,
+      image: newArticle.image,
+    });
 
     res.status(201).json({
       success: true,
@@ -71,6 +79,7 @@ router.post("/", auth, upload.single("image"), async (req, res) => {
       message: "Article created successfully",
     });
   } catch (error) {
+    console.error("NEWS CREATE: Error:", error);
     res.status(500).json({
       success: false,
       error: error.message,
